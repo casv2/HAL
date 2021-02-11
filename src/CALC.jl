@@ -33,7 +33,7 @@ function CASTEP_calculator(at)
     calculator.cell[:mixing_scheme] = "Pulay"
     calculator.param[:write_checkpoint] = "none"
     calculator.param[:kpoints_mp_spacing] = 0.1
-    py_at[:set_calculator](calculator)
+    py_at.po[:set_calculator](calculator)
 
     E = py_at.po.get_potential_energy()
     F = py_at.po.get_forces()
