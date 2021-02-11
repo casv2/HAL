@@ -27,7 +27,7 @@ function do_fit(B, Vref, al, weights, α, β, ncoms; calc_err=true)
     return IP, c_samples
 end
 
-function run_HMD(B, Vref, weights, al, start_configs, run_info, α=100.0, β=0.1, ncoms=5)#, nsteps=10000)
+function run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings, α=100.0, β=1.0, ncoms=20)#, nsteps=10000)
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HMD_iters"])
@@ -40,7 +40,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, α=100.0, β=0.1
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
             
             write_xyz("./crash_$(m).xyz", ASEAtoms(cfgs[end]))
-            at = HMD.CALC.CASTEP_calculator(cfgs[end])
+            at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
             al = vcat(al, at)
 
             #write_xyz("./HMD_surf_vac/crash_$(m).xyz", cfgs[end])

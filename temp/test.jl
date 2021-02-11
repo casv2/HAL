@@ -45,7 +45,19 @@ weights = Dict(
         "default" => Dict("E" => 15.0, "F" => 1.0 , "V" => 1.0 ),
         )
 
-HMD.RUN.run_HMD(B, Vref, weights, al, start_configs, run_info)
+dft_settings = Dict(
+    "_castep_command" => "mpirun -n 8 /home/vc381/castep/castep.mpi",
+    "_directory" => "./_CASTEP",
+    "cut_off_energy" => 400,
+    "calculate_stress" => true,
+    "smearing_width" => 0.1,
+    "finite_basis_corr" => "automatic",
+    "mixing_scheme" => "Pulay",
+    "write_checkpoint" => "none",
+    "kpoint_mp_grid" => "1 1 1"
+)
+
+HMD.RUN.run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings)
 
 Atoms()
 

@@ -21,20 +21,20 @@ function EAM_calculator(at)
     return dat
 end
 
-function CASTEP_calculator(at)
+function CASTEP_calculator(at, config_type, dft_settings)
     py_at = ASEAtoms(at)
 
     calculator = CASTEP()
-    calculator[:_castep_command] = "mpirun -n 8 /home/vc381/castep/castep.mpi"
-    calculator[:_directory] = "./_CASTEP"
-    calculator.param[:cut_off_energy] = 400
-    calculator.param[:calculate_stress] = true
-    calculator.param[:smearing_width] = 0.1
-    calculator.param[:finite_basis_corr] = "automatic"
-    calculator.param[:mixing_scheme] = "Pulay"
-    calculator.param[:write_checkpoint] = "none"
+    calculator[:_castep_command] = dft_settings["_castep_command"]
+    calculator[:_directory] = dft_settings["_directory"]
+    calculator.param[:cut_off_energy] = dft_settings["cut_off_energy"]
+    calculator.param[:calculate_stress] = dft_settings["calculate_stress"]
+    calculator.param[:smearing_width] = dft_settings["smearing_width"]
+    calculator.param[:finite_basis_corr] = dft_settings["finite_basis_corr"]
+    calculator.param[:mixing_scheme] = dft_settings["mixing_scheme"]
+    calculator.param[:write_checkpoint] = dft_settings["write_checkpoint"]
     #calculator.cell[:kpoints_mp_spacing] = 0.1
-    calculator.cell[:kpoint_mp_grid] = "1 1 1"
+    calculator.cell[:kpoint_mp_grid] = dft_settings["kpoint_mp_grid"]
     py_at.po[:set_calculator](calculator)
 
     E = py_at.po.get_potential_energy()
@@ -43,7 +43,7 @@ function CASTEP_calculator(at)
 
     write_xyz("./temp.xyz", py_at)
 
-    dat = Dat( at,"HMD", E = E, F = F, V = V)
+    dat = Dat( at, "HMD_" * config_type, E = E, F = F, V = V)
 
     return dat
 end
