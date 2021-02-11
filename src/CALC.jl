@@ -25,6 +25,7 @@ function CASTEP_calculator(at)
     py_at = ASEAtoms(at)
 
     calculator = CASTEP()
+    calculator[:_castep_command] = "mpirun -n 8 /opt/castep/19.11/castep.mpi"
     calculator[:_directory] = "./_CASTEP"
     calculator.param[:cut_off_energy] = 500
     calculator.param[:calculate_stress] = true
