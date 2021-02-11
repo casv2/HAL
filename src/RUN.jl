@@ -31,7 +31,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings, α
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HMD_iters"])
-	    init_config = deepcopy(start_config)
+            init_config = deepcopy(start_config)
             m = (j-1)*run_info["HMD_iters"] + l
             IP, c_samples = do_fit(B, Vref, al, weights, α, β, ncoms)
             E_tot, E_pot, E_kin, T, P, varEs, varFs, cfgs = run(IP, B, Vref, c_samples, 
