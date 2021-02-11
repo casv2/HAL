@@ -25,14 +25,14 @@ function CASTEP_calculator(at)
     py_at = ASEAtoms(at)
 
     calculator = CASTEP()
-    calculator[:_directory] = "./CASTEP"
+    calculator[:_directory] = "./_CASTEP"
     calculator.param[:cut_off_energy] = 500
     calculator.param[:calculate_stress] = true
     calculator.param[:smearing_width] = 0.1
     calculator.param[:finite_basis_corr] = "automatic"
-    calculator.cell[:mixing_scheme] = "Pulay"
+    calculator.param[:mixing_scheme] = "Pulay"
     calculator.param[:write_checkpoint] = "none"
-    calculator.param[:kpoints_mp_spacing] = 0.1
+    calculator.cell[:kpoints_mp_spacing] = 0.1
     py_at.po[:set_calculator](calculator)
 
     E = py_at.po.get_potential_energy()
