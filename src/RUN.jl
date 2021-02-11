@@ -41,7 +41,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings, α
             
             write_xyz("./crash_$(m).xyz", ASEAtoms(cfgs[end]))
             at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
-            al = vcat(al, at)
+            push!(al, at)
 
             #write_xyz("./HMD_surf_vac/crash_$(m).xyz", cfgs[end])
             #run(`/Users/Cas/anaconda2/bin/python /Users/Cas/.julia/dev/MDLearn/HMD_surf_vac/convert.py $(m) $(config_type)`)
