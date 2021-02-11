@@ -27,14 +27,15 @@ function do_fit(B, Vref, al, weights, α, β, ncoms)#; calc_err=true)
     return IP, c_samples
 end
 
-function run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings, α=100.0, β=1.0, ncoms=20)#, nsteps=10000)
+function run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings, α=100.0, β=0.75, ncoms=20)#, nsteps=10000)
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HMD_iters"])
+	    init_config = deepcopy(start_config)
             m = (j-1)*run_info["HMD_iters"] + l
             IP, c_samples = do_fit(B, Vref, al, weights, α, β, ncoms)
             E_tot, E_pot, E_kin, T, P, varEs, varFs, cfgs = run(IP, B, Vref, c_samples, 
-                    start_config.at, nsteps=run_info["nsteps"], temp=run_info[config_type]["temp"], 
+                    init_config.at, nsteps=run_info["nsteps"], temp=run_info[config_type]["temp"], 
                     dt=run_info[config_type]["dt"], τ=run_info[config_type]["τ"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
