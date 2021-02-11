@@ -7,7 +7,7 @@ using HMD
 using LinearAlgebra
 using Plots
 
-function do_fit(B, Vref, al, weights, α, β, ncoms; calc_err=true)
+function do_fit(B, Vref, al, weights, α, β, ncoms)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
 
     Ψ, Y = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
@@ -17,12 +17,12 @@ function do_fit(B, Vref, al, weights, α, β, ncoms; calc_err=true)
     c_samples = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
     
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c_samples[:,1]))
-
-    if calc_err 
-        add_fits_serial!(IP, al, fitkey="IP")
-        rmse_, rmserel_ = rmse(al; fitkey="IP");
-        rmse_table(rmse_, rmserel_)
-    end
+    
+    #if calc_err 
+    add_fits_serial!(IP, al, fitkey="IP")
+    rmse_, rmserel_ = rmse(al; fitkey="IP");
+    rmse_table(rmse_, rmserel_)
+    #end
     
     return IP, c_samples
 end
