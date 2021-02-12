@@ -6,27 +6,27 @@ export do_brr, posterior, maxim_hyper
 
 function do_brr(Ψ, Y, α, β, n)
     m, S = posterior(Ψ, Y, α, β)
-    d = MvNormal(m, (Symmetric(S) - (minimum(eigvals(Symmetric(S))) - 1e-18)*I))
+    d = MvNormal(m, (Symmetric(S) - (minimum(eigvals(Symmetric(S))))*I)) #- 1e-18
     c_samples = rand(d, n);
     return c_samples
 end
 
 function posterior(Ψ, Y, α, β; return_inverse=false)
-    S_inv = α * Diagonal(ones(length(Ψ[1,:]))) + (β * (transpose(Ψ) * Ψ))
-    S = pinv(S_inv)
-    m = β * (S*transpose(Ψ)) * Y
+    S_inv = Symmetric(α * Diagonal(ones(length(Ψ[1,:]))) + (β * Symmetric(transpose(Ψ) * Ψ)))
+    S = Symmetric(inv(S_inv))
+    m = β * (Symmetric(S)*transpose(Ψ)) * Y
     
     if return_inverse
-        return m, S, S_inv
+        return m, Symmetric(S), Symmetric(S_inv)
     else
-        return m, S
+        return m, Symmetric(S)
     end
 end
 
 function maxim_hyper(Ψ, Y, α0=1e-5, β0=1e-5, max_iter=100, ϵ=1e-3)
     N, M = size(Ψ)
     
-    eigvals_0 = eigvals((transpose(Ψ) * Ψ))
+    eigvals_0 = eigvals(Symmetric(transpose(Ψ) * Ψ))
     
     β = β0
     α = α0
