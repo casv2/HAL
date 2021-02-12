@@ -36,8 +36,9 @@ start_configs = IPFitting.Data.read_xyz(@__DIR__() * "/HMD_init.xyz", energy_key
 run_info = Dict(
     "HMD_iters" => 5,
     "nsteps" => 10000,
-    "bcc" => Dict("temp" => 3000, "τ" => 0.05, "dt" => 0.00005),
-    "hcp" => Dict("temp" => 3000, "τ" => 0.05, "dt" => 0.00005)
+    "ncoms" => 20,
+    "bcc" => Dict("temp" => 3000, "τ" => 1e20, "dt" => 0.00005),
+    "hcp" => Dict("temp" => 3000, "τ" => 1e20, "dt" => 0.00005)
 )
 
 weights = Dict(
@@ -59,7 +60,6 @@ dft_settings = Dict(
 
 HMD.RUN.run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings)
 
-Atoms()
 
 
 

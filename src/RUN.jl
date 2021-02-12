@@ -35,16 +35,22 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings)#, 
         for l in 1:convert(Int,run_info["HMD_iters"])
             init_config = deepcopy(start_config)
             m = (j-1)*run_info["HMD_iters"] + l
+
             IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
+
             E_tot, E_pot, E_kin, T, P, varEs, varFs, cfgs = run(IP, B, Vref, c_samples, 
                     init_config.at, nsteps=run_info["nsteps"], temp=run_info[config_type]["temp"], 
                     dt=run_info[config_type]["dt"], τ=run_info[config_type]["τ"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
-            
-            write_xyz("./crash_$(m).xyz", ASEAtoms(cfgs[end]))
-            at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
+            at, py_at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
             push!(al, at)
+            write_xyz("./HMD_it$(m).xyz", [py_at])
+
+            #at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
+            #push!(al, at)
+
+            #write_xyz("./HMD_it$(m).xyz", py_at)
 
             #write_xyz("./HMD_surf_vac/crash_$(m).xyz", cfgs[end])
             #run(`/Users/Cas/anaconda2/bin/python /Users/Cas/.julia/dev/MDLearn/HMD_surf_vac/convert.py $(m) $(config_type)`)

@@ -6,7 +6,7 @@ export do_brr, posterior, maxim_hyper
 
 function do_brr(Ψ, Y, α, β, n)
     m, S = posterior(Ψ, Y, α, β)
-    d = MvNormal(m, Symmetric(S) - minimum(eigvals(Symmetric(S)))*I)
+    d = MvNormal(m, (Symmetric(S) - (minimum(eigvals(Symmetric(S))) - 1e-18)*I))
     c_samples = rand(d, n);
     return c_samples
 end
