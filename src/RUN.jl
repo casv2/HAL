@@ -14,7 +14,7 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    α, β =  HMD.BRR.maxim_hyper(Ψ, Y)
+    α, β = HMD.BRR.maxim_hyper(Ψ, Y)
     
     c_samples = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
     
