@@ -37,7 +37,7 @@ function maxim_hyper(Ψ, Y, α0=1e-5, β0=1e-5, max_iter=200, ϵ=1e-5)
         
         eigvalues = eigvals_0 * β
         
-        m, S, S_inv = HMD.BRR.posterior(Ψ, Y, α, β, return_inverse=true)
+        m, S, S_inv = posterior(Ψ, Y, α, β, return_inverse=true)
         
         γ =  sum(eigvalues ./ (eigvalues .+ α))
         α = γ / sum(m.^2)
