@@ -45,10 +45,10 @@ function CASTEP_calculator(at, config_type, dft_settings)
     calculator.param[:write_checkpoint] = dft_settings["write_checkpoint"]
     #calculator.cell[:kpoints_mp_spacing] = 0.1
     calculator.cell[:kpoint_mp_spacing] = dft_settings["kpoint_mp_spacing"]
-    calculator.cell[:fine_grid_scale] = dft_settings["fine_grid_scale"]
+    calculator.param[:fine_grid_scale] = dft_settings["fine_grid_scale"]
     py_at.po[:set_calculator](calculator)
 
-    E = py_at.po.get_potential_energy()
+    E = py_at.po.get_potential_energy(force_consistent=true)
     F = py_at.po.get_forces()
     V = -1.0 * py_at.po.get_stress(voigt=false) * py_at.po.get_volume()
 
