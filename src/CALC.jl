@@ -44,7 +44,7 @@ function CASTEP_calculator(at, config_type, dft_settings)
     calculator.param[:mixing_scheme] = dft_settings["mixing_scheme"]
     calculator.param[:write_checkpoint] = dft_settings["write_checkpoint"]
     #calculator.cell[:kpoints_mp_spacing] = 0.1
-    calculator.cell[:kpoint_mp_grid] = dft_settings["kpoint_mp_grid"]
+    calculator.cell[:kpoint_mp_spacing] = dft_settings["kpoint_mp_spacing"]
     py_at.po[:set_calculator](calculator)
 
     E = py_at.po.get_potential_energy()
