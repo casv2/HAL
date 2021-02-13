@@ -29,12 +29,30 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     return IP, c_samples
 end
 
-function run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings)#, nsteps=10000)
+function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, dft_settings)#, nsteps=10000)
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HMD_iters"])
             init_config = deepcopy(start_config)
             m = (j-1)*run_info["HMD_iters"] + l
+
+            R = minimum(IPFitting.Aux.rdf(al, 4.0))
+
+            Bsite = rpi_basis(species = Binfo["Z"],
+                N = Binfo["N"],       # correlation order = body-order - 1
+                maxdeg = Binfo["deg"],  # polynomial degree
+                r0 = Binfo["r0"],     # estimate for NN distance
+                rin = R, rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
+                pin = 2) 
+
+            Bpair = pair_basis(species = Binfo["Z"],
+                r0 = Binfo["r0"],
+                maxdeg = Binfo["2B"],
+                rcut = Binfo["2Brcut"],
+                pcut = 1,
+                pin = 0) 
+
+            B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
 
             IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
 
