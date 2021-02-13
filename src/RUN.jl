@@ -6,6 +6,7 @@ using ASE
 using HMD
 using LinearAlgebra
 using Plots
+using ACE
 
 function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
