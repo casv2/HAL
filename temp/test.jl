@@ -58,6 +58,32 @@ dft_settings = Dict(
     "kpoint_mp_grid" => "1 1 1"
 )
 
+Binfo = Dict(
+    "Z" => :Ti,
+    "N" => 3,
+    "deg" => 12,
+    "2B" => 3,
+    "r0" => rnn(:Ti),
+    "Nrcut" => 5.5,
+    "2Brcut" => 7.0,
+)
+
+Bsite = rpi_basis(species = Binfo["Z"],
+                N = Binfo["N"],       # correlation order = body-order - 1
+                maxdeg = Binfo["deg"],  # polynomial degree
+                r0 = Binfo["r0"],     # estimate for NN distance
+                rin = R, rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
+                pin = 2) 
+
+Bpair = pair_basis(species = Binfo["Z"],
+    r0 = Binfo["r0"],
+    maxdeg = Binfo["2B"],
+    rcut = Binfo["2Brcut"],
+    pcut = 1,
+    pin = 0)   # pin = 0 means no inner cutoff
+
+B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
+
 HMD.RUN.run_HMD(B, Vref, weights, al, start_configs, run_info, dft_settings)
 
 
