@@ -9,14 +9,13 @@ function do_brr(Ψ, Y, α, β, n)
     for e in [1e-50,1e-40,1e-30,1e-22,1e-21,1e-20,1e-19,1-18,1e-17,1e-16,1e-15,1e-14,1e-13]
         try
             d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
+            c_samples = rand(d, n);
             println("$(e) worked")
-            break
+            return c_samples
         catch
             println("$(e) didn't work")
         end
     end
-    c_samples = rand(d, n);
-    return c_samples
 end
 
 function posterior(Ψ, Y, α, β; return_inverse=false)
