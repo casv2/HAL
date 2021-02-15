@@ -109,7 +109,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5)
         i+=1
         if i % 10 == 0
             @show p, abs((E_tot[i-1]/E_tot[2] - 1.0))
-            if abs((E_tot[i-1]/E_tot[2] - 1.0)) > 0.02
+            if p > 0.15
                 running = false
             end
             τ *= 1.05

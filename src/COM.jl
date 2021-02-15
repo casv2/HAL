@@ -19,12 +19,12 @@ function VelocityVerlet_com(Vref, B, c_samples, at, dt; τ = 1e-10)
     nV = V + (.5 * (A + nA) * dt)
     set_momenta!(at, nV .* at.M)
 
-    rMSF1 = norm(vcat(meanF...))
-    rMSF1σ = norm(vcat(τ*varF...))
+    # rMSF1 = norm(vcat(meanF...))
+    # rMSF1σ = norm(vcat(τ*varF...))
 
-    p = rMSF1σ/rMSF1
+    # p = rMSF1σ/rMSF1
 
-    return at, p
+    return at, mean(norm.(varF) ./ norm.(meanF))
 end
 
 function get_com_energy_forces(Vref, B, c_samples, at)
