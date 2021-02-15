@@ -112,10 +112,10 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5)
         if p > 0.15
             running = false
         end
+        push!(cfgs, at)
 
         if i % 10 == 0
             τ *= 1.05
-            push!(cfgs, at)
         end
     end
     
