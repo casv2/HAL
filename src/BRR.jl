@@ -30,7 +30,7 @@ function posterior(Ψ, Y, α, β; return_inverse=false)
     end
 end
 
-function maxim_hyper(Ψ, Y, α0=1e-5, β0=1e-5, max_iter=100, ϵ=1e-3)
+function maxim_hyper(Ψ, Y, α0=1e-5, β0=1e-5, max_iter=10, ϵ=1e-3)
     N, M = size(Ψ)
     
     eigvals_0 = eigvals(Symmetric(transpose(Ψ) * Ψ))
