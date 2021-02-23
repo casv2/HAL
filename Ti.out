@@ -38,7 +38,7 @@ Processed input in HSD format written to 'dftb_pin.hsd'
 Starting initialization...
 --------------------------------------------------------------------------------
 OpenMP threads:              8
-Chosen random seed:          1351274170
+Chosen random seed:          1351815555
 Mode:                        Static calculation
 Self consistent charges:     Yes
 SCC-tolerance:                 0.100000E-07
@@ -96,27 +96,27 @@ Force type                   original
 ***  Geometry step: 0
 
  iSCC Total electronic   Diff electronic      SCC error    
-    1   -0.10626456E+02    0.00000000E+00    0.40033103E-04
-    2   -0.10626456E+02    0.36439829E-09    0.32011140E-04
-    3   -0.10626456E+02    0.14544810E-08    0.58273300E-07
-    4   -0.10626456E+02   -0.23199220E-11    0.25922651E-08
+    1   -0.10631987E+02    0.00000000E+00    0.50519614E-04
+    2   -0.10631987E+02    0.35289993E-09    0.40403897E-04
+    3   -0.10631987E+02    0.14096457E-08    0.35190456E-07
+    4   -0.10631987E+02   -0.15383250E-11    0.55585940E-08
 >> Charges saved for restart in charges.bin
 
-Total Energy:                       -8.6094355142 H         -234.2747 eV
-Extrapolated to 0:              -77239.7689946618 H     -2101801.0528 eV
-Total Mermin free energy:      -154470.9285538095 H     -4203367.8309 eV
-Force related energy:          -154470.9285538095 H     -4203367.8309 eV
+Total Energy:                       -8.5599536581 H         -232.9282 eV
+Extrapolated to 0:              -77239.7195125221 H     -2101799.7063 eV
+Total Mermin free energy:      -154470.8790713862 H     -4203366.4845 eV
+Force related energy:          -154470.8790713862 H     -4203366.4845 eV
 Volume:                              0.632760E+04 au^3   0.937654E+03 A^3
-Pressure:                            0.530251E-02 au     0.156005E+12 Pa
+Pressure:                            0.522552E-02 au     0.153740E+12 Pa
 
 --------------------------------------------------------------------------------
 DFTB+ running times                          cpu [s]             wall clock [s]
 --------------------------------------------------------------------------------
-Pre-SCC initialisation                 +     0.11  (  0.1%)      0.04  (  0.3%)
-SCC                                    +    79.94  ( 96.0%)     14.74  ( 95.7%)
-Post-SCC processing                    +     2.95  (  3.5%)      0.56  (  3.6%)
-Post-geometry optimisation             +     0.22  (  0.3%)      0.05  (  0.3%)
+Pre-SCC initialisation                 +     0.11  (  0.1%)      0.03  (  0.2%)
+SCC                                    +    72.04  ( 95.5%)     12.44  ( 96.0%)
+Post-SCC processing                    +     3.03  (  4.0%)      0.45  (  3.5%)
+Post-geometry optimisation             +     0.22  (  0.3%)      0.03  (  0.2%)
 --------------------------------------------------------------------------------
-Missing                                +     0.05  (  0.1%)      0.01  (  0.1%)
-Total                                  =    83.27  (100.0%)     15.40  (100.0%)
+Missing                                +     0.04  (  0.1%)      0.01  (  0.1%)
+Total                                  =    75.43  (100.0%)     12.96  (100.0%)
 --------------------------------------------------------------------------------

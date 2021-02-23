@@ -28,7 +28,8 @@ weights = Dict(
 
 Vref = OneBody(:Ti => -17.682448443582274)
 
-dftb_settings = Dict(
+calc_settings = Dict(
+    "calculator" => "DFTB",
     "kpoint_spacing" => 0.03,
     "ASE_DFTB_COMMAND" => "/Users/Cas/miniconda3/bin/dftb+ > PREFIX.out",
     "DFTB_PREFIX" => "/Users/Cas/.julia/dev/HMD/DFTB"
@@ -44,7 +45,7 @@ Binfo = Dict(
     "2Brcut" => 7.0,
 )
 
-al_HMD = HMD.RUN.run_HMD(Binfo, Vref, weights, al, start_configs, run_info, dftb_settings)
+al_HMD = HMD.RUN.run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_settings)
 
 
 #################################
