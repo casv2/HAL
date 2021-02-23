@@ -28,11 +28,11 @@ weights = Dict(
         "default" => Dict("E" => 15.0, "F" => 1.0 , "V" => 1.0 ),
         )
 
-# dftb_settings = Dict(
-#     "kpoint_spacing" => 0.03,
-#     "ASE_DFTB_COMMAND" => "/Users/Cas/miniconda3/bin/dftb+ > PREFIX.out",
-#     "DFTB_PREFIX" => "/Users/Cas/.julia/dev/HMD/temp"
-# )
+dftb_settings = Dict(
+    "kpoint_spacing" => 0.03,
+    "ASE_DFTB_COMMAND" => "/Users/Cas/miniconda3/bin/dftb+ > PREFIX.out",
+    "DFTB_PREFIX" => "/Users/Cas/.julia/dev/HMD/temp"
+)
 
 Binfo = Dict(
     "Z" => :Ti,
@@ -44,7 +44,7 @@ Binfo = Dict(
     "2Brcut" => 7.0,
 )
 
-al_HMD = HMD.RUN.run_HMD(Binfo, Vref, weights, al, start_configs, run_info)#, dftb_settings)
+al_HMD = HMD.RUN.run_HMD(Binfo, Vref, weights, al, start_configs, run_info, dftb_settings)
 
 al_HMD[end].D["F"]
 

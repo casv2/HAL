@@ -1,0 +1,122 @@
+|===============================================================================
+|
+|  DFTB+ development version (commit: )
+|
+|  Copyright (C) 2006 - 2020  DFTB+ developers group
+|
+|===============================================================================
+|
+|  When publishing results obtained with DFTB+, please cite the following
+|  reference:
+|
+|  * DFTB+, a software package for efficient approximate density functional
+|    theory based atomistic simulations, J. Chem. Phys. 152, 124101 (2020).
+|    [doi: 10.1063/1.5143190]
+|
+|  You should also cite additional publications crediting the parametrization
+|  data you use. Please consult the documentation of the SK-files for the
+|  references.
+|
+|===============================================================================
+
+Reading input file 'dftb_in.hsd'
+Parser version: 8
+
+--------------------------------------------------------------------------------
+Reading SK-files:
+Done.
+WARNING!
+-> The following 1 node(s) have been ignored by the parser:
+(1)
+Path: dftbplusinput/at
+Line: 29-29 (File: dftb_in.hsd)
+
+
+
+Processed input in HSD format written to 'dftb_pin.hsd'
+
+Starting initialization...
+--------------------------------------------------------------------------------
+OpenMP threads:              8
+Chosen random seed:          1351274170
+Mode:                        Static calculation
+Self consistent charges:     Yes
+SCC-tolerance:                 0.100000E-07
+Max. scc iterations:                    100
+Shell resolved Hubbard:      No
+Spin polarisation:           No
+Nr. of up electrons:           108.000000
+Nr. of down electrons:         108.000000
+Periodic boundaries:         Yes
+Electronic solver:           Relatively robust
+Mixer:                       Broyden mixer
+Mixing parameter:                  0.200000
+Maximal SCC-cycles:                     100
+Nr. of chrg. vec. in memory:              0
+Electronic temperature:        0.300000E+03 H      0.816342E+04 eV
+Initial charges:             Set automatically (system chrg:   0.000E+00)
+Included shells:            Ti:  s, p, d
+K-points and weights:           1:  0.000000  0.000000  0.000000     0.037037
+                                2:  0.000000  0.000000  0.333333     0.074074
+                                3:  0.000000  0.333333  0.000000     0.074074
+                                4:  0.000000  0.333333  0.333333     0.074074
+                                5:  0.000000  0.333333  0.666667     0.074074
+                                6:  0.333333  0.000000  0.000000     0.074074
+                                7:  0.333333  0.000000  0.333333     0.074074
+                                8:  0.333333  0.000000  0.666667     0.074074
+                                9:  0.333333  0.333333  0.000000     0.074074
+                               10:  0.333333  0.333333  0.333333     0.074074
+                               11:  0.333333  0.333333  0.666667     0.074074
+                               12:  0.333333  0.666667  0.000000     0.074074
+                               13:  0.333333  0.666667  0.333333     0.074074
+                               14:  0.333333  0.666667  0.666667     0.074074
+
+K-points in absolute space:     1:  0.000000  0.000000  0.000000
+                                2:  0.000000  0.000000  0.018022
+                                3:  0.000000  0.018022  0.000000
+                                4:  0.000000  0.018022  0.018022
+                                5:  0.000000  0.018022  0.036044
+                                6:  0.018022  0.000000  0.000000
+                                7:  0.018022  0.000000  0.018022
+                                8:  0.018022  0.000000  0.036044
+                                9:  0.018022  0.018022  0.000000
+                               10:  0.018022  0.018022  0.018022
+                               11:  0.018022  0.018022  0.036044
+                               12:  0.018022  0.036044  0.000000
+                               13:  0.018022  0.036044  0.018022
+                               14:  0.018022  0.036044  0.036044
+
+Extra options:
+                             Mulliken analysis
+                             Force calculation
+Force type                   original
+
+--------------------------------------------------------------------------------
+
+***  Geometry step: 0
+
+ iSCC Total electronic   Diff electronic      SCC error    
+    1   -0.10626456E+02    0.00000000E+00    0.40033103E-04
+    2   -0.10626456E+02    0.36439829E-09    0.32011140E-04
+    3   -0.10626456E+02    0.14544810E-08    0.58273300E-07
+    4   -0.10626456E+02   -0.23199220E-11    0.25922651E-08
+>> Charges saved for restart in charges.bin
+
+Total Energy:                       -8.6094355142 H         -234.2747 eV
+Extrapolated to 0:              -77239.7689946618 H     -2101801.0528 eV
+Total Mermin free energy:      -154470.9285538095 H     -4203367.8309 eV
+Force related energy:          -154470.9285538095 H     -4203367.8309 eV
+Volume:                              0.632760E+04 au^3   0.937654E+03 A^3
+Pressure:                            0.530251E-02 au     0.156005E+12 Pa
+
+--------------------------------------------------------------------------------
+DFTB+ running times                          cpu [s]             wall clock [s]
+--------------------------------------------------------------------------------
+Pre-SCC initialisation                 +     0.11  (  0.1%)      0.04  (  0.3%)
+SCC                                    +    79.94  ( 96.0%)     14.74  ( 95.7%)
+Post-SCC processing                    +     2.95  (  3.5%)      0.56  (  3.6%)
+Post-geometry optimisation             +     0.22  (  0.3%)      0.05  (  0.3%)
+--------------------------------------------------------------------------------
+Missing                                +     0.05  (  0.1%)      0.01  (  0.1%)
+Total                                  =    83.27  (100.0%)     15.40  (100.0%)
+--------------------------------------------------------------------------------

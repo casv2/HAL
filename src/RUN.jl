@@ -30,7 +30,7 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     return IP, c_samples
 end
 
-function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, dft_settings)#, nsteps=10000)
+function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, dftb_settings)#, nsteps=10000)
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HMD_iters"])
@@ -62,7 +62,7 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, dft_settings
                     dt=run_info[config_type]["dt"], τ=run_info[config_type]["τ"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
-            at, py_at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
+            at, py_at = HMD.CALC.DFTB_calculator(cfgs[end], config_type, dftb_settings)
             push!(al, at)
             write_xyz("./HMD_it$(m).xyz", [py_at])
 
