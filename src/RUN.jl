@@ -69,10 +69,12 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
                 at, py_at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, calc_settings)
             elseif calc_settings["calculator"] == "NRLTB"
                 at, py_at = HMD.CALC.NRLTB_calculator(cfgs[end], config_type, m)
+            elseif calc_settings["calculator"] == "NRLTBpy3"
+                at, py_at = HMD.CALC.NRLTBpy3_calculator(cfgs[end], config_type, m)
             end
 
             push!(al, at)
-            write_xyz("./HMD_it$(m).xyz", [py_at])
+            write_xyz("./NRLTB/HMD_it$(m).xyz", [py_at])
 
             #at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
             #push!(al, at)
@@ -107,7 +109,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5)
     i = 2
     while running && i < nsteps
         at, p = HMD.COM.VelocityVerlet_com(Vref, B, c_samples, at, dt * HMD.MD.fs, τ=τ)
-        P[i] = p
+        P[i] = maximum(p)
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
         E_tot[i] = Ek + Ep
@@ -116,10 +118,12 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5)
         T[i] = Ek / (1.5 * HMD.MD.kB)
         i+=1
 
-        @show p, abs((E_tot[i-1]/E_tot[2] - 1.0))
-        if p > 0.15 || abs((E_tot[i-1]/E_tot[2] - 1.0)) > 0.05
+        @show maximum(p)
+
+        if maximum(p) > 0.15 #abs((E_tot[i-1]/E_tot[2] - 1.0)) > 0.05
             running = false
         end
+
         push!(cfgs, at)
 
         if i % 10 == 0
@@ -144,7 +148,7 @@ function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
     xlabel!(p4,"MDstep")
     ylabel!(p4, "P")
     p5 = plot(p1, p2, p4, size=(400,550), layout=grid(3, 1, heights=[0.6, 0.2, 0.2]))
-    savefig("./HMD_$(i).pdf")
+    savefig("./NRLTB/HMD_$(i).pdf")
 end
 
 

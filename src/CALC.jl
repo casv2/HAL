@@ -8,6 +8,10 @@ using LinearAlgebra
 EAM = pyimport("ase.calculators.eam")["EAM"]
 CASTEP = pyimport("ase.calculators.castep")["Castep"]
 DFTB = pyimport("ase.calculators.dftb")["Dftb"]
+try
+    DFTB = pyimport("quippy.potential")["Potential"]
+catch
+end
 
 function EAM_calculator(at, config_type)
     py_at = ASEAtoms(at)
@@ -29,7 +33,7 @@ function EAM_calculator(at, config_type)
     py_at.po[:info] = D_info
     py_at.po[:arrays] = D_arrays
 
-    dat = Dat( at,"HMD", E = E, F = F)#, V = V)
+    dat = Dat( at,"HMD_" * config_type, E = E, F = F)#, V = V)
 
     return dat, py_at
 end
@@ -37,15 +41,40 @@ end
 function NRLTB_calculator(at, config_type, m)
     py_at = ASEAtoms(at)
 
-    write_xyz("crash_$(m).xyz", py_at)
-    run(`/Users/Cas/anaconda2/bin/python /Users/Cas/.julia/dev/HMD/convert.py $(m)`)
+    write_xyz("/Users/Cas/.julia/dev/HMD/NRLTB/crash_$(m).xyz", py_at)
+    run(`/Users/Cas/anaconda2/bin/python /Users/Cas/.julia/dev/HMD/NRLTB/convert.py $(m)`)
     #V = -1.0 * py_at.get_stress() * py_at.get_volume()
 
-    al = IPFitting.Data.read_xyz("/Users/Cas/.julia/dev/HMD/crash_conv_$(m).xyz", energy_key="energy", force_key="forces")
+    al = IPFitting.Data.read_xyz("/Users/Cas/.julia/dev/HMD/NRLTB/crash_conv_$(m).xyz", energy_key="energy", force_key="forces")
     E = al[1].D["E"]
     F = al[1].D["F"]
 
     dat = Dat( at,"HMD_" * config_type, E = E, F = F)#, V = V)
+
+    return dat, py_at
+end
+
+function NRLTBpy3_calculator(at, calc_settings)
+    py_at = ASEAtoms(at)
+
+    calculator = Potential("TB NRL-TB", param_filename=calc_settings["filename"])
+    py_at.po[:set_calculator](calculator)
+
+    E = py_at.po.get_potential_energy()
+    F = py_at.po.get_forces()
+    #V = -1.0 * py_at.get_stress() * py_at.get_volume()
+
+    D_info = PyDict(py_at.po[:info])
+    D_arrays = PyDict(py_at.po[:arrays])
+
+    D_info["config_type"] = "HMD_" * config_type
+    D_info["energy"] = E
+    D_arrays["force"] = F
+
+    py_at.po[:info] = D_info
+    py_at.po[:arrays] = D_arrays
+
+    dat = Dat( at,"HMD_" * config_type, E = E, F = F)
 
     return dat, py_at
 end
