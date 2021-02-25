@@ -6,7 +6,7 @@ using ColorSchemes
 using PrettyTables
 using HMD
 
-function do_optim_fit(N, deg, Binfo, Vref, weights, al)
+function get_lml(N, deg, Binfo, Vref, weights, al)
 
     R = minimum(IPFitting.Aux.rdf(al, 4.0))
 
@@ -44,7 +44,7 @@ function find_N_deg(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[8,9,10,11])
 
     for (i,N) in enumerate(Ns)
         for (j,deg) = enumerate(degs)
-            _lml[j,i] = round(do_optim_fit(N, deg, Binfo, Vref, weights, al), digits=2)
+            _lml[j,i] = round(get_lml(N, deg, Binfo, Vref, weights, al), digits=2)
             _D[(N, deg)] = _lml[j,i]
         end
     end
@@ -64,7 +64,7 @@ function find_N_deg(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[8,9,10,11])
     M = []
     lml0 = -1e10
     for deg in maximum(degs):24
-        lml = round(do_optim_fit(maxN, deg, Binfo, Vref, weights, al), digits=2)
+        lml = round(get_lml(maxN, deg, Binfo, Vref, weights, al), digits=2)
         @show lml
         if lml > lml0
             lml0 = lml
