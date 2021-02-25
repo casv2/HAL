@@ -61,4 +61,17 @@ function maxim_hyper(Ψ, Y, α0=1e-5, β0=1e-5, max_iter=10, ϵ=1e-3)
     return α, β
 end
 
+function log_marginal_likelihood(Ψ, Y, α, β)
+    N, M = size(Ψ)
+    
+    m, _, S_inv = posterior(Ψ, Y, α, β; return_inverse=true)
+
+    E_D = β * sum((Y - Ψ * m).^2)
+    E_W = α * sum(m .^ 2.0)
+
+    score = (M * log(α)) + (N * log(β)) - E_D - E_W - logdet(S_inv) - N * log(2*π)
+    
+    return 0.5 * score
+end
+
 end

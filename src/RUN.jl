@@ -37,6 +37,13 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
             init_config = deepcopy(start_config)
             m = (j-1)*run_info["HMD_iters"] + l
 
+            if run_info["optim_basis"] == true
+                maxN, maxdeg = HMD.OPTIM.find_N_deg(Binfo, Vref, weights, al)
+                Binfo["N"] = maxN
+                Binfo["deg"] = maxdeg
+                @info("FOUND OPTIMUM BASIS: N=$(maxN), D=$(maxdeg)")
+            end
+            
             R = minimum(IPFitting.Aux.rdf(al, 4.0))
 
             Bsite = rpi_basis(species = Binfo["Z"],

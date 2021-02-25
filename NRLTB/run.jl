@@ -6,19 +6,20 @@ using LinearAlgebra
 
 al = IPFitting.Data.read_xyz(@__DIR__() * "/DB_0.xyz", energy_key="energy", force_key="force")
 
-start_configs = IPFitting.Data.read_xyz(@__DIR__() * "/bulk_hcp_surf_ad_atom.xyz", energy_key="energy", force_key="forces")
+start_configs = IPFitting.Data.read_xyz(@__DIR__() * "/HMD_init_hcp_bcc_vac_surf.xyz", energy_key="energy", force_key="forces")
 
 run_info = Dict(
-    "HMD_iters" => 30,
+    "optim_basis" => true,
+    "HMD_iters" => 3,
     "nsteps" => 5000,
     "ncoms" => 20,
-    # "bcc" => Dict("temp" => 6000, "τ" => 0.1, "dt" => 1.0),
-    # "hcp" => Dict("temp" => 6000, "τ" => 0.1, "dt" => 1.0),
-    # "bcc_surf" => Dict("temp" => 3000, "τ" => 0.05, "dt" => 1.0),
-    # "bcc_vac" => Dict("temp" => 3000, "τ" => 0.05, "dt" => 1.0),
-    # "hcp_surf" => Dict("temp" => 2000, "τ" => 0.05, "dt" => 1.0),
-    # "hcp_vac" => Dict("temp" => 2000, "τ" => 0.05, "dt" => 1.0),
-    "hcp_ad_atom" => Dict("temp" => 1000, "τ" => 5.0, "dt" => 1.0)
+    "bcc" => Dict("temp" => 6000, "τ" => 0.1, "dt" => 1.0, "maxp" => 0.15),
+    "hcp" => Dict("temp" => 6000, "τ" => 0.1, "dt" => 1.0, "maxp" => 0.15),
+    "bcc_surf" => Dict("temp" => 3000, "τ" => 0.05, "dt" => 1.0, "maxp" => 0.15),
+    "bcc_vac" => Dict("temp" => 3000, "τ" => 0.05, "dt" => 1.0, "maxp" => 0.15),
+    "hcp_surf" => Dict("temp" => 2000, "τ" => 0.05, "dt" => 1.0, "maxp" => 0.15),
+    "hcp_vac" => Dict("temp" => 2000, "τ" => 0.05, "dt" => 1.0, "maxp" => 0.15),
+    #"hcp_ad_atom" => Dict("temp" => 1000, "τ" => 5.0, "dt" => 1.0)
 )
 
 weights = Dict(
@@ -26,7 +27,7 @@ weights = Dict(
         "default" => Dict("E" => 15.0, "F" => 1.0 , "V" => 1.0 ),
         )
 
-Vref = OneBody(:Ti => -17.682448443582274)
+Vref = OneBody(:Ti => -5.817622899211898)
 
 calc_settings = Dict(
     "calculator" => "NRLTB",
@@ -48,7 +49,8 @@ Binfo = Dict(
 al_HMD = HMD.RUN.run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_settings)
 
 
+
+#maxN, maxdeg = HMD.OPTIM.find_N_deg(Binfo, Vref, weights, al[1:4])
+
 #################################
-
-
 
