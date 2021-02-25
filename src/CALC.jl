@@ -54,27 +54,23 @@ function NRLTB_calculator(at, config_type, m)
     return dat, py_at
 end
 
-function NRLTBpy3_calculator(at, calc_settings)
+function NRLTBpy3_calculator(at, config_type, calc_settings, m)
     py_at = ASEAtoms(at)
 
-    calculator = Potential("TB NRL-TB", param_filename=calc_settings["filename"])
-    py_at.po[:set_calculator](calculator)
+    docker_folder = calc_settings["docker_folder"] 
+    docker_id = calc_settings["docker_id"] 
+    real_folder = calc_settings["real_folder"] 
 
-    E = py_at.po.get_potential_energy()
-    F = py_at.po.get_forces()
+    write_xyz(calc_settings["real_folder"]  * "/crash_$(m).xyz", py_at)
+
+    run(`$(real_folder)/bash_conv.sh $(docker_id) $(docker_folder)/convert.py $(m) $(docker_folder)`)
+
+    al = IPFitting.Data.read_xyz("$(real_folder)/crash_conv_$(m).xyz", energy_key="energy", force_key="forces")
+    E = al[1].D["E"]
+    F = al[1].D["F"]
     #V = -1.0 * py_at.get_stress() * py_at.get_volume()
 
-    D_info = PyDict(py_at.po[:info])
-    D_arrays = PyDict(py_at.po[:arrays])
-
-    D_info["config_type"] = "HMD_" * config_type
-    D_info["energy"] = E
-    D_arrays["force"] = F
-
-    py_at.po[:info] = D_info
-    py_at.po[:arrays] = D_arrays
-
-    dat = Dat( at,"HMD_" * config_type, E = E, F = F)
+    dat = Dat( at,"HMD_" * config_type, E = E, F = F)#, V = V)
 
     return dat, py_at
 end

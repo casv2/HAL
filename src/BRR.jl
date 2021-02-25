@@ -13,7 +13,6 @@ function do_brr(Ψ, Y, α, β, n)
             println("$(e) worked")
             return c_samples
         catch
-            println("$(e) didn't work")
         end
     end
 end

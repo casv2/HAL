@@ -59,7 +59,7 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
 
             E_tot, E_pot, E_kin, T, P, varEs, varFs, cfgs = run(IP, B, Vref, c_samples, 
                     init_config.at, nsteps=run_info["nsteps"], temp=run_info[config_type]["temp"], 
-                    dt=run_info[config_type]["dt"], τ=run_info[config_type]["τ"])
+                    dt=run_info[config_type]["dt"], τ=run_info[config_type]["τ"], maxp=run_info[config_type]["maxp"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
 
@@ -70,11 +70,11 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
             elseif calc_settings["calculator"] == "NRLTB"
                 at, py_at = HMD.CALC.NRLTB_calculator(cfgs[end], config_type, m)
             elseif calc_settings["calculator"] == "NRLTBpy3"
-                at, py_at = HMD.CALC.NRLTBpy3_calculator(cfgs[end], config_type, m)
+                at, py_at = HMD.CALC.NRLTBpy3_calculator(cfgs[end], config_type, calc_settings, m)
             end
 
             push!(al, at)
-            write_xyz("./NRLTB/HMD_it$(m).xyz", [py_at])
+            #write_xyz("./HMD_it$(m).xyz", [py_at])
 
             #at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
             #push!(al, at)
@@ -88,7 +88,7 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
     return al
 end
 
-function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5)
+function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, maxp=0.15)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -119,16 +119,13 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5)
         i+=1
 
         @show maximum(p)
-
-        if maximum(p) > 0.15 #abs((E_tot[i-1]/E_tot[2] - 1.0)) > 0.05
+        if maximum(p) > maxp #abs((E_tot[i-1]/E_tot[2] - 1.0)) > 0.05
             running = false
         end
-
-        push!(cfgs, at)
-
         if i % 10 == 0
             τ *= 1.1
         end
+        push!(cfgs, at)
     end
     
     return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], varEs[1:i], varFs[1:i], cfgs
@@ -148,7 +145,7 @@ function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
     xlabel!(p4,"MDstep")
     ylabel!(p4, "P")
     p5 = plot(p1, p2, p4, size=(400,550), layout=grid(3, 1, heights=[0.6, 0.2, 0.2]))
-    savefig("./NRLTB/HMD_$(i).pdf")
+    savefig("./HMD_$(i).pdf")
 end
 
 
