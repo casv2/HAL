@@ -80,7 +80,8 @@ function CASTEP_calculator(at, config_type, calc_settings)
 
     calculator = CASTEP()
     calculator[:_castep_command] = calc_settings["_castep_command"]
-    calculator[:_directory] = calc_settings["_directory"]
+    calculator[:_directory] =calc_settings["_directory"]
+    calculator[:_castep_pp_path] = calc_settings["_castep_pp_path"]
     calculator.param[:cut_off_energy] = calc_settings["cut_off_energy"]
     calculator.param[:calculate_stress] = calc_settings["calculate_stress"]
     calculator.param[:smearing_width] = calc_settings["smearing_width"]
