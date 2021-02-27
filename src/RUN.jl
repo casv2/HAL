@@ -81,7 +81,7 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
             end
 
             push!(al, at)
-            #write_xyz("./HMD_it$(m).xyz", [py_at])
+            write_xyz("./HMD_it$(m).xyz", [py_at])
 
             #at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
             #push!(al, at)
