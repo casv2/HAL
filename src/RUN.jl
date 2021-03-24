@@ -70,26 +70,22 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
 
-            if calc_settings["calculator"] == "DFTB"
-                at, py_at = HMD.CALC.DFTB_calculator(cfgs[end], config_type, calc_settings)
-            elseif calc_settings["calculator"] == "CASTEP"
-                at, py_at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, calc_settings)
-            elseif calc_settings["calculator"] == "NRLTB"
-                at, py_at = HMD.CALC.NRLTB_calculator(cfgs[end], config_type, m)
-            elseif calc_settings["calculator"] == "NRLTBpy3"
-                at, py_at = HMD.CALC.NRLTBpy3_calculator(cfgs[end], config_type, calc_settings, m)
+            try 
+                if calc_settings["calculator"] == "DFTB"
+                    at, py_at = HMD.CALC.DFTB_calculator(cfgs[end], config_type, calc_settings)
+                elseif calc_settings["calculator"] == "CASTEP"
+                    at, py_at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, calc_settings)
+                elseif calc_settings["calculator"] == "NRLTB"
+                    at, py_at = HMD.CALC.NRLTB_calculator(cfgs[end], config_type, m)
+                elseif calc_settings["calculator"] == "NRLTBpy3"
+                    at, py_at = HMD.CALC.NRLTBpy3_calculator(cfgs[end], config_type, calc_settings, m)
+                end
+
+                push!(al, at)
+                write_xyz("./HMD_it$(m).xyz", py_at)
+            catch
+                println("Iteration failed! Calulator probably failed!")
             end
-
-            push!(al, at)
-            #write_xyz("./HMD_it$(m).xyz", [py_at])
-
-            #at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, dft_settings)
-            #push!(al, at)
-
-            write_xyz("./HMD_it$(m).xyz", py_at)
-
-            #write_xyz("./HMD_surf_vac/crash_$(m).xyz", cfgs[end])
-            #run(`/Users/Cas/anaconda2/bin/python /Users/Cas/.julia/dev/MDLearn/HMD_surf_vac/convert.py $(m) $(config_type)`)
         end
     end
     return al
