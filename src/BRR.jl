@@ -8,8 +8,7 @@ export do_brr, posterior, maxim_hyper
 function do_brr(Ψ, Y, α, β, n)
     m, S = posterior(Ψ, Y, α, β)
     d = MvNormal(m, Symmetric(S))
-    c_samples = rand(d, n);
-    println("$(e) worked")
+    c_samples = rand(d, n)
     return c_samples
 end
 
