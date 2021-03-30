@@ -134,8 +134,7 @@ function ORCA_calculator(at, config_type, calc_settings)
 
     D_info["config_type"] = "HMD_" * config_type
     D_info["energy"] = E
-    D_info["virial"] = V
-    D_arrays["force"] = F
+    D_arrays["forces"] = F
 
     py_at.po[:info] = D_info
     py_at.po[:arrays] = D_arrays
