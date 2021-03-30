@@ -73,6 +73,8 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
             try 
                 if calc_settings["calculator"] == "DFTB"
                     at, py_at = HMD.CALC.DFTB_calculator(cfgs[end], config_type, calc_settings)
+                elseif calc_settings["calculator"] == "ORCA"
+                    at, py_at = HMD.CALC.ORCA_calculator(cfgs[end], config_type, calc_settings)
                 elseif calc_settings["calculator"] == "CASTEP"
                     at, py_at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, calc_settings)
                 elseif calc_settings["calculator"] == "NRLTB"
