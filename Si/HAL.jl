@@ -14,24 +14,24 @@ BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
 
 clf = BRR()
 
-al_in = IPFitting.Data.read_xyz("/Users/Cas/Work/ACE/Si/Si.xyz", auto=true)
-dia_configs = filter(at -> configtype(at) == "liq", al_in)
+al_in = IPFitting.Data.read_xyz("/Users/Cas/Work/ACE/W/tungsten_database.xyz", auto=true)
+dia_configs = filter(at -> configtype(at) == "gamma_surface", al_in)
 #test_configs = filter(at -> configtype(at) in ["gamma_surface"], al_in)
 #test_configs[1000].D["F"]
 
-#al_in = shuffle!(al_in)
+dia_configs = shuffle!(dia_configs)
 
 R = minimum(IPFitting.Aux.rdf(dia_configs, 4.0))
 
-r0 = rnn(:Si)
+r0 = rnn(:W)
 
-N=4
-deg_site=14
+N=3
+deg_site=16
 #deg_pair=3
 
-#train_ind = convert(Int, length(md_configs)*0.2)
+train_ind = convert(Int, length(dia_configs)*0.8)
 
-Bsite = rpi_basis(species = :Si,
+Bsite = rpi_basis(species = :W,
       N = N,                       # correlation order = body-order - 1
       maxdeg = deg_site,            # polynomial degree
       r0 = r0,                      # estimate for NN distance
@@ -40,27 +40,21 @@ Bsite = rpi_basis(species = :Si,
 
 length(Bsite)
 
-dB = IPFitting.Lsq.LsqDB("", Bsite, dia_configs)
+dB = IPFitting.Lsq.LsqDB("", Bsite, dia_configs[1:50])
 
 weights = Dict(
     "default" => Dict("E" => 15.0, "F" => 1.0 , "V" => 1.0 ),
   )
 
-E0 = -158.54496821
-Vref = OneBody(:Si => E0)
-#Vref = OneBody(:W => -9.19483512529700)
+#E0 = -158.54496821
+#Vref = OneBody(:Si => E0)
+Vref = OneBody(:W => -9.19483512529700)
 
 Ψ, Y = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
 clf.fit(Ψ, Y)
-
-
-
-clf.sigma_
-
-clf.lambda_
 
 S_inv = clf.alpha_ * Diagonal(ones(length(Ψ[1,:]))) + clf.lambda_ * Symmetric(transpose(Ψ)* Ψ)
 S = Symmetric(inv(S_inv))
@@ -69,11 +63,63 @@ m = clf.lambda_ * (Symmetric(S)*transpose(Ψ)) * Y
 d = MvNormal(m, Symmetric(S))
 c_samples = rand(d, 100);
 
-IP = SumIP(Vref, JuLIP.MLIPs.combine(dB.basis, c_samples[:,6]))
+IP = SumIP(Vref, JuLIP.MLIPs.combine(dB.basis, c_samples[:,2]))
 
-add_fits_serial!(IP, dia_configs, fitkey="IP2")
-rmse_, rmserel_ = rmse(dia_configs; fitkey="IP2");
+add_fits_serial!(IP, dia_configs[1:50], fitkey="IP2")
+rmse_, rmserel_ = rmse(dia_configs[1:50]; fitkey="IP2");
 rmse_table(rmse_, rmserel_)
+
+add_fits_serial!(IP, dia_configs[50:100], fitkey="IP2")
+rmse_, rmserel_ = rmse(dia_configs[50:100]; fitkey="IP2");
+rmse_table(rmse_, rmserel_)
+
+nIPs = 100
+
+Pl = []
+Fl = []
+
+for at in dia_configs[1:1000]
+    E_shift = energy(Vref, at.at)
+
+    E = energy(Bsite, at.at)
+    F = forces(Bsite, at.at)
+        
+    Es = [E_shift + sum(c_samples[:,i] .* E) for i in 1:nIPs];
+    Fs = [sum(c_samples[:,i] .* F) for i in 1:nIPs];
+        
+    meanE = mean(Es)
+    varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
+        
+    meanF = mean(Fs)
+    varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
+
+    p = maximum(norm.(varF) ./ norm.(meanF))
+    push!(Pl,p)
+
+    IP = SumIP(Vref, JuLIP.MLIPs.combine(dB.basis, c_samples[:,1]))
+    f = sqrt(mean((vcat(forces(IP, at.at)...) - at.D["F"]).^2))
+    push!(Fl, f)
+end
+
+Fl
+
+maximum(Fl)
+maximum(Pl)
+
+using LaTeXStrings
+
+scatter(Pl[50:end], Fl[50:end], yscale=:log, xscale=:log, label="test")
+scatter!(Pl[1:50], Fl[1:50], yscale=:log, xscale=:log, legend=:bottomright, label="training")
+xlabel!(L"\max (\| F_{\sigma} \| / \|  F \|)")
+ylabel!("RMSE Force Error [eV/A]")
+savefig("W_gamma_surface_forces.pdf")
+norm.(varF)
+
+norm.(meanF)
+
+(std(Fs) ./ mean(Fs)) * 100
+
+
 
 
 
