@@ -124,7 +124,7 @@ function ORCA_calculator(at, config_type, calc_settings)
     orcablocks=calc_settings["orcablocks"])
     py_at.po[:set_calculator](calculator)
 
-    E = py_at.po.get_potential_energy(force_consistent=true)
+    E = py_at.po.get_potential_energy()
     F = py_at.po.get_forces()
 
     dat = Dat( at, "HMD_" * config_type, E = E, F = F)
