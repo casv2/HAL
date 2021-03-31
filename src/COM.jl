@@ -8,7 +8,7 @@ export VelocityVerlet_com, get_com_energy_forces
 function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10)
     V = at.P ./ at.M
     varE, varF = get_com_energy_forces(Vref, B, c_samples, at);
-
+    
     F = forces(IP, at)    
     F1 = F + τ*varF
     
@@ -38,7 +38,10 @@ function get_com_energy_forces(Vref, B, c_samples, at)
     Es = [E_shift + sum(c_samples[:,i] .* E) for i in 1:nIPs];
     Fs = [sum(c_samples[:,i] .* F) for i in 1:nIPs];
     
+    meanE = mean(Es)
     varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
+    
+    meanF = mean(Fs)
     varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
     
     return varE, varF
