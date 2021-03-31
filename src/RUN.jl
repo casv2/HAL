@@ -121,8 +121,6 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
         E_pot[i] = Ep
         E_kin[i] = Ek
         T[i] = Ek / (1.5 * HMD.MD.kB)
-        i+=1
-
         @show maximum(p)
         if maximum(p) > maxp || T[i] > 1000
             running = false
@@ -131,6 +129,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
             τ *= 1.1
         end
         push!(cfgs, at)
+        i+=1
     end
     
     return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], varEs[1:i], varFs[1:i], cfgs
