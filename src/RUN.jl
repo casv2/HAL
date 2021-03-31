@@ -124,7 +124,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
         i+=1
 
         @show maximum(p)
-        if maximum(p) > maxp #abs((E_tot[i-1]/E_tot[2] - 1.0)) > 0.05
+        if maximum(p) > maxp || T[i] > 1000
             running = false
         end
         if i % 10 == 0
