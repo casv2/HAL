@@ -32,8 +32,9 @@ function maxim_hyper(Ψ, Y)
 
     α = clf.alpha_
     β = clf.lambda_
+    c = clf.coef_
     
-    return α, β
+    return α, β, c
 end
 
 function log_marginal_likelihood(Ψ, Y, α, β)

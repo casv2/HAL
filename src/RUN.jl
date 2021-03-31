@@ -15,11 +15,11 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    α, β = HMD.BRR.maxim_hyper(Ψ, Y)
+    α, β, c = HMD.BRR.maxim_hyper(Ψ, Y)
     
     c_samples = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
     
-    IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c_samples[:,1]))
+    IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
     
     #if calc_err 
     add_fits_serial!(IP, al, fitkey="IP")
@@ -113,7 +113,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
 
     i = 2
     while running && i < nsteps
-        at, p = HMD.COM.VelocityVerlet_com(Vref, B, c_samples, at, dt * HMD.MD.fs, τ=τ)
+        at, p = HMD.COM.VelocityVerlet_com(IP, Vref, B, c_samples, at, dt * HMD.MD.fs, τ=τ)
         P[i] = maximum(p)
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
