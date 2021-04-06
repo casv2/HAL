@@ -27,7 +27,7 @@ end
 function maxim_hyper(Ψ, Y)
     BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
 
-    clf = BRR()
+    clf = BRR(compute_score=true)
     clf.fit(Ψ, Y)
 
     α = clf.alpha_
