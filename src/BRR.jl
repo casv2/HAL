@@ -33,21 +33,22 @@ function maxim_hyper(Ψ, Y)
     α = clf.alpha_
     β = clf.lambda_
     c = clf.coef_
+    lml_score = clf.scores_
     
-    return α, β, c
+    return α, β, c, lml_score
 end
 
-function log_marginal_likelihood(Ψ, Y, α, β)
-    N, M = size(Ψ)
+# function log_marginal_likelihood(Ψ, Y, α, β)
+#     N, M = size(Ψ)
     
-    m, _, S_inv = posterior(Ψ, Y, α, β; return_inverse=true)
+#     m, _, S_inv = posterior(Ψ, Y, α, β; return_inverse=true)
 
-    E_D = β * sum((Y - Ψ * m).^2)
-    E_W = α * sum(m .^ 2.0)
+#     E_D = β * sum((Y - Ψ * m).^2)
+#     E_W = α * sum(m .^ 2.0)
 
-    score = (M * log(α)) + (N * log(β)) - E_D - E_W - logdet(S_inv) - N * log(2*π)
+#     score = (M * log(α)) + (N * log(β)) - E_D - E_W - logdet(S_inv) - N * log(2*π)
     
-    return 0.5 * score
-end
+#     return 0.5 * score
+# end
 
 end

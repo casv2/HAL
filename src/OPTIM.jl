@@ -32,12 +32,12 @@ function get_lml(N, deg, Binfo, Vref, weights, al)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    α, β = HMD.BRR.maxim_hyper(Ψ, Y)
+    α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y)
 
-    return HMD.BRR.log_marginal_likelihood(Ψ, Y, α, β)
+    return lml_score
 end
 
-function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[8,9,10,11])
+function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3], degs=[8,9,10,11])
     _lml = zeros(length(degs), length(Ns))
     _D = Dict()
 
@@ -63,7 +63,7 @@ function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[8,9,10,1
     return _lml
 end
 
-function find_N_deg(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[8,9,10,11])
+function find_N_deg(Binfo, Vref, weights, al; Ns=[2,3], degs=[8,9,10,11])
     _lml = zeros(length(degs), length(Ns))
     _D = Dict()
 
