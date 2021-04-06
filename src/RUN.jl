@@ -111,7 +111,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
 
     running = true
 
-    i = 2
+    i = 1
     while running && i < nsteps
         at, p = HMD.COM.VelocityVerlet_com(IP, Vref, B, c_samples, at, dt * HMD.MD.fs, τ=τ)
         P[i] = maximum(p)
@@ -122,12 +122,12 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
         E_kin[i] = Ek
         T[i] = Ek / (1.5 * HMD.MD.kB)
         @show maximum(p)
-        if maximum(p) > maxp || T[i] > 1000
+        if P[i] > maxp #|| T[i] > 1000
             running = false
         end
-        if i % 10 == 0
-            τ *= 1.1
-        end
+        # if i % 10 == 0
+        #     τ *= 1.1
+        # end
         push!(cfgs, at)
         i+=1
     end
@@ -137,15 +137,15 @@ end
 
 function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
     p1 = plot()
-    plot!(p1,E_tot[2:end-k], label="")
-    plot!(p1,E_kin[2:end-k], label="")
-    plot!(p1,E_pot[2:end-k], label="")
+    plot!(p1,E_tot[1:end-k], label="")
+    plot!(p1,E_kin[1:end-k], label="")
+    plot!(p1,E_pot[1:end-k], label="")
     ylabel!(p1, "Energy (eV)")
     p2 = plot()
-    plot!(p2, T[2:end-k],label="")
+    plot!(p2, T[1:end-k],label="")
     ylabel!(p2, "T (K)")
     p4 = plot()
-    plot!(p4, P[2:end-k],label="")
+    plot!(p4, P[1:end-k],label="")
     xlabel!(p4,"MDstep")
     ylabel!(p4, "P")
     p5 = plot(p1, p2, p4, size=(400,550), layout=grid(3, 1, heights=[0.6, 0.2, 0.2]))

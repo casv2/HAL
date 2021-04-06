@@ -10,9 +10,6 @@ using JuLIP.MLIPs: SumIP
 using Statistics
 using Distributions
 
-BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
-
-clf = BRR()
 
 al_in = IPFitting.Data.read_xyz("/Users/Cas/Work/ACE/Si/Si.xyz", energy_key="dft_energy", force_key="dft_force")
 dia_configs = filter(at -> configtype(at) == "dia", al_in)
@@ -23,7 +20,7 @@ dia_configs = shuffle!(dia_configs)
 
 R = minimum(IPFitting.Aux.rdf(dia_configs, 4.0))
 
-r0 = rnn(:Si)
+r0 = rnn(:W)
 
 N=3
 deg_site=16
@@ -54,20 +51,34 @@ Vref = OneBody(:Si => E0)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-clf.fit(Ψ, Y)
+Ψ
+BRR = pyimport("sklearn.linear_model")["ARDRegression"]
 
-S_inv = clf.alpha_ * Diagonal(ones(length(Ψ[1,:]))) + clf.lambda_ * Symmetric(transpose(Ψ)* Ψ)
+clf = BRR(threshold_lambda=200000)
+clf.fit(Ψ, Y)
+norm(clf.coef_)
+inds = findall(clf.coef_ .!= 0)
+
+BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
+
+clf = BRR()
+clf.fit(Ψ[:,inds], Y)
+
+S_inv = clf.alpha_ * Diagonal(ones(length(inds))) + clf.lambda_ * Symmetric(transpose(Ψ[:,inds])* Ψ[:,inds])
 S = Symmetric(inv(S_inv))
-m = clf.lambda_ * (Symmetric(S)*transpose(Ψ)) * Y
+m = clf.lambda_ * (Symmetric(S)*transpose(Ψ[:,inds])) * Y
 
 d = MvNormal(m, Symmetric(S))
 c_samples = rand(d, 100);
 
-IP = SumIP(Vref, JuLIP.MLIPs.combine(dB.basis, clf.coef_))
+k = zeros(length(Bsite))
+k[inds] = clf.coef_
 
+IP = SumIP(Vref, JuLIP.MLIPs.combine(dB.basis, k))
 # nIPs = 100
 
 # at = dia_configs[100].at
+
 
 # F = forces(Bsite, at)
 
@@ -87,31 +98,55 @@ add_fits_serial!(IP, dia_configs[1:20], fitkey="IP2")
 rmse_, rmserel_ = rmse(dia_configs[1:20]; fitkey="IP2");
 rmse_table(rmse_, rmserel_)
 
-nIPs = 50
+function expand_forces(basis, train; wE = 1.0, wF = 1.0)
+    nobs = sum( 3*length(t.at) for t in train )
+    Φ = zeros(nobs, length(basis))
+    irow = 0
+    for at in train
+      #irow += 1
+      #Φ[irow, :] = wE * energy(basis, at.at) / length(at)
+
+      nf = 3*length(at)
+      Fb = forces(basis, at.at)
+      for ib = 1:length(basis)
+         Φ[(irow+1):(irow+nf), ib] = wF * mat(Fb[ib])[:]
+      end
+      irow += nf
+    end
+    return Φ
+end
+
+function expand_energy(basis, train; wE = 1.0, wF = 1.0)
+    nobs = sum( 1 for t in train )
+    Φ = zeros(nobs, length(basis))
+    irow = 0
+    for at in train
+      irow += 1
+      Φ[irow, :] = wE * energy(basis, at.at) / length(at)
+    end
+    return Φ
+end
+
+Φf = expand_forces(Bsite, [al_in[2000]])[:, inds]
+Φe = expand_energy(Bsite, [al_in[2000]])[:, inds]
 
 Pl = []
 Fl = []
 
-for (i,at) in enumerate(vcat(dia_configs[1:20], al_in[1:5:end]))#dia_configs[1:489]
+S
+
+for (i,at) in enumerate(vcat(dia_configs[1:20], al_in[1:5:end]))
     @show i
-    IP = SumIP(Vref, JuLIP.MLIPs.combine(dB.basis, clf.coef_))
+    #IP = SumIP(Vref, JuLIP.MLIPs.combine(dB.basis, clf.coef_))
 
-    E = energy(Bsite, at.at)
-    F = forces(Bsite, at.at)
+    #F = forces(Bsite, at.at)
+    #varF = (1/clf.lambda_) .* sum(((clf.coef_ .* F) * S) .* (clf.coef_ .* F), dims=2)
+    Φf = expand_forces(Bsite, [at])[:, inds]
+    Φe = expand_energy(Bsite, [at])[:, inds]
+    #p = maximum(sum(((Φ*S).*Φ), dims=2))
+    p = maximum(sum(((Φe*S).*Φf), dims=2))
 
-    E_shift = energy(Vref, at.at)
-
-    Es = [E_shift + sum(c_samples[:,i] .* E) for i in 1:nIPs];
-    Fs = [sum(c_samples[:,i] .* F) for i in 1:nIPs];
-    
-    meanE = mean(Es)
-    varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
-    
-    meanF = mean(Fs)
-    varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
-    
-    F = forces(IP, at.at)
-    p = (norm.(varF) ./ norm.(F))
+    #p = (norm.(varF) ./ norm.(F))
     push!(Pl,maximum(p))
 
     f = maximum(vcat(forces(IP,at.at)...) .- at.D["F"])
@@ -121,17 +156,18 @@ end
 maximum(Fl)
 maximum(Pl)
 
-Pl[20:end]
-
+Pl[1:20]
+Fl[1:20]
+Fl[20:end]
 using LaTeXStrings
 
-scatter(Pl[100:end], Fl[100:end], yscale=:log, xscale=:log, label="test")
-scatter!(Pl[1:20], Fl[1:20], yscale=:log, xscale=:log, legend=:bottomright, label="training")
+scatter(Pl[20:end] .+ 1E-5, Fl[20:end] .+ 1E-5, yscale=:log, xscale=:log, label="test")
+scatter!(Pl[1:20] .+ 1E-5, Fl[1:20] .+ 1E-5, yscale=:log, xscale=:log, legend=:bottomright, label="training")
 #vline!([5])
-#ylims!(0.01, 100)
+ylims!(0.005, 100)
 xlabel!(L"\max (\| F_{\sigma} \| / \|  F \|)")
 ylabel!(L"\max (\| \Delta F \|) \quad [eV/A]")
-#savefig("Si_uncertainty_force_error_com.pdf")
+savefig("Si_uncertainty_force_error_cov_sp.pdf")
 norm.(varF)
 
 norm.(meanF)
