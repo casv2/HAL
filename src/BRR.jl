@@ -35,7 +35,7 @@ function maxim_hyper(Ψ, Y)
     c = clf.coef_
     lml_score = clf.scores_
     
-    return α, β, c, lml_score
+    return α, β, c, lml_score[end]
 end
 
 # function log_marginal_likelihood(Ψ, Y, α, β)
