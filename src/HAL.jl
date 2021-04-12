@@ -100,6 +100,35 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
     return Fl, Pl
 end
 
+function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref)
+    for i in 1:iters
+        c, k = get_coeff(al, B, ncomms, weights, Vref)
+
+        IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
+
+        add_fits_serial!(IP, al, fitkey="IP2")
+        rmse_, rmserel_ = rmse(al; fitkey="IP2");
+        rmse_table(rmse_, rmserel_)
+
+        El_train, Pl_train = get_E_uncertainties(al, B, Vref, c, k)
+        El_test, Pl_test = get_E_uncertainties(al_test, B, Vref, c, k)
+        scatter(Pl_test, El_test, yscale=:log, xscale=:log, legend=:bottomright, label="test")
+        scatter!(Pl_train, El_train, yscale=:log, xscale=:log,label="train")
+        xlabel!(L" \sigma^2(x)")
+        ylabel!(L" \Delta E  \quad [eV/atom]")
+        savefig("HAL_$(i).pdf")
+
+        Pl_test_fl = filter(!isnan, Pl_test)
+        maxvals = sort(Pl_test_fl)[end-nadd:end]
+
+        inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 1:nadd]
+
+        al = vcat(al, al_test[inds])
+
+        save_configs(al, i)
+    end
+end
+
 function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref)
     for i in 1:iters
         c, k = get_coeff(al, B, ncomms, weights, Vref)
@@ -110,8 +139,8 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref)
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
 
-        Fl_train, Pl_train = get_uncertainties_errors(al, B, Vref, c, k)
-        Fl_test, Pl_test = get_uncertainties_errors(al_test, B, Vref, c, k)
+        Fl_train, Pl_train = get_F_uncertainties(al, B, Vref, c, k)
+        Fl_test, Pl_test = get_F_uncertainties(al_test, B, Vref, c, k)
         scatter(Pl_test .+ 1E-6, Fl_test .+ 1E-6, yscale=:log, xscale=:log, legend=:bottomright, label="test")
         scatter!(Pl_train .+ 1E-6, Fl_train .+ 1E-6, yscale=:log, xscale=:log,label="train")
         xlabel!(L"\max (\| F_{\sigma} \| / \|  F \|)")
