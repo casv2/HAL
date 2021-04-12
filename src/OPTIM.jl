@@ -37,7 +37,7 @@ function get_lml(N, deg, Binfo, Vref, weights, al)
     return lml_score
 end
 
-function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6])
+function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6,7])
     _lml = zeros(length(degs), length(Ns))
     _D = Dict()
 
@@ -63,7 +63,7 @@ function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6]
     return _lml
 end
 
-function find_N_deg(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6])
+function find_N_deg(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6,7])
     _lml = zeros(length(degs), length(Ns))
     _D = Dict()
 
