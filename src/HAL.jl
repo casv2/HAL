@@ -11,6 +11,7 @@ using Random
 using Statistics
 using Distributions
 using LaTeXStrings
+using ASE
 
 function get_coeff(al, B, ncomms, weights, Vref)
     ARDRegression = pyimport("sklearn.linear_model")["ARDRegression"]
