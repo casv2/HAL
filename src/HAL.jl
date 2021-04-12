@@ -1,5 +1,5 @@
-using IPFitting
-using HMD
+module HAL
+
 using JuLIP
 using ACE
 using PyCall
@@ -149,4 +149,6 @@ function save_configs(al, i)
         push!(al_save, py_at.po)
     end
     py_write("HAL_" * i * ".xyz", PyVector(al_save))
+end
+
 end
