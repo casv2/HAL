@@ -2,6 +2,7 @@ module HAL
 
 using JuLIP
 using ACE
+using IPFitting
 using PyCall
 using LinearAlgebra
 using Plots
