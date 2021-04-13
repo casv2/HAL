@@ -170,9 +170,9 @@ function save_configs(al, i)
         D_arrays = PyDict(py_at.po[:arrays])
 
         D_info["config_type"] = "HAL_$(i)_" * configtype(at)
-        D_info["energy"] = at.D["E"]
-        D_info["virial"] = at.D["V"]
-        D_arrays["forces"] = reshape(at.D["F"], length(at.at), 3)
+        try D_info["energy"] = at.D["E"] catch end
+        try D_info["virial"] = at.D["V"] catch end
+        try D_arrays["forces"] = reshape(at.D["F"], length(at.at), 3) catch end
 
         py_at.po[:info] = D_info
         py_at.po[:arrays] = D_arrays
