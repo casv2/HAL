@@ -66,7 +66,7 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
 
             IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
 
-            E_tot, E_pot, E_kin, T, P, varEs, varFs, cfgs = run(IP, B, Vref, c_samples, 
+            E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP, B, Vref, c_samples, 
                     init_config.at, nsteps=run_info["nsteps"], temp=run_info[config_type]["temp"], 
                     dt=run_info[config_type]["dt"], τ=run_info[config_type]["τ"], maxp=run_info[config_type]["maxp"])
             
@@ -74,15 +74,15 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
 
             try 
                 if calc_settings["calculator"] == "DFTB"
-                    at, py_at = HMD.CALC.DFTB_calculator(cfgs[end], config_type, calc_settings)
+                    at, py_at = HMD.CALC.DFTB_calculator(selected_config, config_type, calc_settings)
                 elseif calc_settings["calculator"] == "ORCA"
-                    at, py_at = HMD.CALC.ORCA_calculator(cfgs[end], config_type, calc_settings)
+                    at, py_at = HMD.CALC.ORCA_calculator(selected_config, config_type, calc_settings)
                 elseif calc_settings["calculator"] == "CASTEP"
-                    at, py_at = HMD.CALC.CASTEP_calculator(cfgs[end], config_type, calc_settings)
+                    at, py_at = HMD.CALC.CASTEP_calculator(selected_config, config_type, calc_settings)
                 elseif calc_settings["calculator"] == "NRLTB"
-                    at, py_at = HMD.CALC.NRLTB_calculator(cfgs[end], config_type, m)
+                    at, py_at = HMD.CALC.NRLTB_calculator(selected_config, config_type, m)
                 elseif calc_settings["calculator"] == "NRLTBpy3"
-                    at, py_at = HMD.CALC.NRLTBpy3_calculator(cfgs[end], config_type, calc_settings, m)
+                    at, py_at = HMD.CALC.NRLTBpy3_calculator(selected_config, config_type, calc_settings, m)
                 end
 
                 push!(al, at)
@@ -133,8 +133,15 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
         push!(cfgs, at)
         i+=1
     end
+
+    if i < nsteps
+        selected_config = cfgs[end]
+    else
+        max_ind = findmax(P)[2]
+        selected_config = cfgs[max_ind]
+    end
     
-    return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], varEs[1:i], varFs[1:i], cfgs
+    return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], varEs[1:i], varFs[1:i], selected_config
 end
 
 function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
