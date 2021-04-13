@@ -1,6 +1,6 @@
 using IPFitting
-using HMD
 using JuLIP
+using HMD
 using ACE
 using PyCall
 using LinearAlgebra
@@ -18,6 +18,14 @@ al_in = IPFitting.Data.read_xyz("/Users/Cas/Work/ACE/Si/Si.xyz", energy_key="dft
 dia_configs = filter(at -> configtype(at) == "dia", al_in)
 #test_configs = filter(at -> configtype(at) in ["gamma_surface"], al_in)
 #test_configs[1000].D["F"]
+
+al_in[2].D["V"]
+
+at = al_in[2]
+
+k = [ at.D["V"][1], at.D["V"][6], at.D["V"][5], at.D["V"][6], at.D["V"][2], at.D["V"][4], at.D["V"][5], at.D["V"][4], at.D["V"][3]]
+
+1,6,5,6,2,4,5,4,3
 
 dia_configs = shuffle!(dia_configs)
 
