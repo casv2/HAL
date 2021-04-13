@@ -51,4 +51,39 @@ end
 #     return 0.5 * score
 # end
 
+function get_coeff(Ψ, Y, ncoms)
+    ARDRegression = pyimport("sklearn.linear_model")["ARDRegression"]
+    BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
+
+    nbasis = length(Ψ[1,:])
+
+    clf = ARDRegression()
+    clf.fit(Ψ, Y)
+    norm(clf.coef_)
+    inds = findall(clf.coef_ .!= 0)
+
+    @info("Keeping $(length(inds)) basis functions ($(round(length(inds)/nbasis, digits=2)*100)%)")
+
+    clf = BRR()
+    clf.fit(Ψ[:,inds], Y)
+
+    S_inv = clf.alpha_ * Diagonal(ones(length(inds))) + clf.lambda_ * Symmetric(transpose(Ψ[:,inds])* Ψ[:,inds])
+    S = Symmetric(inv(S_inv))
+    m = clf.lambda_ * (Symmetric(S)*transpose(Ψ[:,inds])) * Y
+
+    d = MvNormal(m, Symmetric(S))
+    c_samples = rand(d, ncoms);
+
+    c = zeros(nbasis)
+    c[inds] = clf.coef_
+    
+    k = zeros(nbasis, ncoms)
+    for i in 1:ncoms
+        _k = zeros(nbasis)
+        _k[inds] = c_samples[:,i]
+        k[:,i] = _k
+    end
+    return c, k
+end
+
 end

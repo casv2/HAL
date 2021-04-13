@@ -15,11 +15,13 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y)
+    # α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y)
 
-    @show lml_score
+    # @show lml_score
     
-    c_samples = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
+    # c_samples = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
+
+    c, c_samples = HMD.BRR.get_coeff(Ψ, Y, ncoms)
     
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
     
