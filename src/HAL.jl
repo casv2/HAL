@@ -104,10 +104,12 @@ end
 
 function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref)
     for i in 1:iters
+        @show("ITERATION $(i)")
         c, k = get_coeff(al, B, ncomms, weights, Vref)
 
         IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
+        @show("HAL ERRORS OF ITERATION $(i)")
         add_fits_serial!(IP, al, fitkey="IP2")
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
