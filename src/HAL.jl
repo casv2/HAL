@@ -114,11 +114,11 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref)
 
         El_train, Pl_train = get_E_uncertainties(al, B, Vref, c, k)
         El_test, Pl_test = get_E_uncertainties(al_test, B, Vref, c, k)
-        scatter(Pl_test, El_test, yscale=:log, xscale=:log, legend=:bottomright, label="test")
-        scatter!(Pl_train, El_train, yscale=:log, xscale=:log,label="train")
+        scatter(Pl_test, El_test, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
+        scatter!(Pl_train, El_train, yscale=:log10, xscale=:log10,label="train")
         xlabel!(L" \sigma^2(x)")
         ylabel!(L" \Delta E  \quad [eV/atom]")
-        savefig("HAL_$(i).pdf")
+        savefig("HAL_$(i).png")
 
         Pl_test_fl = filter(!isnan, Pl_test)
         maxvals = sort(Pl_test_fl)[end-nadd:end]
@@ -144,11 +144,11 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref)
 
         Fl_train, Pl_train = get_F_uncertainties(al, B, Vref, c, k)
         Fl_test, Pl_test = get_F_uncertainties(al_test, B, Vref, c, k)
-        scatter(Pl_test .+ 1E-6, Fl_test .+ 1E-6, yscale=:log, xscale=:log, legend=:bottomright, label="test")
-        scatter!(Pl_train .+ 1E-6, Fl_train .+ 1E-6, yscale=:log, xscale=:log,label="train")
+        scatter(Pl_test .+ 1E-6, Fl_test .+ 1E-6, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
+        scatter!(Pl_train .+ 1E-6, Fl_train .+ 1E-6, yscale=:log10, xscale=:log10,label="train")
         xlabel!(L"\max (\| F_{\sigma} \| / \|  F \|)")
         ylabel!(L"\max (\| \Delta F \|) \quad [eV/A]")
-        savefig("HAL_$(i).pdf")
+        savefig("HAL_$(i).png")
 
         Pl_test_fl = filter(!isnan, Pl_test)
         maxvals = sort(Pl_test_fl)[end-nadd:end]
