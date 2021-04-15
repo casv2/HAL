@@ -125,9 +125,10 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref)
 
         inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 1:nadd]
 
-        al = vcat(al, al_test[inds])
+        #al = vcat(al, al_test[inds])
 
-        save_configs(al, i)
+        save_configs(al_test[inds], i)
+        #save_configs(al, i)
     end
 end
 
