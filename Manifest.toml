@@ -402,12 +402,6 @@ git-tree-sha1 = "c9f380c76d8aaa1fa7ea9cf97bddbc0d5b15adc2"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 version = "0.9.5"
 
-[[IPFitting]]
-deps = ["ASE", "BenchmarkTools", "DataFrames", "FileIO", "HDF5", "InteractiveUtils", "JSON", "JuLIP", "LinearAlgebra", "LowRankApprox", "Pkg", "Printf", "ProgressMeter", "PyCall", "Random", "Reexport", "StaticArrays", "Statistics", "StatsBase", "StringDistances"]
-git-tree-sha1 = "3f0bbfdc684278702bf8e13a31ce671847771739"
-uuid = "3002bd4c-79e4-52ce-b924-91256dde4e52"
-version = "0.4.1"
-
 [[IfElse]]
 git-tree-sha1 = "28e837ff3e7a6c3cdb252ce49fb412c8eb3caeef"
 uuid = "615f187c-cbe4-4ef1-ba3b-2fcf58d6d173"
