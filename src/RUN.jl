@@ -114,7 +114,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, s=1.0, p=
     varEs = zeros(nsteps)
     varFs = zeros(nsteps)
 
-    #E0 = energy(IP, at)
+    E0 = energy(IP, at)
 
     at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
     at = HMD.MD.Stationary(at)
