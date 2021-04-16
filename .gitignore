@@ -1,0 +1,7 @@
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+*.pyc
+src/plottools.pyc
+temp
+Manifest.toml
