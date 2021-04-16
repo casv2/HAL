@@ -135,7 +135,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, s=1.0, p=
         E_pot[i] = Ep
         E_kin[i] = Ek
         T[i] = Ek / (1.5 * HMD.MD.kB)
-        @show maximum(p, τ)
+        @show p, τ
         if P[i] > maxp 
             running = false
         end
