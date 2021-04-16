@@ -10,21 +10,21 @@ function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10)
     varE, varF = get_com_energy_forces(Vref, B, c_samples, at);
     
     F = forces(IP, at)    
-    F1 = F + τ*varF
+    F1 = F - τ*varF
     
     A = F1 ./ at.M
 
     set_positions!(at, at.X + (V .* dt) + (.5 * A * dt^2))
-    varE, varF = get_com_energy_forces(Vref, B, c_samples, at)
+    #varE, varF = get_com_energy_forces(Vref, B, c_samples, at)
 
     F = forces(IP, at)
-    F2 = F + τ*varF
+    F2 = F - τ*varF
 
     nA = F2 ./ at.M
     nV = V + (.5 * (A + nA) * dt)
     set_momenta!(at, nV .* at.M)
 
-    return at, (norm.(varF) ./ norm.(F))
+    return at, maximum(norm.(varF) ./ norm.(F))
 end
 
 function get_com_energy_forces(Vref, B, c_samples, at)

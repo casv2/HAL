@@ -102,7 +102,7 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
     return Fl, Pl
 end
 
-function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref)
+function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref, calc_settings)
     for i in 1:iters
         @show("ITERATION $(i)")
         c, k = get_coeff(al, B, ncomms, weights, Vref)
@@ -127,9 +127,22 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref)
 
         inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 1:nadd]
 
-        al = vcat(al, al_test[inds])
+        @show("USING VASP")
+        converted_configs = []
+        for selected_config in al_test[inds]
+            try
+                at, py_at = HMD.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", calc_settings)
+            catch
+                @show("VASP failed?")
+            end
+            al = vcat(al, at)
+            push!(converted_configs, at)
+        end
 
-        save_configs(al_test[inds], i)
+        save_configs(converted_configs, i)
+
+        #al = vcat(al, al_test[inds])
+        #save_configs(al_test[inds], i)
         #save_configs(al, i)
     end
 end

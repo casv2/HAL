@@ -9,11 +9,13 @@ EAM = pyimport("ase.calculators.eam")["EAM"]
 CASTEP = pyimport("ase.calculators.castep")["Castep"]
 DFTB = pyimport("ase.calculators.dftb")["Dftb"]
 ORCA = pyimport("ase.calculators.orca")["ORCA"]
-VASP = pyimport("ase.calculators.vasp")["Vasp"]
 try
-    DFTB = pyimport("quippy.potential")["Potential"]
+    #VASP = pyimport("ase.calculators.vasp")["Vasp"]
+    VASP = pyimport("vasp_gr")["VASP"]
 catch
+    VASP = pyimport("ase.calculators.vasp")["Vasp"]
 end
+try DFTB = pyimport("quippy.potential")["Potential"] catch end
 
 function EAM_calculator(at, config_type)
     py_at = ASEAtoms(at)
@@ -190,10 +192,19 @@ end
 function VASP_calculator(at, config_type, calc_settings)
     py_at = ASEAtoms(at)
 
-    calculator = VASP()
+    PyCall.PyDict(PyCall.pyimport("os").environ)["VASP_PP_PATH"] = calc_settings["VASP_PP_PATH"]
+
+    calculator = VASP(
+        command=calc_settings["command"],
+        xc=calc_settings["xc"],
+        directory=calc_settings["directory"],
+        setups=calc_settings["recommended"],
+        prec=calc_settings["prec"],
+    )
+
     py_at.po[:set_calculator](calculator)
 
-    E = py_at.po.get_potential_energy(force_consistent=true)
+    E = py_at.po.get_potential_energy()
     F = py_at.po.get_forces()
     V = -1.0 * py_at.po.get_stress(voigt=false) * py_at.po.get_volume()
 

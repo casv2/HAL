@@ -15,13 +15,13 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    # α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y)
+    α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y)
 
-    # @show lml_score
+    #@show lml_score
     
-    # c_samples = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
+    c_samples = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
 
-    c, c_samples = HMD.BRR.get_coeff(Ψ, Y, ncoms)
+    #c, c_samples = HMD.BRR.get_coeff(Ψ, Y, ncoms)
     
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
     
@@ -69,8 +69,14 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
             IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
 
             E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP, B, Vref, c_samples, 
-                    init_config.at, nsteps=run_info["nsteps"], temp=run_info[config_type]["temp"], 
-                    dt=run_info[config_type]["dt"], τ=run_info[config_type]["τ"], maxp=run_info[config_type]["maxp"])
+                    init_config.at, 
+                    nsteps=run_info["nsteps"], 
+                    temp=run_info[config_type]["temp"], 
+                    dt=run_info[config_type]["dt"], 
+                    τ=run_info[config_type]["τ"], 
+                    τg=run_info[config_type]["τg"], 
+                    τstep=run_info[config_type]["τstep"], 
+                    maxp=run_info[config_type]["maxp"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
 
@@ -97,7 +103,7 @@ function run_HMD(Binfo, Vref, weights, al, start_configs, run_info, calc_setting
     return al
 end
 
-function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, maxp=0.15)
+function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, τg=1.05, τstep=50, maxp=0.15)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -106,7 +112,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
     varEs = zeros(nsteps)
     varFs = zeros(nsteps)
 
-    E0 = energy(IP, at)
+    #E0 = energy(IP, at)
 
     at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
     at = HMD.MD.Stationary(at)
@@ -118,20 +124,20 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τ=0.5, m
     i = 1
     while running && i < nsteps
         at, p = HMD.COM.VelocityVerlet_com(IP, Vref, B, c_samples, at, dt * HMD.MD.fs, τ=τ)
-        P[i] = maximum(p)
+        P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
         E_tot[i] = Ek + Ep
         E_pot[i] = Ep
         E_kin[i] = Ek
         T[i] = Ek / (1.5 * HMD.MD.kB)
-        @show maximum(p)
-        if P[i] > maxp #|| T[i] > 1000
+        @show maximum(p, τ)
+        if P[i] > maxp 
             running = false
         end
-        # if i % 10 == 0
-        #     τ *= 1.1
-        # end
+        if i % τstep == 0
+            τ *= τg
+        end
         push!(cfgs, at)
         i+=1
     end
