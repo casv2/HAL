@@ -198,7 +198,7 @@ function VASP_calculator(at, config_type, calc_settings)
         command=calc_settings["command"],
         xc=calc_settings["xc"],
         directory=calc_settings["directory"],
-        setups=calc_settings["recommended"],
+        setups=calc_settings["setups"],
         prec=calc_settings["prec"],
     )
 
