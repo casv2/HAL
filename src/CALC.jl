@@ -190,6 +190,8 @@ function DFTB_calculator(at, config_type, calc_settings)
 end
 
 function VASP_calculator(at, config_type, calc_settings)
+    VASP = pyimport("vasp_gr")["VASP"]
+
     py_at = ASEAtoms(at)
 
     PyCall.PyDict(PyCall.pyimport("os").environ)["VASP_PP_PATH"] = calc_settings["VASP_PP_PATH"]
