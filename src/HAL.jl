@@ -13,40 +13,55 @@ using Distributions
 using LaTeXStrings
 using ASE
 
-function get_coeff(al, B, ncomms, weights, Vref)
+function get_coeff(al, B, ncomms, weights, Vref, sparsify)
     ARDRegression = pyimport("sklearn.linear_model")["ARDRegression"]
     BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
 
-    clf = ARDRegression()#compute_score=true)
     dB = LsqDB("", B, al)
     Ψ, Y = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    clf.fit(Ψ, Y)
-    norm(clf.coef_)
-    inds = findall(clf.coef_ .!= 0)
+    if sparsify
+        clf = ARDRegression()
+        clf.fit(Ψ, Y)
+        norm(clf.coef_)
+        inds = findall(clf.coef_ .!= 0)
 
-    clf = BRR()
-    clf.fit(Ψ[:,inds], Y)
+        clf = BRR()
+        clf.fit(Ψ[:,inds], Y)
 
-    S_inv = clf.alpha_ * Diagonal(ones(length(inds))) + clf.lambda_ * Symmetric(transpose(Ψ[:,inds])* Ψ[:,inds])
-    S = Symmetric(inv(S_inv))
-    m = clf.lambda_ * (Symmetric(S)*transpose(Ψ[:,inds])) * Y
+        S_inv = clf.alpha_ * Diagonal(ones(length(inds))) + clf.lambda_ * Symmetric(transpose(Ψ[:,inds])* Ψ[:,inds])
+        S = Symmetric(inv(S_inv))
+        m = clf.lambda_ * (Symmetric(S)*transpose(Ψ[:,inds])) * Y
 
-    d = MvNormal(m, Symmetric(S))
-    c_samples = rand(d, ncomms);
+        d = MvNormal(m, Symmetric(S))
+        c_samples = rand(d, ncomms);
 
-    c = zeros(length(B))
-    c[inds] = clf.coef_
-    
-    k = zeros(length(B), ncomms)
-    for i in 1:ncomms
-        _k = zeros(length(B))
-        _k[inds] = c_samples[:,i]
-        k[:,i] = _k
+        c = zeros(length(B))
+        c[inds] = clf.coef_
+        
+        k = zeros(length(B), ncomms)
+        for i in 1:ncomms
+            _k = zeros(length(B))
+            _k[inds] = c_samples[:,i]
+            k[:,i] = _k
+        end
+        return c, k
+    else
+        clf = BRR()
+        clf.fit(Ψ, Y)
+
+        S_inv = clf.alpha_ * Diagonal(ones(length(Ψ[1,:]))) + clf.lambda_ * Symmetric(transpose(Ψ)* Ψ)
+        S = Symmetric(inv(S_inv))
+        m = clf.lambda_ * (Symmetric(S)*transpose(Ψ)) * Y
+
+        d = MvNormal(m, Symmetric(S))
+        c_samples = rand(d, 100);
+        c = clf.coef_
+
+        return c, c_samples
     end
-    return c, k
 end
 
 function get_E_uncertainties(al_test, B, Vref, c, k)
@@ -102,10 +117,10 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
     return Fl, Pl
 end
 
-function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref, calc_settings)
+function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref, calc_settings; sparsify=true)
     for i in 1:iters
         @show("ITERATION $(i)")
-        c, k = get_coeff(al, B, ncomms, weights, Vref)
+        c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
         IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
@@ -147,9 +162,9 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref, calc_settings
     end
 end
 
-function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref)
+function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true)
     for i in 1:iters
-        c, k = get_coeff(al, B, ncomms, weights, Vref)
+        c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
         IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
