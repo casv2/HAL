@@ -190,7 +190,8 @@ function DFTB_calculator(at, config_type, calc_settings)
 end
 
 function VASP_calculator(at, config_type, calc_settings)
-    VASP = pyimport("vasp_gr")["Vasp"]
+    #VASP = pyimport("vasp_gr")["Vasp"]
+    VASP = pyimport("ase.calculators.vasp")["Vasp"]
 
     py_at = ASEAtoms(at)
 
