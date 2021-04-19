@@ -57,7 +57,7 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
         m = clf.lambda_ * (Symmetric(S)*transpose(Ψ)) * Y
 
         d = MvNormal(m, Symmetric(S))
-        c_samples = rand(d, 100);
+        c_samples = rand(d, ncomms);
         c = clf.coef_
 
         return c, c_samples
