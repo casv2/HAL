@@ -119,12 +119,12 @@ end
 
 function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref, calc_settings; sparsify=true)
     for i in 1:iters
-        @show("ITERATION $(i)")
+        @info("ITERATION $(i)")
         c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
         IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
-        @show("HAL ERRORS OF ITERATION $(i)")
+        @info("HAL ERRORS OF ITERATION $(i)")
         add_fits_serial!(IP, al, fitkey="IP2")
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
@@ -145,11 +145,11 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref, calc_settings
         @show("USING VASP")
         converted_configs = []
         for selected_config in al_test[inds]
-            try
-                at, py_at = HMD.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", calc_settings)
-            catch
-                @show("VASP failed?")
-            end
+            #try
+            at, py_at = HMD.CALC.VASP_calculator(selected_config, "HAL_$(i)", calc_settings)
+            #catch
+            #    @show("VASP failed?")
+            #end
             al = vcat(al, at)
             push!(converted_configs, at)
         end
