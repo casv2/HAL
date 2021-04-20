@@ -145,9 +145,9 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref, calc_settings
 
         @show("USING VASP")
         converted_configs = []
-        for selected_config in al_test[inds]
+        for (j, selected_config) in enumerate(al_test[inds])
             #try
-            at, py_at = HMD.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", calc_settings)
+            at, py_at = HMD.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", i, j, calc_settings)
             #catch
             #    @show("VASP failed?")
             #end

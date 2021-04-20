@@ -189,7 +189,7 @@ function DFTB_calculator(at, config_type, calc_settings)
     return dat, py_at
 end
 
-function VASP_calculator(at, config_type, calc_settings)
+function VASP_calculator(at, config_type, i, j, calc_settings)
     #VASP = pyimport("vasp_gr")["Vasp"]
     VASP = pyimport("ase.calculators.vasp")["Vasp"]
 
@@ -200,7 +200,7 @@ function VASP_calculator(at, config_type, calc_settings)
     calculator = VASP(
         command=calc_settings["command"],
         xc=calc_settings["xc"],
-        directory=calc_settings["directory"],
+        directory=joinpath(calc_settings["directory"], "HAL_$(i)_$(j)"),
         setups=calc_settings["setups"],
         prec=calc_settings["prec"],
     )
