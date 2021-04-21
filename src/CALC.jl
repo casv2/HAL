@@ -200,7 +200,7 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
     VASP_dir = joinpath(calc_settings["directory"], "HAL_$(i)_$(j)")
 
     mkdir(VASP_dir)
-    cp(calc_settings["kpoint.x_path"], VASP_dir)
+    cp("KPGEN", VASP_dir)
 
     calculator = VASP(
         command=calc_settings["command"],
