@@ -199,8 +199,8 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
 
     VASP_dir = joinpath(calc_settings["directory"], "HAL_$(i)_$(j)")
 
-    mkdir(VASP_dir)
-    cp("KPGEN", VASP_dir)
+    mkdir(VASP_dir, )
+    cp("KPGEN", joinpath(VASP_dir, "KPGEN"), force=true)
 
     if calc_settings["setups"] != "recommended"
         setups = PyDict()
