@@ -197,10 +197,15 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
 
     PyCall.PyDict(PyCall.pyimport("os").environ)["VASP_PP_PATH"] = calc_settings["VASP_PP_PATH"]
 
+    VASP_dir = joinpath(calc_settings["directory"], "HAL_$(i)_$(j)")
+
+    mkdir(VASP_dir)
+    cp(calc_settings["kpoint.x_path"], VASP_dir)
+
     calculator = VASP(
         command=calc_settings["command"],
         xc=calc_settings["xc"],
-        directory=joinpath(calc_settings["directory"], "HAL_$(i)_$(j)"),
+        directory=VASP_dir,
         setups=calc_settings["setups"],
         prec=calc_settings["prec"],
     )
