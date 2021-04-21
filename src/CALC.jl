@@ -202,11 +202,20 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
     mkdir(VASP_dir)
     cp("KPGEN", VASP_dir)
 
+    if calc_settings["setups"] != "recommended"
+        setups = PyDict()
+        for (key,value) in calc_settings["setups"]
+            setups[key] = value
+        end
+    else
+        setups = "recommended"
+    end
+
     calculator = VASP(
         command=calc_settings["command"],
         xc=calc_settings["xc"],
         directory=VASP_dir,
-        setups=calc_settings["setups"],
+        setups=setups,
         prec=calc_settings["prec"],
         encut=calc_settings["encut"],
         ismear=calc_settings["ismear"],
