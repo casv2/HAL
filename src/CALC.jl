@@ -208,6 +208,11 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
         directory=VASP_dir,
         setups=calc_settings["setups"],
         prec=calc_settings["prec"],
+        encut=calc_settings["encut"],
+        ismear=calc_settings["ismear"],
+        sigma=calc_settings["sigma"],
+        #ENCUT=calc_settings["ENCUT"],
+        #ENCUT=calc_settings["ENCUT"],
     )
 
     py_at.po[:set_calculator](calculator)
