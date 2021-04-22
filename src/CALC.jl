@@ -226,26 +226,29 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
         #ENCUT=calc_settings["ENCUT"],
     )
 
-    py_at.po[:set_calculator](calculator)
+    calculator[:write_input]()
 
-    E = py_at.po.get_potential_energy()
-    F = py_at.po.get_forces()
-    V = -1.0 * py_at.po.get_stress(voigt=false) * py_at.po.get_volume()
+    return 0
+    # py_at.po[:set_calculator](calculator)
 
-    dat = Dat( at, "HAL_" * config_type, E = E, F = F, V = V)
+    # E = py_at.po.get_potential_energy()
+    # F = py_at.po.get_forces()
+    # V = -1.0 * py_at.po.get_stress(voigt=false) * py_at.po.get_volume()
 
-    D_info = PyDict(py_at.po[:info])
-    D_arrays = PyDict(py_at.po[:arrays])
+    # dat = Dat( at, "HAL_" * config_type, E = E, F = F, V = V)
 
-    D_info["config_type"] = "HAL_" * config_type
-    D_info["energy"] = E
-    D_info["virial"] = V
-    D_arrays["force"] = F
+    # D_info = PyDict(py_at.po[:info])
+    # D_arrays = PyDict(py_at.po[:arrays])
 
-    py_at.po[:info] = D_info
-    py_at.po[:arrays] = D_arrays
+    # D_info["config_type"] = "HAL_" * config_type
+    # D_info["energy"] = E
+    # D_info["virial"] = V
+    # D_arrays["force"] = F
 
-    return dat, py_at
+    # py_at.po[:info] = D_info
+    # py_at.po[:arrays] = D_arrays
+
+    # return dat, py_at
 end
 
 end
