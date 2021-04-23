@@ -230,7 +230,7 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
 
     calculator[:write_input]()
 
-    return 0
+    return nothing
     # py_at.po[:set_calculator](calculator)
 
     # E = py_at.po.get_potential_energy()
