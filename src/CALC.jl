@@ -199,7 +199,9 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
 
     VASP_dir = joinpath(calc_settings["directory"], "HAL_$(i)_$(j)")
 
-    try rm(VASP_dir) catch end
+    if isdir(VASP_dir)
+        rm(VASP_dir)
+    end
 
     mkdir(VASP_dir)
     cp("KPGEN", joinpath(VASP_dir, "KPGEN"), force=true)
