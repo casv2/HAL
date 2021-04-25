@@ -27,7 +27,10 @@ function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10)
     nV = V + (.5 * (A + nA) * dt)
     set_momenta!(at, nV .* at.M)
 
-    return at, maximum(norm.(varF) ./ norm.(F))
+    p, ind = findmax(norm.(varF) ./ norm.(F))
+    F_p = norm(F[ind])
+
+    return at, p, F_p
 end
 
 function get_com_energy_forces(E, F, Vref, B, c_samples, at)
