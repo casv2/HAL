@@ -68,6 +68,8 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
 
             IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
 
+            @show length(al)
+
             if config_type ∉ keys(run_info)
                 D = copy(run_info["default"])
                 run_info[config_type] = D
@@ -99,7 +101,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
                     at, py_at = HMD.CALC.NRLTBpy3_calculator(selected_config, config_type, calc_settings, m)
                 end
 
-                push!(al, at)
+                al = vcat(al, at)
                 write_xyz("./HMD_it$(m).xyz", py_at)
             catch
                 println("Iteration failed! Calulator probably failed!")
