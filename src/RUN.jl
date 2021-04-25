@@ -148,18 +148,18 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, s=1.0, p=
         if i % τstep == 0
             x += f(x, p)
         end
-        push!(cfgs, at)
+        #push!(cfgs, at)
         i+=1
     end
 
-    if i < nsteps
-        selected_config = cfgs[end]
-    else
-        max_ind = findmax(P)[2]
-        selected_config = cfgs[max_ind]
-    end
+    # if i < nsteps
+    #     selected_config = cfgs[end]
+    # else
+    #     max_ind = findmax(P)[2]
+    #     selected_config = cfgs[max_ind]
+    # end
     
-    return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], varEs[1:i], varFs[1:i], selected_config
+    return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], varEs[1:i], varFs[1:i], at #selected_config
 end
 
 function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
