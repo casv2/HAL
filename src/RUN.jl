@@ -70,7 +70,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
 
             if config_type ∉ keys(run_info)
                 D = copy(run_info["default"])
-                run_info["config_type"] = D
+                run_info[config_type] = D
             end
 
             E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP, B, Vref, c_samples, 
