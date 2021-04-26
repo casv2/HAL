@@ -200,7 +200,7 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
     VASP_dir = joinpath(calc_settings["directory"], "HAL_$(i)_$(j)")
 
     if isdir(VASP_dir)
-        rm(VASP_dir)
+        rm(VASP_dir,recursive=true)
     end
 
     mkdir(VASP_dir)
@@ -228,7 +228,7 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
         #ENCUT=calc_settings["ENCUT"],
     )
 
-    calculator[:write_input]()
+    calculator[:write_input](py_at)
 
     return nothing
     # py_at.po[:set_calculator](calculator)
