@@ -228,7 +228,7 @@ function VASP_calculator(at, config_type, i, j, calc_settings)
         #ENCUT=calc_settings["ENCUT"],
     )
 
-    calculator[:write_input](py_at)
+    calculator[:write_input](py_at.po)
 
     return nothing
     # py_at.po[:set_calculator](calculator)
