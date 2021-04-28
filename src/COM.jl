@@ -5,7 +5,7 @@ using JuLIP.MLIPs: SumIP
 
 export VelocityVerlet_com, get_com_energy_forces
 
-function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10)
+function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; minF=0.5, τ = 1e-10)
     V = at.P ./ at.M
     
     F = forces(IP, at)  
@@ -27,7 +27,7 @@ function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10)
     nV = V + (.5 * (A + nA) * dt)
     set_momenta!(at, nV .* at.M)
 
-    p, ind = findmax(norm.(varF) ./ norm.(F))
+    p, ind = findmax((norm.(varF) ./ (minF + norm.(F))))
     F_p = norm(F[ind])
 
     return at, p, F_p
