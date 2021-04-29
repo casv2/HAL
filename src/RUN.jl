@@ -135,7 +135,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, s=1.0, p=
     x = 1.0
     while running && i < nsteps
         τ = s * x
-        at, p, F_p = HMD.COM.VelocityVerlet_com(IP, Vref, B, c_samples, at, dt * HMD.MD.fs, minF=minF, τ=τ)
+        at, p = HMD.COM.VelocityVerlet_com(IP, Vref, B, c_samples, at, dt * HMD.MD.fs, minF=minF, τ=τ)
         P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
