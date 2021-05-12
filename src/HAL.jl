@@ -140,7 +140,8 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         scatter!(Pl_train, El_train, yscale=:log10, xscale=:log10,label="train")
         xlabel!(L" \sigma^2(x)")
         ylabel!(L" \Delta E  \quad [eV/atom]")
-        savefig("HAL_$(i).png")
+        hline!([0.001], color="black", label="1 meV")
+        savefig("HAL_E_$(i).png")
 
         Pl_test_fl = filter(!isnan, Pl_test)
         maxvals = sort(Pl_test_fl)[end-nadd:end]
@@ -184,7 +185,8 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         scatter!(Pl_train .+ 1E-6, Fl_train .+ 1E-6, yscale=:log10, xscale=:log10,label="train")
         xlabel!(L"\max \quad F_{\sigma^{2}} [eV/A]")
         ylabel!("F RMSE error [eV/A]")
-        savefig("HAL_$(i).png")
+        hline!([0.1], color="black", label="0.1 eV/A")
+        savefig("HAL_F_$(i).png")
 
         Pl_test_fl = filter(!isnan, Pl_test)
         maxvals = sort(Pl_test_fl)[end-nadd:end]
