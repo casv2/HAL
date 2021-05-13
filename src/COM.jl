@@ -27,7 +27,8 @@ function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; minF=0.5, τ = 1e-10
     nV = V + (.5 * (A + nA) * dt)
     set_momenta!(at, nV .* at.M)
 
-    p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
+    #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
+    p = maximum((norm.(varF)))
 
     return at, p
 end

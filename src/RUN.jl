@@ -80,11 +80,9 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
                     nsteps=run_info["nsteps"], 
                     temp=run_info[config_type]["temp"], 
                     dt=run_info[config_type]["dt"], 
-                    s=run_info[config_type]["s"], 
-                    p=run_info[config_type]["p"], 
                     τstep=run_info[config_type]["τstep"], 
+                    dτ=run_info[config_type]["dτ"], 
                     maxp=run_info[config_type]["maxp"],
-                    minF=run_info[config_type]["minF"],
                     var=run_info["var"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
@@ -112,9 +110,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
     return al
 end
 
-f(x, p) = 1/sqrt((x^p))
-
-function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, s=1.0, p=2.0, τstep=50, maxp=0.15, minF=0.5, var=true)
+function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -133,9 +129,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, s=1.0, p=
     running = true
 
     i = 1
-    x = 1.0
     while running && i < nsteps
-        τ = s * x
         at, p = HMD.COM.VelocityVerlet_com(IP, Vref, B, c_samples, at, dt * HMD.MD.fs, minF=minF, τ=τ, var=var)
         P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
@@ -149,7 +143,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, s=1.0, p=
             running = false
         end
         if i % τstep == 0
-            x += f(x, p)
+            τ += dτ
         end
         #push!(cfgs, at)
         i+=1
