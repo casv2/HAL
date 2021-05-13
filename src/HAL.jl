@@ -146,7 +146,7 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         Pl_test_fl = filter(!isnan, Pl_test)
         maxvals = sort(Pl_test_fl)[end-nadd:end]
 
-        inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 1:nadd]
+        inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 0:nadd]
 
         # @show("USING VASP")
         # converted_configs = []
@@ -191,7 +191,7 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         Pl_test_fl = filter(!isnan, Pl_test)
         maxvals = sort(Pl_test_fl)[end-nadd:end]
 
-        inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 1:nadd]
+        inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 0:nadd]
 
         al = vcat(al, al_test[inds])
 
