@@ -5,7 +5,7 @@ using JuLIP.MLIPs: SumIP
 
 export VelocityVerlet_com, get_com_energy_forces
 
-function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; minF=0.5, τ = 1e-10, var=true)
+function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10, var=true)
     V = at.P ./ at.M
     
     F = forces(IP, at)  
