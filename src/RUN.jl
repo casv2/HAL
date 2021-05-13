@@ -172,7 +172,7 @@ function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
     p4 = plot()
     plot!(p4, P[1:end-k],label="")
     xlabel!(p4,"MDstep")
-    ylabel!(p4, "P")
+    ylabel!(p4, "maximum F_s")
     p5 = plot(p1, p2, p4, size=(400,550), layout=grid(3, 1, heights=[0.6, 0.2, 0.2]))
     savefig("./HMD_$(i).pdf")
 end
