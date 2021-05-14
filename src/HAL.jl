@@ -209,6 +209,7 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
 
         save_configs(al, i)
     end
+    return al
 end
 
 function save_configs(al, i)
