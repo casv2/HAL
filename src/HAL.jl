@@ -36,7 +36,13 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
         S = Symmetric(inv(S_inv))
         m = clf.lambda_ * (Symmetric(S)*transpose(Ψ[:,inds])) * Y
 
-        d = MvNormal(m, Symmetric(S))
+        for e in [1e-50,1e-40,1e-30,1e-22,1e-21,1e-20,1e-19,1-18,1e-17,1e-16,1e-15,1e-14,1e-13]
+            try
+                d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
+                break
+            catch
+            end
+        end
         c_samples = rand(d, ncomms);
 
         c = zeros(length(B))
@@ -57,7 +63,13 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
         S = Symmetric(inv(S_inv))
         m = clf.lambda_ * (Symmetric(S)*transpose(Ψ)) * Y
 
-        d = MvNormal(m, Symmetric(S))
+        for e in [1e-50,1e-40,1e-30,1e-22,1e-21,1e-20,1e-19,1-18,1e-17,1e-16,1e-15,1e-14,1e-13]
+            try
+                d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
+                break
+            catch
+            end
+        end
         c_samples = rand(d, ncomms);
         c = clf.coef_
 
@@ -112,11 +124,11 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         F = forces(IP, at.at)
         #p = (norm.(varF) ./ 0.2 + norm.(F))
         #p = sqrt(mean(vcat(varF...).^2))
-        p = maximum(varF)
-        push!(Pl,maximum(p))
+        p = varF
+        push!(Pl,p)
 
-        f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
-        #f = maximum(vcat(F...) .- at.D["F"])
+        #f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
+        f = maximum(vcat(F...) .- at.D["F"])
         push!(Fl, f)
     end
     return Fl, Pl
