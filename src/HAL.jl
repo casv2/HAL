@@ -36,7 +36,7 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
         S = Symmetric(inv(S_inv))
         m = clf.lambda_ * (Symmetric(S)*transpose(Ψ[:,inds])) * Y
 
-        for e in [1e-50,1e-40,1e-30,1e-22,1e-21,1e-20,1e-19,1-18,1e-17,1e-16,1e-15,1e-14,1e-13]
+        for e in reverse([10.0^-i for i in 1:30])
             try
                 d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
                 break
@@ -63,7 +63,7 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
         S = Symmetric(inv(S_inv))
         m = clf.lambda_ * (Symmetric(S)*transpose(Ψ)) * Y
 
-        for e in [1e-50,1e-40,1e-30,1e-22,1e-21,1e-20,1e-19,1-18,1e-17,1e-16,1e-15,1e-14,1e-13]
+        for e in reverse([10.0^-i for i in 1:30])
             try
                 d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
                 break
