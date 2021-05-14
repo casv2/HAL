@@ -187,6 +187,8 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
 
         IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
+        save_dict("./IP_HAL_$(i).json", Dict("IP" => write_dict(IP)))
+
         add_fits_serial!(IP, al, fitkey="IP2")
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
