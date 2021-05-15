@@ -102,34 +102,37 @@ end
 function get_F_uncertainties(al_test, B, Vref, c, k)
     IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
-    n = length(k[1,:])
-    Pl = []
-    Fl = []
-    for (i,at) in enumerate(al_test)
+    nIPs = length(k[1,:])
+    nats = length(al_test)
+
+    Pl = zeros(nats)
+    Fl = zeros(nats)
+    Threads.@threads for i in 1:nats
+        at = al_test[i]
+
         E = energy(B, at.at)
         F = forces(B, at.at)
 
         E_shift = energy(Vref, at.at)
 
-        Es = [E_shift + sum(k[:,i] .* E) for i in 1:n];
+        Es = [E_shift + sum(k[:,i] .* E) for i in 1:nIPs];
         Fs = [sum(k[:,i] .* F) for i in 1:n];
 
         meanE = mean(Es)
-        varE = sum([ (Es[i] - meanE)^2 for i in 1:n])/n
+        varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
 
         meanF = mean(Fs)
-        varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:n])/n
+        varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
         #varF =  sum([ (Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
 
         F = forces(IP, at.at)
         #p = (norm.(varF) ./ 0.2 + norm.(F))
         #p = sqrt(mean(vcat(varF...).^2))
-        p = maximum(norm.(varF))
-        push!(Pl,p)
-
-        f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
         #f = maximum(vcat(F...) .- at.D["F"])
-        push!(Fl, f)
+        p = maximum(norm.(varF))
+        f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
+        Pl[i] = p
+        Fl[i] = f
     end
     return Fl, Pl
 end
