@@ -136,9 +136,8 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         Fl[i] = f
         Cl[i] = configtype(at)
     end
-    #zero_check = findall(0.0 .!= Pl)
-    #not_zeros = filter!(x -> x ∉ zero_check, collect(1:length(nats)))
-    return Fl, Pl, Cl#Fl[not_zeros], Pl[not_zeros], Cl[not_zeros]
+    inds = findall(0.0 .!= Pl)
+    return Fl[inds], Pl[inds], Cl[inds]
 end
 
 function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true)
