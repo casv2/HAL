@@ -116,7 +116,7 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         E_shift = energy(Vref, at.at)
 
         Es = [E_shift + sum(k[:,i] .* E) for i in 1:nIPs];
-        Fs = [sum(k[:,i] .* F) for i in 1:n];
+        Fs = [sum(k[:,i] .* F) for i in 1:nIPs];
 
         meanE = mean(Es)
         varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
