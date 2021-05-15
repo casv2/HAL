@@ -26,7 +26,7 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
     
     #if calc_err 
-    add_fits_serial!(IP, al, fitkey="IP")
+    add_fits!(IP, al, fitkey="IP")
     rmse_, rmserel_ = rmse(al; fitkey="IP");
     rmse_table(rmse_, rmserel_)
     #end

@@ -148,7 +148,7 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
         @info("HAL ERRORS OF ITERATION $(i)")
-        add_fits_serial!(IP, al, fitkey="IP2")
+        add_fits!(IP, al, fitkey="IP2")
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
 
