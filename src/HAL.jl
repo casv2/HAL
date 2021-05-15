@@ -188,10 +188,7 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
     end
 end
 
-function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true)
-    all_configtypes = [configtype(at) for at in vcat(al, al_test)]
-    plot_dict = Dict(zip(unique(all_configtypes), Plots.supported_markers()[3:end]))
-
+function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; sparsify=true)
     for i in 1:iters
         c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
