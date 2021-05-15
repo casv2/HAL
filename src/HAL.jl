@@ -107,6 +107,7 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
 
     Pl = zeros(nats)
     Fl = zeros(nats)
+    Cl = Vector(undef, nats)
     Threads.@threads for i in 1:nats
         at = al_test[i]
 
@@ -133,8 +134,11 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
         Pl[i] = p
         Fl[i] = f
+        Cl[i] = configtype(at)
     end
-    return Fl, Pl
+    zero_check = findall(0.0 .== Pl)
+    not_zeros = filter!(x -> x ∉ zero_check, collect(1:length(nats)))
+    return Fl[not_zeros], Pl[not_zeros], Cl[not_zeros]
 end
 
 function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true)
@@ -185,6 +189,9 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
 end
 
 function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true)
+    all_configtypes = [configtype(at) for at in vcat(al, al_test)]
+    plot_dict = Dict(zip(unique(all_configtypes), Plots.supported_markers()[3:end]))
+
     for i in 1:iters
         c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
@@ -196,10 +203,14 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
 
-        Fl_train, Pl_train = get_F_uncertainties(al, B, Vref, c, k)
-        Fl_test, Pl_test = get_F_uncertainties(al_test, B, Vref, c, k)
-        scatter(Pl_test .+ 1E-6, Fl_test .+ 1E-6, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
-        scatter!(Pl_train .+ 1E-6, Fl_train .+ 1E-6, yscale=:log10, xscale=:log10,label="train")
+        Fl_train, Pl_train, Cl_train = get_F_uncertainties(al, B, Vref, c, k)
+        Fl_test, Pl_test, Cl_test = get_F_uncertainties(al_test, B, Vref, c, k)
+
+        train_shapes = [plot_dict[config_type] for config_type in Cl_train]
+        test_shapes = [plot_dict[config_type] for config_type in Cl_test]
+
+        scatter(Pl_test, Fl_test, markershapes=test_shapes, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
+        scatter!(Pl_train, Fl_train, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
         xlabel!(L"\max \quad F_{\sigma^{2}} [eV/A]")
         ylabel!("F RMSE error [eV/A]")
         hline!([0.1], color="black", label="0.1 eV/A")
@@ -209,15 +220,17 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         maxvals = sort(Pl_test_fl)[end-nadd:end]
 
         inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 0:nadd]
+        not_inds = filter!(x -> x ∉ inds, collect(1:length(al_test)))
 
         al = vcat(al, al_test[inds])
 
-        save_configs(al, i)
+        save_configs(al, i, "TRAIN")
+        save_configs(al_test[not_inds], i, "TEST")
     end
     return al
 end
 
-function save_configs(al, i)
+function save_configs(al, i, fname)
     py_write = pyimport("ase.io")["write"]
     al_save = []
     for at in al
@@ -236,7 +249,7 @@ function save_configs(al, i)
 
         push!(al_save, py_at.po)
     end
-    py_write("HAL_$(i).xyz", PyVector(al_save))
+    py_write("HAL_$(fname)_$(i).xyz", PyVector(al_save))
 end
 
 end
