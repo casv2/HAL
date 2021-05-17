@@ -123,7 +123,7 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
 
         meanF = mean(Fs)
-        varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
+        varF =  sum([ 2*((Es[i] - meanE)/length(at.at))*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
         #varF =  sum([ (Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
 
         F = forces(IP, at.at)
@@ -205,8 +205,8 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; sp
         train_shapes = [plot_dict[config_type] for config_type in Cl_train]
         test_shapes = [plot_dict[config_type] for config_type in Cl_test]
 
-        scatter(Pl_test .+ 1E-6, Fl_test .+ 1E-6, markershapes=test_shapes, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
-        scatter!(Pl_train .+ 1E-6, Fl_train .+ 1E-6, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
+        scatter(Pl_test, Fl_test, markershapes=test_shapes, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
+        scatter!(Pl_train, Fl_train, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
         xlabel!(L"\max \quad F_{\sigma^{2}} [eV/A]")
         ylabel!("F RMSE error [eV/A]")
         hline!([0.1], color="black", label="0.1 eV/A")
