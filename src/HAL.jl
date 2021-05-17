@@ -103,13 +103,14 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
     IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
     nIPs = length(k[1,:])
-    nats = length(al_test)
+    nconfs = length(al_test)
 
-    Pl = zeros(nats)
-    Fl = zeros(nats)
-    Cl = Vector(undef, nats)
-    Threads.@threads for i in 1:nats
+    Pl = zeros(nconfs)
+    Fl = zeros(nconfs)
+    Cl = Vector(undef, nconfs)
+    Threads.@threads for i in 1:nconfs
         at = al_test[i]
+        nats = length(at.at)
 
         E = energy(B, at.at)
         F = forces(B, at.at)
@@ -123,7 +124,7 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
 
         meanF = mean(Fs)
-        varF =  sum([ 2*((Es[i] - meanE)/length(at.at))*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
+        varF =  sum([ 2*((Es[i] - meanE)/nats)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
         #varF =  sum([ (Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
 
         F = forces(IP, at.at)
