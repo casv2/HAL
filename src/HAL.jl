@@ -167,12 +167,12 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k)
 
         ### FORCES
         F = forces(B, at.at)
-        Fs = [sum(k[:,i] .* F) for i in 1:nIPs];
+        Fs = [sum(k[:,l] .* F) for l in 1:nIPs];
         meanF = mean(Fs)
 
         ### UNCERTAINTY FORCE
 
-        varF = sum([ 2*(Esl[i][k,:] .- mean_site_Es[k]) .* (Fs[k] - meanF) for k in 1:nIPs])/nIPs
+        varF = sum([ 2*(Esl[i][m,:] .- mean_site_Es[m]) .* (Fs[m] - meanF) for m in 1:nIPs])/nIPs
 
         # E = energy(B, at.at)
         # F = forces(B, at.at)
