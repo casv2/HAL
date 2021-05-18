@@ -162,7 +162,7 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k)
             Es[i,:] = [sum([ site_energy(V, at.at, i0) for V in IP.components[2:end]]) for i0 in 1:nats]
         end
 
-        mean_site_Es = mean(eachrow(Es)) 
+        mean_site_Es = [mean(Es[:,i]) for i in 1:nats]
 
         ### FORCES
         F = forces(B, at.at)
