@@ -141,6 +141,68 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
     return Fl[inds], Pl[inds], Cl[inds]
 end
 
+function get_F_uncertainties_sites(al_test, B, Vref, c, k)
+    IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
+    IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, c)) for c in eachcol(k)]
+
+    nIPs = length(k[1,:])
+    nconfs = length(al_test)
+
+    Pl = zeros(nconfs)
+    Fl = zeros(nconfs)
+    Cl = Vector(undef, nconfs)
+    Threads.@threads for i in 1:nconfs
+        at = al_test[i]
+        nats = length(at.at)
+
+        ### ENERGY
+        Es = zeros(nIPs, nats)
+
+        for (i,IP) in enumerate(IPs)
+            Es[i,:] = [sum([ site_energy(V, dia_configs[1].at, i0) for V in IP.components[2:end]]) for i0 in 1:length(dia_configs[1])]
+        end
+
+        mean_site_Es = mean(eachrow(Es)) 
+
+        ### forces
+
+        F = forces(B, at.at)
+        Fs = [sum(k[:,i] .* F) for i in 1:nIPs];
+        meanF = mean(Fs)
+
+        ### UNCERTAINTY FORCE
+
+        varF = sum([ 2*(Es[i,:] .- mean_site_Es[i]) .* (Fs[i] - meanF) for i in 1:nIPs])/nIPs
+
+        # E = energy(B, at.at)
+        # F = forces(B, at.at)
+
+        # E_shift = energy(Vref, at.at)
+
+        # Es = [E_shift + sum(k[:,i] .* E) for i in 1:nIPs];
+        # Fs = [sum(k[:,i] .* F) for i in 1:nIPs];
+
+        # meanE = mean(Es)
+        # #varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
+
+        # meanF = mean(Fs)
+        # varF =  sum([ 2*((Es[i] - meanE)/nats)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
+        #varF =  sum([ (Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
+
+        F = forces(IP, at.at)
+        #p = (norm.(varF) ./ 0.2 + norm.(F))
+        #p = sqrt(mean(vcat(varF...).^2))
+        #f = maximum(vcat(F...) .- at.D["F"])
+        p = maximum(norm.(varF))
+        f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
+        Pl[i] = p
+        Fl[i] = f
+        Cl[i] = configtype(at)
+    end
+    inds = findall(0.0 .!= Pl)
+    return Fl[inds], Pl[inds], Cl[inds]
+end
+
 function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true)
     for i in 1:iters
         @info("ITERATION $(i)")
@@ -188,7 +250,7 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
     end
 end
 
-function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; sparsify=true)
+function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; sites=true, sparsify=true)
     for i in 1:iters
         c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
@@ -200,8 +262,13 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; sp
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
 
-        Fl_train, Pl_train, Cl_train = get_F_uncertainties(al, B, Vref, c, k)
-        Fl_test, Pl_test, Cl_test = get_F_uncertainties(al_test, B, Vref, c, k)
+        if sites
+            Fl_train, Pl_train, Cl_train = get_F_uncertainties_sites(al, B, Vref, c, k)
+            Fl_test, Pl_test, Cl_test = get_F_uncertainties_sites(al_test, B, Vref, c, k)
+        else
+            Fl_train, Pl_train, Cl_train = get_F_uncertainties(al, B, Vref, c, k)
+            Fl_test, Pl_test, Cl_test = get_F_uncertainties(al_test, B, Vref, c, k)
+        end
 
         train_shapes = [plot_dict[config_type] for config_type in Cl_train]
         test_shapes = [plot_dict[config_type] for config_type in Cl_test]
