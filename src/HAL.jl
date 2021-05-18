@@ -142,11 +142,11 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
 end
 
 function get_F_uncertainties_sites(al_test, B, Vref, c, k)
-    IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
-    IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, c)) for c in eachcol(k)]
-
     nIPs = length(k[1,:])
     nconfs = length(al_test)
+
+    IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
+    IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, k[:,i])) for i in 1:nIPs]
 
     Pl = zeros(nconfs)
     Fl = zeros(nconfs)
