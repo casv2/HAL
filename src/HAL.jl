@@ -141,6 +141,20 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
     return Fl[inds], Pl[inds], Cl[inds]
 end
 
+function _get_sites(IPs, at)
+    nIPs = length(IPs)
+    nats = length(at.at)
+	Es = zeros(nIPs, nats)
+
+	for j in 1:nIPs
+		Es[j,:] = [sum([ site_energy(V, at.at, i0) for V in IPs[j].components[2:end]]) for i0 in 1:nats]
+	end
+
+	mean_site_Es = [mean(Es[:,n]) for n in 1:nats]
+
+	return mean_site_Es, Es
+end
+
 function get_F_uncertainties_sites(al_test, B, Vref, c, k)
     nIPs = length(k[1,:])
     nconfs = length(al_test)
@@ -154,16 +168,10 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k)
     #Esl = Vector(undef, nconfs)
     Threads.@threads for i in 1:nconfs
         at = al_test[i]
-        nats = length(at.at)
+        #nats = length(at.at)
 
         ### ENERGY
-        Esl = zeros(nIPs, nats)
-
-        for j in 1:nIPs
-            Esl[j,:] = [sum([ site_energy(V, at.at, i0) for V in IPs[j].components[2:end]]) for i0 in 1:nats]
-        end
-
-        mean_site_Es = [mean(Esl[:,n]) for n in 1:nats]
+        mean_site_Es, Es = _get_sites(IPs, at)
 
         ### FORCES
         F = forces(B, at.at)
@@ -172,7 +180,7 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k)
 
         ### UNCERTAINTY FORCE
 
-        varF = sum([ 2*(Esl[m,:] .- mean_site_Es[m]) .* (Fs[m] - meanF) for m in 1:nIPs])/nIPs
+        varF = sum([ 2*(Es[m,:] .- mean_site_Es) .* (Fs[m] - meanF) for m in 1:nIPs])/nIPs
 
         # E = energy(B, at.at)
         # F = forces(B, at.at)
