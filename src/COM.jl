@@ -5,12 +5,12 @@ using JuLIP.MLIPs: SumIP
 
 export VelocityVerlet_com, get_com_energy_forces
 
-function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10, var=true)
+function VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt; τ = 1e-10, var=true)
     V = at.P ./ at.M
     
     F = forces(IP, at)  
     E = energy(IP, at)
-    varE, varF = get_com_energy_forces(E, F, Vref, B, c_samples, at, var=var)
+    varE, varF = get_com_energy_forces(E, F, IPs, Vref, B, c_samples, at, var=var)
       
     F1 = F - τ*varF
     A = F1 ./ at.M
@@ -19,7 +19,7 @@ function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10, var=true
     
     F = forces(IP, at)  
     E = energy(IP, at)
-    varE, varF = get_com_energy_forces(E, F, Vref, B, c_samples, at, var=var)
+    varE, varF = get_com_energy_forces(E, F, IPs, Vref, B, c_samples, at, var=var)
 
     F2 = F - τ*varF
     nA = F2 ./ at.M
@@ -33,23 +33,23 @@ function VelocityVerlet_com(IP, Vref, B, c_samples, at, dt; τ = 1e-10, var=true
     return at, p
 end
 
-function get_com_energy_forces(E, F, Vref, B, c_samples, at; var=var)
-    E_shift = energy(Vref, at)
+function get_com_energy_forces(E, F, IPs, Vref, B, c_samples, at; var=var)
+    #E_shift = energy(Vref, at)
 
-    nIPs = length(c_samples[1,:])
+    nIPs = length(IPs)
 
-    E_b = energy(B, at)
+    #E_b = energy(B, at)
     F_b = forces(B, at)
     
-    Es = [E_shift + sum(c_samples[:,i] .* E_b) for i in 1:nIPs];
+    mean_site_Es, Es = HMD.HAL._get_sites(IPs, at)
     Fs = [sum(c_samples[:,i] .* F_b) for i in 1:nIPs];
     
-    varE = sum([ (Es[i] - E)^2 for i in 1:nIPs])/nIPs
+    #varE = sum([ (Es[i] - E)^2 for i in 1:nIPs])/nIPs
 
     if var
-        varF =  sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs
+        varF =  sum([ 2*(Es[m,:] .- mean_site_Es) .* (Fs[m] - F) for i in 1:nIPs])/nIPs
     else
-        varF =  ( sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs ) / varE
+        varF =  ( sum([ 2*(Es[m,:] .- mean_site_Es) .* (Fs[m] - F) for i in 1:nIPs])/nIPs ) / varE
     end
     
     return varE, varF
