@@ -158,8 +158,8 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k)
         ### ENERGY
         Es = zeros(nIPs, nats)
 
-        for (i,IP) in enumerate(IPs)
-            Es[i,:] = [sum([ site_energy(V, at.at, i0) for V in IP.components[2:end]]) for i0 in 1:nats]
+        for j in 1:nIPs
+            Es[j,:] = [sum([ site_energy(V, at.at, i0) for V in IPs[j].components[2:end]]) for i0 in 1:nats]
         end
 
         mean_site_Es = [mean(Es[:,i]) for i in 1:nats]
