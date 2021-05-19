@@ -204,7 +204,7 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k, D)
         #f = maximum(vcat(F...) .- at.D["F"])
         p = maximum(norm.(varF) ./ D[cg] + norm.(meanF) )
         f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
-        if p != NaN && f != NaN
+        if p != (Inf, NaN) && f != (Inf, NaN)
             Pl[i] = p
             Fl[i] = f
             Cl[i] = cg
