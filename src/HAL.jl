@@ -308,10 +308,10 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, Vref, plot_dict; Ew=10.0, we
         p = plot()
         scatter!(p, Pl_test, Fl_test, markershapes=test_shapes, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
         scatter!(p, Pl_train, Fl_train, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
-        xlabel!(p, L"\max \quad F_{\sigma^{2}} [eV/A]")
+        xlabel!(p, L"\max \quad F_{\sigma^{2}} / (Fm + F) [eV/A]")
         ylabel!(p, "F RMSE error [eV/A]")
         hline!(p,[0.1], color="black", label="0.1 eV/A")
-        display(p)
+        #display(p)
         savefig("HAL_F_$(i).png")
 
         Pl_test_fl = filter(!isnan, Pl_test)
