@@ -259,7 +259,7 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
     end
 end
 
-function HAL_F(al, al_test, B, ncomms, iters, nadd, Vref, plot_dict; Ew=10.0, weighthook=0.5, sites=true, sparsify=true)
+function HAL_F(al, al_test, B, ncomms, weights, iters, nadd, Vref, plot_dict; Ew=10.0, weighthook=0.5, sites=true, sparsify=true)
     for i in 1:iters
         all_configtypes = unique(configtype.(al))
         nats = length(al)
@@ -276,12 +276,12 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, Vref, plot_dict; Ew=10.0, we
             try D[cg] = mean(Fs) catch end
         end
 
-        weights = Dict()
-        for (cg, Fmeans) in D
-            w = 1/(D[cg]^weighthook)
-            weights[cg] = Dict("E" => 15, "F" => w, "V" => w)
-            println(weights)
-        end
+        # weights = Dict()
+        # for (cg, Fmeans) in D
+        #     w = 1/(D[cg]^weighthook)
+        #     weights[cg] = Dict("E" => 15, "F" => w, "V" => w)
+        #     println(weights)
+        # end
 
         c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
