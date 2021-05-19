@@ -5,12 +5,12 @@ using JuLIP.MLIPs: SumIP
 
 export VelocityVerlet_com, get_com_energy_forces
 
-function VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt; τ = 1e-10, var=true)
+function VelocityVerlet_com(IP, IPs, B, c_samples, at, dt; τ = 1e-10, var=true)
     V = at.P ./ at.M
     
     F = forces(IP, at)  
     E = energy(IP, at)
-    varE, varF = get_com_energy_forces(E, F, IPs, Vref, B, c_samples, at, var=var)
+    varE, varF = get_com_energy_forces(F, IPs, B, c_samples, at, var=var)
       
     F1 = F - τ*varF
     A = F1 ./ at.M
@@ -19,7 +19,7 @@ function VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt; τ = 1e-10, var
     
     F = forces(IP, at)  
     E = energy(IP, at)
-    varE, varF = get_com_energy_forces(E, F, IPs, Vref, B, c_samples, at, var=var)
+    varE, varF = get_com_energy_forces(F, IPs, B, c_samples, at, var=var)
 
     F2 = F - τ*varF
     nA = F2 ./ at.M
@@ -33,7 +33,7 @@ function VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt; τ = 1e-10, var
     return at, p
 end
 
-function get_com_energy_forces(E, F, IPs, Vref, B, c_samples, at; var=var)
+function get_com_energy_forces(F, IPs, B, c_samples, at; var=var)
     #E_shift = energy(Vref, at)
 
     nIPs = length(IPs)

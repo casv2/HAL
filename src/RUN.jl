@@ -68,14 +68,12 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
 
             IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
 
-            IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, c_samples[:,i])) for i in 1:nIPs]
-
             if config_type ∉ keys(run_info)
                 D = copy(run_info["default"])
                 run_info[config_type] = D
             end
 
-            E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP, IPs, B, Vref, c_samples, 
+            E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP, B, Vref, c_samples, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
                     temp=run_info[config_type]["temp"], 
@@ -110,7 +108,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
     return al
 end
 
-function run(IP, IPs, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
+function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -123,6 +121,9 @@ function run(IP, IPs, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τst
 
     at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
     at = HMD.MD.Stationary(at)
+
+    nIPs = length(c_samples[1,:])
+    IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, c_samples[:,i])) for i in 1:nIPs]
 
     cfgs = []
 
