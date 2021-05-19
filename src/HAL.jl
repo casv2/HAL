@@ -265,12 +265,11 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, Vref, plot_dict; Ew=10.0, we
         nats = length(al)
 
         D = Dict()
-        C = Dict(zip(all_configtypes, zeros(length(all_configtypes))))
         for cg in all_configtypes
             Fs = []
+            Es = []
             for at in al
                 if configtype(at) == cg
-                    C[cg] += 1
                     try push!(Fs, mean(abs.(at.D["F"]))) catch end
                 end
             end
@@ -280,7 +279,7 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, Vref, plot_dict; Ew=10.0, we
         weights = Dict()
         for (cg, Fmeans) in D
             w = 1/(D[cg]^weighthook)
-            weights[cg] = Dict("E" => (nats/C[cg]) * Ew * w, "F" => w, "V" => w)
+            weights[cg] = Dict("E" => 15, "F" => w, "V" => w)
             println(weights)
         end
 
