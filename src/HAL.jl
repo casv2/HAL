@@ -259,7 +259,7 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
     end
 end
 
-function HAL_F(al, al_test, B, ncomms, weights, iters, nadd, Vref, plot_dict; Ew=10.0, weighthook=0.5, sites=true, sparsify=true)
+function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; Ew=10.0, weighthook=0.5, sites=true, sparsify=true)
     for i in 1:iters
         all_configtypes = unique(configtype.(al))
         nats = length(al)
