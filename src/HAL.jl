@@ -211,7 +211,11 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k, D)
         end
     end
     inds = findall(0.0 .!= Pl)
-    return Fl[inds], Pl[inds], Cl[inds]
+    Fl = Fl[inds]
+    Pl = Pl[inds]
+    Cl = Cl[inds]
+    inds2 = findall(0.0 .!= Fl)
+    return Fl[inds2], Pl[inds2], Cl[inds2]
 end
 
 function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true)
