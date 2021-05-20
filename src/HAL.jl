@@ -177,11 +177,11 @@ end
 
 function _get_sites(IPs, at)
     nIPs = length(IPs)
-    nats = length(at.at)
+    nats = length(at)
 	Es = zeros(nIPs, nats)
 
 	for j in 1:nIPs
-		Es[j,:] = [sum([ site_energy(V, at.at, i0) for V in IPs[j].components[2:end]]) for i0 in 1:nats]
+		Es[j,:] = [sum([ site_energy(V, at, i0) for V in IPs[j].components[2:end]]) for i0 in 1:nats]
 	end
 
 	mean_site_Es = [mean(Es[:,n]) for n in 1:nats]
@@ -205,7 +205,7 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k, D)
         #nats = length(at.at)
 
         ### ENERGY
-        mean_site_Es, Es = _get_sites(IPs, at)
+        mean_site_Es, Es = _get_sites(IPs, at.at)
 
         ### FORCES
         F = forces(B, at.at)
