@@ -99,6 +99,40 @@ function get_E_uncertainties(al_test, B, Vref, c, k)
     return El, Pl
 end
 
+function get_E_uncertainties_sites(al_test, B, Vref, c, k)
+    nIPs = length(k[1,:])
+    nconfs = length(al_test)
+
+    IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
+    IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, k[:,i])) for i in 1:nIPs]
+
+    Pl = zeros(nconfs)
+    El = zeros(nconfs)
+    Cl = Vector(undef, nconfs)
+    Threads.@threads for i in 1:nconfs
+        at = al_test[i]
+        
+        mean_site_Es, Es = _get_sites(IPs, at)
+
+        varE = mean([Es[i] .- mean_site_Es for i in nIPs])/nIPs
+
+        cg = configtype(at)
+        p = maximum(varE)
+        e = abs.((energy(IP, at.at) .- at.D["E"][1])/length(at.at))
+        if p != (Inf, NaN) && e != (Inf, NaN)
+            Pl[i] = p
+            El[i] = e
+            Cl[i] = cg
+        end
+    end
+    inds = findall(0.0 .!= Pl)
+    El = El[inds]
+    Pl = Pl[inds]
+    Cl = Cl[inds]
+    inds2 = findall(0.0 .!= El)
+    return El[inds2], Pl[inds2], Cl[inds2]
+end
+
 function get_F_uncertainties(al_test, B, Vref, c, k)
     IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
@@ -216,6 +250,63 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k, D)
     Cl = Cl[inds]
     inds2 = findall(0.0 .!= Fl)
     return Fl[inds2], Pl[inds2], Cl[inds2]
+end
+
+function HAL_E_dev(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; sites=true, sparsify=true)
+    for i in 1:iters
+        @info("ITERATION $(i)")
+        c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
+
+        IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
+
+        @info("HAL ERRORS OF ITERATION $(i)")
+        add_fits!(IP, al, fitkey="IP2")
+        rmse_, rmserel_ = rmse(al; fitkey="IP2");
+        rmse_table(rmse_, rmserel_)
+
+        if sites
+            El_train, Pl_train, Cl_train = get_E_uncertainties_sites(al, B, Vref, c, k)
+            El_test, Pl_test, Cl_test = get_E_uncertainties_sites(al_test, B, Vref, c, k)
+        else
+            println("IMPLEMENT!")
+        end
+
+        train_shapes = [plot_dict[config_type] for config_type in Cl_train]
+        test_shapes = [plot_dict[config_type] for config_type in Cl_test]
+
+        p = plot()
+        scatter!(p, Pl_test .+1E-10, abs.(El_test) .+1E-10, markershapes=test_shapes, legend=:bottomright, label="test")
+        scatter!(p, Pl_train .+1E-10, abs.(El_train) .+1E-10, markershapes=train_shapes, label="train")
+        xlabel!(p, L" \sigma^2(x)")
+        ylabel!(p, L" \Delta E  \quad [eV/atom]")
+        #hline!([0.001], color="black", label="1 meV")
+        display(p)
+        savefig("HAL_E_$(i).png")
+
+        Pl_test_fl = filter(!isnan, Pl_test)
+        maxvals = sort(Pl_test_fl)[end-nadd:end]
+
+        inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 0:nadd]
+
+        # @show("USING VASP")
+        # converted_configs = []
+        # for (j, selected_config) in enumerate(al_test[inds])
+        #     #try
+        #     #at, py_at = 
+        #     HMD.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", i, j, calc_settings)
+        #     #catch
+        #     #    @show("VASP failed?")
+        #     #end
+        #     #al = vcat(al, at)
+        #     #push!(converted_configs, at)
+        # end
+
+        #save_configs(converted_configs, i)
+
+        al = vcat(al, al_test[inds])
+
+        save_configs(al, i, "TRAIN")
+    end
 end
 
 function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true)
