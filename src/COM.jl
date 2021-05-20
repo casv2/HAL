@@ -48,9 +48,9 @@ function get_com_energy_forces(F, IPs, B, c_samples, at; var=var)
     #varE = sum([ (Es[i] - E)^2 for i in 1:nIPs])/nIPs
 
     if var
-        varF =  sum([ 2*(Es[m,:] .- mean_site_Es) .* (Fs[m] - F) for i in 1:nIPs])/nIPs
+        varF =  sum([ 2*(Es[i,:] .- mean_site_Es) .* (Fs[i] - F) for i in 1:nIPs])/nIPs
     else
-        varF =  ( sum([ 2*(Es[m,:] .- mean_site_Es) .* (Fs[m] - F) for i in 1:nIPs])/nIPs ) / varE
+        varF =  ( sum([ 2*(Es[i,:] .- mean_site_Es) .* (Fs[i] - F) for i in 1:nIPs])/nIPs ) / varE
     end
     
     return varE, varF
