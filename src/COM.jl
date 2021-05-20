@@ -2,6 +2,7 @@ module COM
 
 using JuLIP, Distributions, LinearAlgebra
 using JuLIP.MLIPs: SumIP
+using HMD
 
 export VelocityVerlet_com, get_com_energy_forces
 
