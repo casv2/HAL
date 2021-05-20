@@ -45,7 +45,7 @@ function get_com_energy_forces(F, IPs, B, c_samples, at; var=var)
     mean_site_Es, Es = HMD.HAL._get_sites(IPs, at)
     Fs = [sum(c_samples[:,i] .* F_b) for i in 1:nIPs];
     
-    varE = sum([ (Es[i] .- mean_site_Es)^2 for i in 1:nIPs])/nIPs
+    varE = sum([ (Es[i] .- mean_site_Es).^2 for i in 1:nIPs])/nIPs
 
     if var
         varF =  sum([ 2*(Es[i,:] .- mean_site_Es) .* (Fs[i] - F) for i in 1:nIPs])/nIPs
