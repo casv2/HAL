@@ -35,7 +35,10 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     return IP, c_samples
 end
 
-function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#, nsteps=10000)
+function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings; refit=false)#, nsteps=10000)
+    if refit == false
+        IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
+    end
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HMD_iters"])
@@ -67,7 +70,9 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
 
             # B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
 
-            IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
+            if refit
+                IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
+            end
 
             if config_type ∉ keys(run_info)
                 D = copy(run_info["default"])
