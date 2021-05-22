@@ -3,10 +3,11 @@ module COM
 using JuLIP, Distributions, LinearAlgebra
 using JuLIP.MLIPs: SumIP
 using HMD
+using Random
 
 export VelocityVerlet_com, get_com_energy_forces
 
-function VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt; τ = 1e-10, var=true)
+function VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt, T; gamma=0.02, τ = 1e-10, var=true)
     V = at.P ./ at.M
     
     F = forces(IP, at)  
@@ -25,7 +26,11 @@ function VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt; τ = 1e-10, var
     F2 = F - τ*varF
     nA = F2 ./ at.M
 
-    nV = V + (.5 * (A + nA) * dt)
+    xi = rand(Normal(), length(at)*3) |> vecs
+    c1 = exp(-gamma*dt)
+    c2 = sqrt(1-c1^2) * sqrt.(T ./ at.M)
+
+    nV = V + (.5 * (A + nA) * dt) + xi .* c2
     set_momenta!(at, nV .* at.M)
 
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))

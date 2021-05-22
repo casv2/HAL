@@ -125,8 +125,8 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τstep=50
 
     E0 = energy(IP, at)
 
-    at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
-    at = HMD.MD.Stationary(at)
+    # at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
+    # at = HMD.MD.Stationary(at)
 
     nIPs = length(c_samples[1,:])
     IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, c_samples[:,i])) for i in 1:nIPs]
@@ -138,7 +138,7 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τstep=50
     i = 1
     τ = 0
     while running && i < nsteps
-        at, p = HMD.COM.VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt * HMD.MD.fs, τ=τ, var=var)
+        at, p = HMD.COM.VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt * HMD.MD.fs, temp * HMD.MD.kB, τ=τ, var=var)
         P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
