@@ -88,7 +88,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings; r
                     dτ=run_info[config_type]["dτ"], 
                     maxp=run_info[config_type]["maxp"],
                     var=run_info["var"],
-                    γ=run_info[config_type][["γ"])
+                    γ=run_info[config_type]["γ"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
 
