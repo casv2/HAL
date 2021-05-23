@@ -87,7 +87,8 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings; r
                     τstep=run_info[config_type]["τstep"], 
                     dτ=run_info[config_type]["dτ"], 
                     maxp=run_info[config_type]["maxp"],
-                    var=run_info["var"])
+                    var=run_info["var"],
+                    γ=run_info["γ"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
 
@@ -114,7 +115,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings; r
     return al
 end
 
-function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
+function run(IP, B, Vref, c_samples, at; γ=0.02, nsteps=100, temp=100, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -138,7 +139,11 @@ function run(IP, B, Vref, c_samples, at; nsteps=100, temp=100, dt=1.0, τstep=50
     i = 1
     τ = 0
     while running && i < nsteps
-        at, p = HMD.COM.VelocityVerlet_com(IP, IPs, Vref, B, c_samples, at, dt * HMD.MD.fs, temp * HMD.MD.kB, τ=τ, var=var)
+        if temp == 0
+            at, p = HMD.COM.VelocityVerlet_com(IP, IPs, B, c_samples, at, dt * HMD.MD.fs, τ=τ, var=var)
+        else
+            at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, B, c_samples, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, var=var)
+        end
         P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
