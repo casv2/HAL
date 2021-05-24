@@ -29,7 +29,7 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
         norm(clf.coef_)
         inds = findall(clf.coef_ .!= 0)
 
-        clf = BRR(normalize=true)
+        clf = BRR()#fit_intercept=false)
         clf.fit(Ψ[:,inds], Y)
 
         S_inv = clf.alpha_ * Diagonal(ones(length(inds))) + clf.lambda_ * Symmetric(transpose(Ψ[:,inds])* Ψ[:,inds])
@@ -56,7 +56,7 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
         end
         return c, k
     else
-        clf = BRR(normalize=true)
+        clf = BRR()#fit_intercept=false)
         clf.fit(Ψ, Y)
 
         S_inv = clf.alpha_ * Diagonal(ones(length(Ψ[1,:]))) + clf.lambda_ * Symmetric(transpose(Ψ)* Ψ)
