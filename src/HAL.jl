@@ -436,7 +436,7 @@ function save_configs(al, i, fname)
         D_info["config_type"] = configtype(at) #"HAL_$(i)_" * configtype(at)
         try D_info["energy"] = at.D["E"] catch end
         try D_info["virial"] = [at.D["V"][1], at.D["V"][6], at.D["V"][5], at.D["V"][6], at.D["V"][2], at.D["V"][4], at.D["V"][5], at.D["V"][4], at.D["V"][3]] catch end
-        try D_arrays["forces"] = reshape(at.D["F"], length(at.at), 3) catch end
+        try D_arrays["forces"] = transpose(reshape(at.D["F"], 3, length(at.at))) catch end
 
         py_at.po[:info] = D_info
         py_at.po[:arrays] = D_arrays
