@@ -170,12 +170,15 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         #p 
         F = forces(IP, at.at)
 
-        p = maximum(norm.(varF))
-        f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
+        try
+            p = maximum(norm.(varF))
+            f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
 
-        Pl[i] = p
-        Fl[i] = f
-        Cl[i] = configtype(at)
+            Pl[i] = p
+            Fl[i] = f
+            Cl[i] = configtype(at)
+        catch
+        end
     end
     inds = findall(0.0 .!= Pl)
     return Fl[inds], Pl[inds], Cl[inds]
