@@ -151,22 +151,24 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
 
         E_shift = energy(Vref, at.at)
 
-        Es = [E_shift + sum(k[:,i] .* E) for i in 1:nIPs];
+        Es = [(E_shift + sum(k[:,i] .* E))/nats for i in 1:nIPs];
         Fs = [sum(k[:,i] .* F) for i in 1:nIPs];
 
-        meanE = mean(Es)
+        meanE = (E_shift + sum(c .* E))/nats
         #varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
 
-        meanF = mean(Fs)
-        varF =  sum([ 2*((Es[i] - meanE)/nats)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
+        meanF = sum(c .* F)
+
+        varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
         #varF =  sum([ (Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
 
-        F = forces(IP, at.at)
-        #p = (norm.(varF) ./ 0.2 + norm.(F))
+        #F = (norm.(varF))
         #p = sqrt(mean(vcat(varF...).^2))
-        #f = maximum(vcat(F...) .- at.D["F"])
+        #f = maximum(vcat(F...) .- at.D["F"])= forces(IP, at.at)
+        #p 
         p = maximum(norm.(varF))
         f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
+
         Pl[i] = p
         Fl[i] = f
         Cl[i] = configtype(at)
@@ -189,7 +191,7 @@ function _get_sites(IPs, at)
 	return mean_site_Es, Es
 end
 
-function get_F_uncertainties_sites(al_test, B, Vref, c, k, D)
+function get_F_uncertainties_sites(al_test, B, Vref, c, k)
     nIPs = length(k[1,:])
     nconfs = length(al_test)
 
@@ -236,7 +238,7 @@ function get_F_uncertainties_sites(al_test, B, Vref, c, k, D)
         #p = (norm.(varF) ./ 0.2 + norm.(F))
         #p = sqrt(mean(vcat(varF...).^2))
         #f = maximum(vcat(F...) .- at.D["F"])
-        p = maximum(norm.(varF) ./ D[cg] + norm.(meanF) )
+        p = maximum(norm.(varF))
         f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
         if p != (Inf, NaN) && f != (Inf, NaN)
             Pl[i] = p
@@ -356,29 +358,10 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
     end
 end
 
-function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; Ew=10.0, weighthook=0.5, sites=true, sparsify=true)
+function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; sites=true, sparsify=true)
     for i in 1:iters
         all_configtypes = unique(configtype.(al))
         nats = length(al)
-
-        D = Dict()
-        for cg in all_configtypes
-            Fs = []
-            Es = []
-            for at in al
-                if configtype(at) == cg
-                    try push!(Fs, mean(abs.(at.D["F"]))) catch end
-                end
-            end
-            try D[cg] = mean(Fs) catch end
-        end
-
-        # weights = Dict()
-        # for (cg, Fmeans) in D
-        #     w = 1/(D[cg]^weighthook)
-        #     weights[cg] = Dict("E" => 15, "F" => w, "V" => w)
-        #     println(weights)
-        # end
 
         c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
@@ -391,8 +374,8 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; Ew
         rmse_table(rmse_, rmserel_)
 
         if sites
-            Fl_train, Pl_train, Cl_train = get_F_uncertainties_sites(al, B, Vref, c, k, D)
-            Fl_test, Pl_test, Cl_test = get_F_uncertainties_sites(al_test, B, Vref, c, k, D)
+            Fl_train, Pl_train, Cl_train = get_F_uncertainties_sites(al, B, Vref, c, k)
+            Fl_test, Pl_test, Cl_test = get_F_uncertainties_sites(al_test, B, Vref, c, k)
         else
             Fl_train, Pl_train, Cl_train = get_F_uncertainties(al, B, Vref, c, k)
             Fl_test, Pl_test, Cl_test = get_F_uncertainties(al_test, B, Vref, c, k)
@@ -404,7 +387,7 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; Ew
         p = plot()
         scatter!(p, Pl_test, Fl_test, markershapes=test_shapes, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
         scatter!(p, Pl_train, Fl_train, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
-        xlabel!(p, L"\max \quad F_{\sigma^{2}} / (Fm + F) [eV/A]")
+        xlabel!(p, L"\max \quad \sigma_{F}")
         ylabel!(p, "F RMSE error [eV/A]")
         hline!(p,[0.1], color="black", label="0.1 eV/A")
         #display(p)
