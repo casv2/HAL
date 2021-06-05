@@ -154,10 +154,12 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         Es = [(E_shift + sum(k[:,i] .* E))/nats for i in 1:nIPs];
         Fs = [sum(k[:,i] .* F) for i in 1:nIPs];
 
-        meanE = (E_shift + sum(c .* E))/nats
+        #meanE = (E_shift + sum(c .* E))/nats
         #varE = sum([ (Es[i] - meanE)^2 for i in 1:nIPs])/nIPs
 
-        meanF = sum(c .* F)
+        meanE = mean(Es)
+        meanF = mean(Fs)
+        #meanF = sum(c .* F)
 
         varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
         #varF =  sum([ (Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
