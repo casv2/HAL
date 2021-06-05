@@ -168,6 +168,8 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         #p = sqrt(mean(vcat(varF...).^2))
         #f = maximum(vcat(F...) .- at.D["F"])= forces(IP, at.at)
         #p 
+        F = forces(IP, at.at)
+
         p = maximum(norm.(varF))
         f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
 
