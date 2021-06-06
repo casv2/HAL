@@ -326,7 +326,7 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
         @info("HAL ERRORS OF ITERATION $(i)")
-        add_fits!(IP, al, fitkey="IP2")
+        add_fits_serial!(IP, al, fitkey="IP2")
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
 
@@ -376,9 +376,9 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; si
 
         save_dict("./IP_HAL_$(i).json", Dict("IP" => write_dict(IP)))
 
-        add_fits!(IP, al, fitkey="IP2")
-        rmse_, rmserel_ = rmse(al; fitkey="IP2");
-        rmse_table(rmse_, rmserel_)
+        #add_fits!(IP, al, fitkey="IP2")
+        #rmse_, rmserel_ = rmse(al; fitkey="IP2");
+        #rmse_table(rmse_, rmserel_)
 
         if sites
             Fl_train, Pl_train, Cl_train = get_F_uncertainties_sites(al, B, Vref, c, k)
