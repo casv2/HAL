@@ -376,7 +376,7 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; si
 
         save_dict("./IP_HAL_$(i).json", Dict("IP" => write_dict(IP)))
 
-        add_fits_serial!(IP, al, fitkey="IP2")
+        add_fits!(IP, al, fitkey="IP2")
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
         rmse_table(rmse_, rmserel_)
 
