@@ -285,6 +285,8 @@ function HAL_E_dev(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict
 
         IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
 
+        save_dict("./IP_HAL_$(i).json", Dict("IP" => write_dict(IP)))
+
         @info("HAL ERRORS OF ITERATION $(i)")
         add_fits!(IP, al, fitkey="IP2")
         rmse_, rmserel_ = rmse(al; fitkey="IP2");
