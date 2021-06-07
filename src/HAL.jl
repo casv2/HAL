@@ -98,14 +98,17 @@ function get_E_uncertainties(al_test, B, Vref, c, k)
         #Fs = [sum(k[:,i] .* F) for i in 1:nIPs];
         meanE = (E_shift + sum(c .* E))/nats
 
-        p = std(Es)
-        e = abs.((meanE .- at.D["E"][1])/length(at.at))
-        cg = configtype(at)
+        try 
+            p = std(Es)
+            e = abs.((meanE .- at.D["E"][1])/length(at.at))
+            cg = configtype(at)
 
-        if p != (Inf, NaN) && e != (Inf, NaN)
-            Pl[i] = p
-            El[i] = e
-            Cl[i] = cg
+            if p != (Inf, NaN) && e != (Inf, NaN)
+                Pl[i] = p
+                El[i] = e
+                Cl[i] = cg
+            end
+        catch
         end
     end
     inds = findall(0.0 .!= Pl)
