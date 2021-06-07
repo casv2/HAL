@@ -99,8 +99,8 @@ function get_E_uncertainties(al_test, B, Vref, c, k)
         meanE = (E_shift + sum(c .* E))/nats
 
         try 
-            p = std(Es)
-            e = sqrt(sum([ (Es[m] - meanE)^2 for m in 1:nIPs])/nIPs)
+            p = sqrt(sum([ (Es[m] - meanE)^2 for m in 1:nIPs])/nIPs)
+            e = abs.((energy(IP, at.at) .- at.D["E"][1])/nats)
             cg = configtype(at)
 
             if p != (Inf, NaN) && e != (Inf, NaN)
