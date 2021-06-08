@@ -131,11 +131,10 @@ function get_E_uncertainties_sites(al_test, B, Vref, c, k)
         
         mean_site_Es, Es = _get_sites(IPs, at)
 
-        varE = mean([Es[i] .- mean_site_Es for i in nIPs])/nIPs
-
+        p = sqrt(sum([ (Es[m] .- meanE_site_Es)^2 for m in 1:nIPs])/nIPs)
+        e = abs.(mean_site_Es .- (at.D["E"][1]/nats))
         cg = configtype(at)
-        p = maximum(varE)
-        e = abs.((energy(IP, at.at) .- at.D["E"][1])/length(at.at))
+
         if p != (Inf, NaN) && e != (Inf, NaN)
             Pl[i] = p
             El[i] = e
