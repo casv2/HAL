@@ -419,8 +419,10 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; si
         envs_train = sum([length(at.at) for at in al])
         envs_test = sum([length(at.at) for at in al_test])
 
+        perc = (round((envs_train/(envs_train + envs_test)), digits=2)*100)
+
         p = plot()
-        title!(p, "$((round(envs_train/(envs_train + envs_test), digits=2)*100)% of DB")
+        title!(p, "$(perc)% of DB")
         scatter!(p, Pl_test, Fl_test, markershapes=test_shapes, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
         scatter!(p, Pl_train, Fl_train, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
         xlabel!(p,L"\sigma_{F} \quad \textrm{[eV/Å]}")
