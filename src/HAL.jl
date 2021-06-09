@@ -421,9 +421,9 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; si
         scatter!(p, Pl_train, Fl_train, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
         xlabel!(p,L"\sigma_{F} \quad \textrm{[eV/Å]}")
 	    ylabel!(p, "RMSE Force Error [eV/Å]")
-        hline!(p,[0.075], color="black", label="ACE npj", linestyle=:dashed)
-        hline!(p,[mean(Fl_test)], color=1, label="test", linestyle=:dashed)
-        hline!(p,[mean(Fl_train)], color=2, label="train", linestyle=:dashed)
+        hline!(p,[0.075], color="black", label="ACE npj", linestyle=:dash)
+        hline!(p,[mean(Fl_test)], color=1, label="test", linestyle=:dash)
+        hline!(p,[mean(Fl_train)], color=2, label="train", linestyle=:dash)
         #display(p)
         savefig("HAL_F_$(i).pdf")
 
