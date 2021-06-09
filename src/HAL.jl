@@ -177,7 +177,9 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         #meanF = mean(Fs)
         meanF = sum(c .* F)
 
-        varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
+        #varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
+        
+        stdF = sqrt(sum(vcat([vcat(Fs[m]...) .- vcat(meanF...) for m in 1:length(IPs)]...).^2)/length(IPs))
         #varF =  sum([ (Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
 
         #F = (norm.(varF))
@@ -187,7 +189,8 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         F = forces(IP, at.at)
 
         try
-            p = maximum(norm.(varF))
+            #p = maximum(norm.(varF))
+            p = stdF#maximum(norm.(stdF))
             f = sqrt(mean((vcat(F...) .- at.D["F"]).^2))
 
             Pl[i] = p
@@ -418,9 +421,9 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; si
         scatter!(p, Pl_train, Fl_train, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
         xlabel!(p,L"\sigma_{F} \quad \textrm{[eV/Å]}")
 	    ylabel!(p, "RMSE Force Error [eV/Å]")
-        hline!(p,[0.075], color="black", label="0.075 eV/Å")
-        hline!(p,[mean(Fl_test)], color=1, label="test")
-        hline!(p,[mean(Fl_train)], color=2, label="train")
+        hline!(p,[0.075], color="black", label="ACE npj", linestyle=:dashed)
+        hline!(p,[mean(Fl_test)], color=1, label="test", linestyle=:dashed)
+        hline!(p,[mean(Fl_train)], color=2, label="train", linestyle=:dashed)
         #display(p)
         savefig("HAL_F_$(i).pdf")
 
