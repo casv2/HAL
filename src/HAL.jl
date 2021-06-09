@@ -416,11 +416,13 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; si
         p = plot()
         scatter!(p, Pl_test, Fl_test, markershapes=test_shapes, yscale=:log10, xscale=:log10, legend=:bottomright, label="test")
         scatter!(p, Pl_train, Fl_train, markershapes=train_shapes, yscale=:log10, xscale=:log10,label="train")
-        xlabel!(p, L"\max \quad \sigma_{F}")
-        ylabel!(p, "F RMSE error [eV/A]")
-        hline!(p,[0.1], color="black", label="0.1 eV/A")
+        xlabel!(p,L"\sigma_{F} \quad \textrm{[eV/Å]}")
+	    ylabel!(p, "RMSE Force Error [eV/Å]")
+        hline!(p,[0.075], color="black", label="0.075 eV/Å")
+        hline!(p,[mean(Fl_test)], color=1, label="test")
+        hline!(p,[mean(Fl_train)], color=2, label="train")
         #display(p)
-        savefig("HAL_F_$(i).png")
+        savefig("HAL_F_$(i).pdf")
 
         Pl_test_fl = filter(!isnan, Pl_test)
         maxvals = sort(Pl_test_fl)[end-nadd:end]

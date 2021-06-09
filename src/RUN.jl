@@ -140,9 +140,9 @@ function run(IP, B, Vref, c_samples, at; γ=0.02, nsteps=100, temp=100, dt=1.0, 
     τ = 0
     while running && i < nsteps
         if temp == 0
-            at, p = HMD.COM.VelocityVerlet_com(IP, IPs, B, c_samples, at, dt * HMD.MD.fs, τ=τ, var=var)
+            at, p = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ, var=var)
         else
-            at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, B, c_samples, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, var=var)
+            at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, var=var)
         end
         P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)

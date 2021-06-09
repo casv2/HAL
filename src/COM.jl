@@ -7,27 +7,20 @@ using Random
 
 export VelocityVerlet_com, get_com_energy_forces
 
-function VelocityVerlet_com(IP, IPs, B, c_samples, at, dt; τ = 1e-10, var=true)
-    V = at.P ./ at.M
-    
-    F = forces(IP, at)  
-    E = energy(IP, at)
-    varE, varF = get_com_energy_forces(F, IPs, B, c_samples, at, var=var)
+function VelocityVerlet_com(IP, IPs, at, dt; τ = 1e-10, var=true)
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
       
-    F1 = F - τ*varF
-    A = F1 ./ at.M
+    P = at.P + (0.5 * dt * F) 
 
-    set_positions!(at, at.X + (V .* dt) + (.5 * A * dt^2))
-    
-    F = forces(IP, at)  
-    E = energy(IP, at)
-    varE, varF = get_com_energy_forces(F, IPs, B, c_samples, at, var=var)
+    set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
+    set_momenta!(at, P)
 
-    F2 = F - τ*varF
-    nA = F2 ./ at.M
-
-    nV = V + (.5 * (A + nA) * dt)
-    set_momenta!(at, nV .* at.M)
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
+      
+    P = at.P + (0.5 * dt * F) 
+    set_momenta!(at, P_new)
 
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
     p = maximum((norm.(varF)))
@@ -35,63 +28,78 @@ function VelocityVerlet_com(IP, IPs, B, c_samples, at, dt; τ = 1e-10, var=true)
     return at, p
 end
 
-function VelocityVerlet_com_langevin(IP, IPs, B, c_samples, at, dt, T; γ=0.02, τ = 1e-10, var=true)
-    V = at.P ./ at.M
-    V = random_v_update(V, at.M, γ, T, dt)
-
-    F = forces(IP, at)  
-    E = energy(IP, at)
-    varE, varF = get_com_energy_forces(F, IPs, B, c_samples, at, var=var)
+function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 1e-10)
+    #varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) #- τ * varF
       
-    F1 = F - τ*varF
-    A = F1 ./ at.M
+    P = at.P + (0.5 * dt * F) 
+    P = random_p_update(P, at.M, γ, T, dt)
 
-    set_positions!(at, at.X + (V .* dt) + (.5 * A * dt^2))
-    
-    F = forces(IP, at)  
-    E = energy(IP, at)
-    varE, varF = get_com_energy_forces(F, IPs, B, c_samples, at, var=var)
+    set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
+    set_momenta!(at, P)
 
-    F2 = F - τ*varF
-    nA = F2 ./ at.M
-
-    V = V + (.5 * (A + nA) * dt)
-    V = random_v_update(V, at.M, γ, T, dt)
-    set_momenta!(at, V .* at.M)
+    #varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) #- τ * varF
+      
+    P = at.P + (0.5 * dt * F) 
+    P = random_p_update(P, at.M, γ, T, dt)
+    set_momenta!(at, P)
 
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
-    p = maximum((norm.(varF)))
+    #p = maximum((norm.(varF)))
 
-    return at, p
+    return at#, p
 end
 
-function random_v_update(V, M, gamma, T, dt)
+function random_p_update(P, M, γ, T, dt)
+    V = P ./ M
     R = rand(Normal(), (length(M)*3)) |> vecs
-    c1 = exp(-gamma*dt)
+    c1 = exp(-γ*dt)
     c2 = sqrt(1-c1^2)*sqrt.(T ./ M)
-    return c1*V + c2 .* R
+    #@show c1, c2
+    V_new = c1*V + c2 .* R
+    return V_new .* M
 end
 
-function get_com_energy_forces(F, IPs, B, c_samples, at; var=var)
+function get_com_energy_forces(IP, IPs, at)
     #E_shift = energy(Vref, at)
-
     nIPs = length(IPs)
-
-    #E_b = energy(B, at)
-    F_b = forces(B, at)
+    E = energy(IP, at)
+    F = forces(IP, at)
     
-    mean_site_Es, Es = HMD.HAL._get_sites(IPs, at)
-    Fs = [sum(c_samples[:,i] .* F_b) for i in 1:nIPs];
+    Es = [energy(IPs[i], at) for i in 1:nIPs];
+    Fs = [forces(IPs[i], at) for i in 1:nIPs];
     
-    varE = sum([ (Es[i] .- mean_site_Es).^2 for i in 1:nIPs])/nIPs
-
-    if var
-        varF =  sum([ 2*(Es[i,:] .- mean_site_Es) .* (Fs[i] - F) for i in 1:nIPs])/nIPs
-    else
-        varF =  ( sum([ 2*(Es[i,:] .- mean_site_Es) .* (Fs[i] - F) for i in 1:nIPs])/nIPs ) / varE
-    end
+    varF =  sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs
+    
+    #meanE = mean(Es)
+    varE = sum([ (Es[i] - E)^2 for i in 1:nIPs])/nIPs
+    
+    #meanF = mean(Fs)
     
     return varE, varF
 end
+
+# function get_com_energy_forces(F, IPs, B, c_samples, at; var=var)
+#     #E_shift = energy(Vref, at)
+
+#     nIPs = length(IPs)
+
+#     #E_b = energy(B, at)
+#     F_b = forces(B, at)
+    
+#     mean_site_Es, Es = HMD.HAL._get_sites(IPs, at)
+#     Fs = [sum(c_samples[:,i] .* F_b) for i in 1:nIPs];
+    
+#     varE = sum([ (Es[i] .- mean_site_Es).^2 for i in 1:nIPs])/nIPs
+
+#     if var
+#         varF =  sum([ 2*(Es[i,:] .- mean_site_Es) .* (Fs[i] - F) for i in 1:nIPs])/nIPs
+#     else
+#         varF =  ( sum([ 2*(Es[i,:] .- mean_site_Es) .* (Fs[i] - F) for i in 1:nIPs])/nIPs ) / varE
+#     end
+    
+#     return varE, varF
+# end
 
 end
