@@ -486,8 +486,8 @@ function HAL_F2(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; s
         for (i,cfg_type) in enumerate(config_types)
             inds_train = findall(Cl_train .== cfg_type)
             inds_test = findall(Cl_test .== cfg_type)
-            scatter!(p, Pl_test[inds_test], Fl_test[inds_test], subplot=i, legend=:bottomright, label="test")
-            scatter!(p, Pl_train[inds_train], Fl_train[inds_train], subplot=i, label="train")
+            scatter!(p, Pl_test[inds_test], Fl_test[inds_test], subplot=i, legend=:bottomright, title="$(cfg_type)", label="")
+            scatter!(p, Pl_train[inds_train], Fl_train[inds_train], subplot=i, label="")
         end
         # xlabel!(p,L"\sigma_{F} \quad \textrm{[eV/Å]}")
 	    # ylabel!(p, "RMSE Force Error [eV/Å]")
