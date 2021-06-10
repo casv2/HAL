@@ -479,15 +479,15 @@ function HAL_F2(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; s
 
         @show length(config_types)
 
-        p = plot(layout=length(config_types))
+        p = plot(layout=length(config_types), size=(1000,1000))
         #title!(p, "$(perc)% of DB")
         @show config_types
 
         for (i,cfg_type) in enumerate(config_types)
             inds_train = findall(Cl_train .== cfg_type)
             inds_test = findall(Cl_test .== cfg_type)
-            scatter!(p, Pl_test[inds_test], Fl_test[inds_test], subplot=i, legend=:bottomright, title="$(cfg_type)", label="")
-            scatter!(p, Pl_train[inds_train], Fl_train[inds_train], subplot=i, label="")
+            scatter!(p, Pl_test[inds_test], Fl_test[inds_test], subplot=i, legend=:bottomright, label="")
+            scatter!(p, Pl_train[inds_train], Fl_train[inds_train], subplot=i, label="$(cfg_type)")
         end
         # xlabel!(p,L"\sigma_{F} \quad \textrm{[eV/Å]}")
 	    # ylabel!(p, "RMSE Force Error [eV/Å]")
