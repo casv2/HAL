@@ -447,6 +447,71 @@ function HAL_F(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; si
     return al
 end
 
+function HAL_F2(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; sites=true, sparsify=true)
+    for i in 1:iters
+        c, k = get_coeff(al, B, ncomms, weights, Vref, sparsify)
+
+        IP = SumIP(Vref, JuLIP.MLIPs.combine(B, c))
+
+        save_dict("./IP_HAL_$(i).json", Dict("IP" => write_dict(IP)))
+
+        #add_fits!(IP, al, fitkey="IP2")
+        #rmse_, rmserel_ = rmse(al; fitkey="IP2");
+        #rmse_table(rmse_, rmserel_)
+
+        if sites
+            Fl_train, Pl_train, Cl_train = get_F_uncertainties_sites(al, B, Vref, c, k)
+            Fl_test, Pl_test, Cl_test = get_F_uncertainties_sites(al_test, B, Vref, c, k)
+        else
+            Fl_train, Pl_train, Cl_train = get_F_uncertainties(al, B, Vref, c, k)
+            Fl_test, Pl_test, Cl_test = get_F_uncertainties(al_test, B, Vref, c, k)
+        end
+
+        #train_shapes = [plot_dict[config_type] for config_type in Cl_train]
+        #test_shapes = [plot_dict[config_type] for config_type in Cl_test]
+
+        #envs_train = sum([length(at.at) for at in al])
+        #envs_test = sum([length(at.at) for at in al_test])
+
+        #perc = (round((envs_train/(envs_train + envs_test)), digits=2)*100)
+
+        config_types = unique(vcat(Cl_train, Cl_test))
+
+        @show length(config_types)
+
+        p = plot(layout=length(config_types))
+        #title!(p, "$(perc)% of DB")
+        @show config_types
+
+        for (i,cfg_type) in enumerate(config_types)
+            inds_train = findall(Cl_train .== cfg_type)
+            inds_test = findall(Cl_test .== cfg_type)
+            scatter!(p, Pl_test[inds_test], Fl_test[inds_test], subplot=i, legend=:bottomright, label="test")
+            scatter!(p, Pl_train[inds_train], Fl_train[inds_train], subplot=i, label="train")
+        end
+        # xlabel!(p,L"\sigma_{F} \quad \textrm{[eV/Å]}")
+	    # ylabel!(p, "RMSE Force Error [eV/Å]")
+        # hline!(p,[0.075], color="black", label="ACE npj", linestyle=:dash)
+        # hline!(p,[mean(Fl_test)], color=1, label="test", linestyle=:dash)
+        # hline!(p,[mean(Fl_train)], color=2, label="train", linestyle=:dash)
+        #display(p)
+        savefig("HAL_F_$(i).pdf")
+
+        Pl_test_fl = filter(!isnan, Pl_test)
+        maxvals = sort(Pl_test_fl)[end-nadd:end]
+
+        inds = [findall(Pl_test .== maxvals[end-i])[1] for i in 0:nadd]
+        not_inds = filter!(x -> x ∉ inds, collect(1:length(al_test)))
+
+        al = vcat(al, al_test[inds])
+
+        save_configs(al, i, "TRAIN")
+        save_configs(al_test[not_inds], i, "TEST")
+    end
+    return al
+end
+
+
 function save_configs(al, i, fname)
     py_write = pyimport("ase.io")["write"]
     al_save = []
