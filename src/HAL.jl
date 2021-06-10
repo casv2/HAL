@@ -176,11 +176,11 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         #meanE = mean(Es)
         #meanF = mean(Fs)
         meanF = sum(c .* F)
-
+        meanE = (E_shift + sum(c .* E))/nats
         #varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
         
-        stdF = sqrt(sum(vcat([vcat(Fs[m]...) .- vcat(meanF...) for m in 1:nIPs]...).^2)/length(nIPs))
-        #varF =  sum([ (Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
+        #stdF = sqrt(sum(vcat([vcat(Fs[m]...) .- vcat(meanF...) for m in 1:nIPs]...).^2)/length(nIPs))
+        varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
 
         #F = (norm.(varF))
         #p = sqrt(mean(vcat(varF...).^2))
@@ -190,7 +190,7 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
 
         try
             #p = maximum(norm.(varF))
-            p = stdF#maximum(norm.(stdF))
+            p = maximum(norm.(varF)) #varF
             f = sqrt(mean((vcat(meanF...) .- at.D["F"]).^2))
 
             Pl[i] = p
