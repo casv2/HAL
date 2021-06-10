@@ -180,7 +180,7 @@ function get_F_uncertainties(al_test, B, Vref, c, k)
         #varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs
         
         #stdF = sqrt(sum(vcat([vcat(Fs[m]...) .- vcat(meanF...) for m in 1:nIPs]...).^2)/length(nIPs))
-        varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:n])/n #2*(Es[i] - meanE)*
+        varF =  sum([ 2*(Es[i] - meanE)*(Fs[i] - meanF) for i in 1:nIPs])/nIPs #2*(Es[i] - meanE)*
 
         #F = (norm.(varF))
         #p = sqrt(mean(vcat(varF...).^2))
