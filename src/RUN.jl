@@ -87,7 +87,6 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings; r
                     τstep=run_info[config_type]["τstep"], 
                     dτ=run_info[config_type]["dτ"], 
                     maxp=run_info[config_type]["maxp"],
-                    var=run_info["var"],
                     γ=run_info[config_type]["γ"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
@@ -140,9 +139,9 @@ function run(IP, B, Vref, c_samples, at; γ=0.02, nsteps=100, temp=100, dt=1.0, 
     τ = 0
     while running && i < nsteps
         if temp == 0
-            at, p = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ, var=var)
+            at, p = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
         else
-            at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, var=var)
+            at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
         end
         P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
