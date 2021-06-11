@@ -101,7 +101,7 @@ function CASTEP_calculator(at, config_type, calc_settings)
     F = py_at.po.get_forces()
     V = -1.0 * py_at.po.get_stress(voigt=false) * py_at.po.get_volume()
 
-    dat = Dat( at, "HMD_" * config_type, E = E, F = F, V = V)
+    dat = Dat( at, "HMD_" * config_type, E = E, F = vcat(F'...), V = V)
 
     D_info = PyDict(py_at.po[:info])
     D_arrays = PyDict(py_at.po[:arrays])
@@ -130,7 +130,7 @@ function ORCA_calculator(at, config_type, calc_settings)
     E = py_at.po.get_potential_energy()
     F = py_at.po.get_forces()
 
-    dat = Dat( at, "HMD_" * config_type, E = E, F = F)
+    dat = Dat( at, "HMD_" * config_type, E = E, F = vcat(F'...))
 
     D_info = PyDict(py_at.po[:info])
     D_arrays = PyDict(py_at.po[:arrays])
