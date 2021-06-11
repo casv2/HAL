@@ -85,7 +85,7 @@ function CASTEP_calculator(at, config_type, calc_settings)
     calculator = CASTEP()
     calculator[:_castep_command] = calc_settings["_castep_command"]
     calculator[:_directory] =calc_settings["_directory"]
-    calculator[:_castep_pp_path] = calc_settings["_castep_pp_path"]
+    #calculator[:_castep_pp_path] = calc_settings["_castep_pp_path"]
     calculator.param[:cut_off_energy] = calc_settings["cut_off_energy"]
     calculator.param[:calculate_stress] = calc_settings["calculate_stress"]
     calculator.param[:smearing_width] = calc_settings["smearing_width"]
@@ -94,7 +94,7 @@ function CASTEP_calculator(at, config_type, calc_settings)
     calculator.param[:write_checkpoint] = calc_settings["write_checkpoint"]
     #calculator.cell[:kpoints_mp_spacing] = 0.1
     calculator.cell[:kpoint_mp_spacing] = calc_settings["kpoint_mp_spacing"]
-    calculator.param[:fine_grid_scale] = calc_settings["fine_grid_scale"]
+    #calculator.param[:fine_grid_scale] = calc_settings["fine_grid_scale"]
     py_at.po[:set_calculator](calculator)
 
     E = py_at.po.get_potential_energy(force_consistent=true)
@@ -109,7 +109,7 @@ function CASTEP_calculator(at, config_type, calc_settings)
     D_info["config_type"] = "HMD_" * config_type
     D_info["energy"] = E
     D_info["virial"] = V
-    D_arrays["force"] = F
+    D_arrays["forces"] = F
 
     py_at.po[:info] = D_info
     py_at.po[:arrays] = D_arrays
