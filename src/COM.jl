@@ -46,9 +46,9 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     set_momenta!(at, P)
 
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
-    #p = maximum((norm.(varF)))
+    p = maximum((norm.(varF)))
 
-    return at#, p
+    return at, p
 end
 
 function random_p_update(P, M, γ, T, dt)
@@ -64,7 +64,7 @@ end
 function get_com_energy_forces(IP, IPs, at)
     #E_shift = energy(Vref, at)
     nIPs = length(IPs)
-    
+
     E = energy(IP, at)
     F = forces(IP, at)
     
