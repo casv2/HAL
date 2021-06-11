@@ -20,7 +20,7 @@ function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
     F = forces(IP, at) - τ * varF
       
     P = at.P + (0.5 * dt * F) 
-    set_momenta!(at, P_new)
+    set_momenta!(at, P)
 
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
     p = maximum((norm.(varF)))
@@ -64,6 +64,7 @@ end
 function get_com_energy_forces(IP, IPs, at)
     #E_shift = energy(Vref, at)
     nIPs = length(IPs)
+    
     E = energy(IP, at)
     F = forces(IP, at)
     
