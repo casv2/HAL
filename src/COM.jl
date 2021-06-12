@@ -8,24 +8,16 @@ using Random
 export VelocityVerlet_com, get_com_energy_forces
 
 function VelocityVerlet_com(Vref, B, c, k, at, dt; τ = 0.0)
-    if τ != 0.0
-        varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
-        F = meanF - τ * varF
-    else
-        F = sum(c .* forces(B, at.at))
-    end
+    varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
+    F = meanF - τ * varF
       
     P = at.P + (0.5 * dt * F) 
 
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
-    if τ != 0.0
-        varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
-        F = meanF - τ * varF
-    else
-        F = sum(c .* forces(B, at.at))
-    end
+    varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
+    F = meanF - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     set_momenta!(at, P)
@@ -37,12 +29,8 @@ function VelocityVerlet_com(Vref, B, c, k, at, dt; τ = 0.0)
 end
 
 function VelocityVerlet_com_langevin(Vref, B, c, k, at, dt, T; γ=0.02, τ = 0.0)
-    if τ != 0.0
-        varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
-        F = meanF - τ * varF
-    else
-        F = sum(c .* forces(B, at.at))
-    end
+    varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
+    F = meanF - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     P = random_p_update(P, at.M, γ, T, dt)
@@ -50,12 +38,8 @@ function VelocityVerlet_com_langevin(Vref, B, c, k, at, dt, T; γ=0.02, τ = 0.0
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
-    if τ != 0.0
-        varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
-        F = meanF - τ * varF
-    else
-        F = forces(IP, at)
-    end
+    varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
+    F = meanF - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     P = random_p_update(P, at.M, γ, T, dt)
