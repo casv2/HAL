@@ -84,8 +84,8 @@ end
 function get_com_energy_forces(Vref, B, c, k, at)
     nIPs = length(k[1,:])
     #E_shift = energy(Vref, at)
-    E = energy(B, at.at)
-    F = forces(B, at.at)
+    E = energy(B, at)
+    F = forces(B, at)
 
     E_shift = energy(Vref, at.at)
 
