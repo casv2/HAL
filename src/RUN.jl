@@ -20,7 +20,7 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
 
     #@show lml_score
     
-    c_samples = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
+    k = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
 
     #c, c_samples = HMD.BRR.get_coeff(Ψ, Y, ncoms)
     
@@ -32,7 +32,7 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     rmse_table(rmse_, rmserel_)
     #end
     
-    return IP, c_samples
+    return IP, c, k
 end
 
 function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#, nsteps=10000)
@@ -71,7 +71,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
             # B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
 
             #if refit
-            IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
+            IP, c, k = do_fit(B, Vref, al, weights, run_info["ncoms"])
             #end
 
             if config_type ∉ keys(run_info)
@@ -79,7 +79,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
                 run_info[config_type] = D
             end
 
-            E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP, B, Vref, c_samples, 
+            E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP,Vref, B, c, k, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
                     temp=run_info[config_type]["temp"], 
@@ -114,7 +114,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
     return al
 end
 
-function run(IP, B, Vref, c_samples, at; γ=0.02, nsteps=100, temp=100, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
+function run(IP, Vref, B, c, k, at; γ=0.02, nsteps=100, temp=100, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -128,20 +128,15 @@ function run(IP, B, Vref, c_samples, at; γ=0.02, nsteps=100, temp=100, dt=1.0, 
     # at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
     # at = HMD.MD.Stationary(at)
 
-    nIPs = length(c_samples[1,:])
-    IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, c_samples[:,i])) for i in 1:nIPs]
-
-    cfgs = []
-
     running = true
 
     i = 1
     τ = 0
     while running && i < nsteps
         if temp == 0
-            at, p = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
+            at, p = HMD.COM.VelocityVerlet_com(Vref, B, c, k, at, dt * HMD.MD.fs, τ=τ)
         else
-            at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
+            at, p = HMD.COM.VelocityVerlet_com_langevin(Vref, B, c, k, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
         end
         P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
