@@ -80,12 +80,12 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
       
     P = at.P + (0.5 * dt * F) 
     P = random_p_update(P, at.M, γ, T, dt)
-     set_momenta!(at, P)
+    set_momenta!(at, P)
 
-     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
-     #p = maximum((norm.(varF)))
+    #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
+    p = maximum((norm.(varF)))
 
-     return at#, p
+    return at, p
  end
 
 function random_p_update(P, M, γ, T, dt)
