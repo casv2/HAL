@@ -87,7 +87,7 @@ function get_com_energy_forces(Vref, B, c, k, at)
     E = energy(B, at)
     F = forces(B, at)
 
-    E_shift = energy(Vref, at.at)
+    E_shift = energy(Vref, at)
 
     Es = [(E_shift + sum(k[:,i] .* E)) for i in 1:nIPs];
     Fs = [sum(k[:,i] .* F) for i in 1:nIPs];
