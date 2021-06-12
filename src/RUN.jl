@@ -114,7 +114,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
     return al
 end
 
-function run(IP, Vref, B, c, k, at; γ=0.02, nsteps=100, temp=100, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
+function run(IP, Vref, B, c, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
