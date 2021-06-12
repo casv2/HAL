@@ -9,10 +9,10 @@ export VelocityVerlet_com, get_com_energy_forces
 
 function VelocityVerlet_com(Vref, B, c, k, at, dt; τ = 0.0)
     if τ != 0.0
-        varE, varF = get_com_energy_forces(Vref, B, c, k, at)
-        F = forces(IP, at) - τ * varF
+        varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
+        F = meanF - τ * varF
     else
-        F = forces(IP, at)
+        F = sum(c .* forces(B, at.at))
     end
       
     P = at.P + (0.5 * dt * F) 
@@ -21,10 +21,10 @@ function VelocityVerlet_com(Vref, B, c, k, at, dt; τ = 0.0)
     set_momenta!(at, P)
 
     if τ != 0.0
-        varE, varF = get_com_energy_forces(Vref, B, c, k, at)
-        F = forces(IP, at) - τ * varF
+        varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
+        F = meanF - τ * varF
     else
-        F = forces(IP, at)
+        F = sum(c .* forces(B, at.at))
     end
       
     P = at.P + (0.5 * dt * F) 
@@ -38,10 +38,10 @@ end
 
 function VelocityVerlet_com_langevin(Vref, B, c, k, at, dt, T; γ=0.02, τ = 0.0)
     if τ != 0.0
-        varE, varF = get_com_energy_forces(Vref, B, c, k, at)
-        F = forces(IP, at) - τ * varF
+        varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
+        F = meanF - τ * varF
     else
-        F = forces(IP, at)
+        F = sum(c .* forces(B, at.at))
     end
       
     P = at.P + (0.5 * dt * F) 
@@ -51,8 +51,8 @@ function VelocityVerlet_com_langevin(Vref, B, c, k, at, dt, T; γ=0.02, τ = 0.0
     set_momenta!(at, P)
 
     if τ != 0.0
-        varE, varF = get_com_energy_forces(Vref, B, c, k, at)
-        F = forces(IP, at) - τ * varF
+        varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
+        F = meanF - τ * varF
     else
         F = forces(IP, at)
     end
@@ -120,7 +120,7 @@ function get_com_energy_forces(Vref, B, c, k, at)
     #stdF = sqrt(sum(vcat([vcat(Fs[m]...) .- vcat(meanF...) for m in 1:nIPs]...).^2)/length(nIPs))
     #meanF = mean(Fs)
     
-    return varE, varF
+    return varE, varF, meanF
 end
 
 # function get_com_energy_forces(F, IPs, B, c_samples, at; var=var)
