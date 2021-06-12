@@ -125,8 +125,8 @@ function run(IP, Vref, B, c, k, at; γ=0.02, nsteps=100, temp=100, dt=1.0, τste
 
     E0 = energy(IP, at)
 
-    # at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
-    # at = HMD.MD.Stationary(at)
+    at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
+    at = HMD.MD.Stationary(at)
 
     running = true
 
