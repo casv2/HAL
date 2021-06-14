@@ -70,7 +70,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
 
             # B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
 
-            if m % run_info["refit"] == 0
+            if m % run_info["refit"] == 1
                 IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"])
             end
 
@@ -83,7 +83,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
                     temp=run_info[config_type]["temp"], 
-                    dt=run_info[config_type]["dt"], 
+                    dt=run_info[config_tepe]["dt"], 
                     τstep=run_info[config_type]["τstep"], 
                     dτ=run_info[config_type]["dτ"], 
                     maxp=run_info[config_type]["maxp"],
