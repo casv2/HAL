@@ -64,7 +64,7 @@ function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
     P = at.P + (0.5 * dt * F) 
     set_momenta!(at, P)
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
-    p = maximum((norm.(varF)))
+    p = mean((norm.(varF)))
     return at, p
 end
 function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
@@ -83,7 +83,7 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     set_momenta!(at, P)
 
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
-    p = maximum((norm.(varF)))
+    p = mean((norm.(varF)))
 
     return at, p
  end
