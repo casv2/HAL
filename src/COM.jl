@@ -104,10 +104,15 @@ function get_com_energy_forces(IP, IPs, at)
 
     E = energy(IP, at)
     F = forces(IP, at)
-    
-    Es = [energy(IPs[i], at) for i in 1:nIPs];
-    Fs = [forces(IPs[i], at) for i in 1:nIPs];
-    
+
+    Fs = Vector(undef, nIPs)
+    Es = Vector(undef, nIPs)
+
+    @Threads.threads for i in 1:nIPs
+        Es[i] = energy(IPs[i], at) 
+        Fs[i] = forces(IPs[i], at)
+    end
+
     varF =  sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs
     
     #meanE = mean(Es)
