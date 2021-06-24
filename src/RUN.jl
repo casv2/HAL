@@ -132,8 +132,8 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
 
     E0 = energy(IP, at)
 
-    #at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
-    #at = HMD.MD.Stationary(at)
+    at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
+    at = HMD.MD.Stationary(at)
 
     nIPs = length(k[1,:])
     IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, k[:,i])) for i in 1:nIPs]
