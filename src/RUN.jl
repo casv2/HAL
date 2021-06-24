@@ -8,6 +8,7 @@ using LinearAlgebra
 using Plots
 using ACE
 using JuLIP.MLIPs: SumIP
+using IPFitting: Dat
 
 function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
@@ -158,7 +159,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         E_kin[i] = Ek
         T[i] = Ek / (1.5 * HMD.MD.kB)
         @show p, τ
-        R = minimum(IPFitting.Aux.rdf([at], 4.0))
+        al = Dat[]
+        push!(al, Dat(at=at, E=energy(IP,at), F=forces(IP,at), V=virial(IP,at)))
+        R = minimum(IPFitting.Aux.rdf(al, 4.0))
         if p > maxp || R < minR
             running = false
         end
