@@ -83,6 +83,10 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
                 run_info[config_type] = D
             end
 
+            rand_ind = rand(1:length(al))
+
+            init_config = deepcopy(al[rand_ind])
+
             E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP,Vref, B, k, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
@@ -91,7 +95,8 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
                     τstep=run_info[config_type]["τstep"], 
                     dτ=run_info[config_type]["dτ"], 
                     maxp=run_info[config_type]["maxp"],
-                    γ=run_info[config_type]["γ"])
+                    γ=run_info[config_type]["γ"],
+                    minR=run_info[config_type]["minR"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
 
@@ -118,7 +123,7 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
     return al
 end
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, var=true)
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -153,7 +158,8 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         E_kin[i] = Ek
         T[i] = Ek / (1.5 * HMD.MD.kB)
         @show p, τ
-        if p > maxp
+        R = minimum(IPFitting.Aux.rdf([at], 4.0))
+        if p > maxp || R < minR
             running = false
         end
         if i % τstep == 0
