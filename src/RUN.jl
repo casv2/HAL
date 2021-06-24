@@ -160,7 +160,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         T[i] = Ek / (1.5 * HMD.MD.kB)
         @show p, τ
         al = Dat[]
-        push!(al, Dat(at=at, "HMD", E=energy(IP,at), F=forces(IP,at), V=virial(IP,at)))
+        push!(al, Dat(at, "HMD"))
         R = minimum(IPFitting.Aux.rdf(al, 4.0))
         if p > maxp || R < minR
             running = false
