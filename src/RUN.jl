@@ -36,14 +36,15 @@ function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     return IP, k
 end
 
-function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#, nsteps=10000)
+function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binfo)#, nsteps=10000)
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HMD_iters"])
-            init_config = deepcopy(start_config)
+            #init_config = deepcopy(start_config)
+            init_config = deepcopy(al[end])
             m = (j-1)*run_info["HMD_iters"] + l
 
             # if run_info["optim_basis"] == true
@@ -53,23 +54,23 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
             #     @info("FOUND OPTIMUM BASIS: N=$(maxN), D=$(maxdeg)")
             # end
             
-            #R = minimum(IPFitting.Aux.rdf(al, 4.0))
+            R = minimum(IPFitting.Aux.rdf(al, 4.0)) + run_info["Rshift"]
 
-            # Bsite = rpi_basis(species = Binfo["Z"],
-            #     N = Binfo["N"],       # correlation order = body-order - 1
-            #     maxdeg = Binfo["deg"],  # polynomial degree
-            #     r0 = Binfo["r0"],     # estimate for NN distance
-            #     rin = R, rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
-            #     pin = 2) 
+            Bsite = rpi_basis(species = Binfo["Z"],
+                N = Binfo["N"],       # correlation order = body-order - 1
+                maxdeg = Binfo["deg"],  # polynomial degree
+                r0 = Binfo["r0"],     # estimate for NN distance
+                rin = R, rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
+                pin = 2) 
 
-            # Bpair = pair_basis(species = Binfo["Z"],
-            #     r0 = Binfo["r0"],
-            #     maxdeg = Binfo["2B"],
-            #     rcut = Binfo["2Brcut"],
-            #     pcut = 1,
-            #     pin = 0) 
+            Bpair = pair_basis(species = Binfo["Z"],
+                r0 = Binfo["r0"],
+                maxdeg = Binfo["2B"],
+                rcut = Binfo["2Brcut"],
+                pcut = 1,
+                pin = 0) 
 
-            # B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
+            B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
@@ -84,10 +85,6 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
                 run_info[config_type] = D
             end
 
-            rand_ind = rand(1:length(al))
-
-            init_config = deepcopy(al[rand_ind])
-
             E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP,Vref, B, k, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
@@ -96,8 +93,8 @@ function run_HMD(B, Vref, weights, al, start_configs, run_info, calc_settings)#,
                     τstep=run_info[config_type]["τstep"], 
                     dτ=run_info[config_type]["dτ"], 
                     maxp=run_info[config_type]["maxp"],
-                    γ=run_info[config_type]["γ"],
-                    minR=run_info[config_type]["minR"])
+                    γ=run_info[config_type]["γ"])
+                    #minR=run_info[config_type]["minR"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
 
@@ -159,10 +156,10 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         E_kin[i] = Ek
         T[i] = Ek / (1.5 * HMD.MD.kB)
         @show p, τ
-        al = Dat[]
-        push!(al, Dat(at, "HMD"))
-        R = minimum(IPFitting.Aux.rdf(al, 4.0))
-        if p > maxp || R < minR
+        # al = Dat[]
+        # push!(al, Dat(at, "HMD"))
+        # R = minimum(IPFitting.Aux.rdf(al, 4.0))
+        if p > maxp #|| R < minR
             running = false
         end
         if i % τstep == 0
