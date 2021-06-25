@@ -43,8 +43,8 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HMD_iters"])
-            #init_config = deepcopy(start_config)
-            init_config = deepcopy(al[end])
+            init_config = deepcopy(start_config)
+            #init_config = deepcopy(al[end])
             m = (j-1)*run_info["HMD_iters"] + l
 
             # if run_info["optim_basis"] == true
