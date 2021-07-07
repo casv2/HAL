@@ -38,7 +38,7 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
         for e in reverse([10.0^-i for i in 1:50])
            try
-               d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
+               global d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
                break
            catch
            end
@@ -67,7 +67,7 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
 
         for e in reverse([10.0^-i for i in 1:50])
             try
-                d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
+                global d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
                 break
             catch
             end
