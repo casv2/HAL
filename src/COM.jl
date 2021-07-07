@@ -58,14 +58,15 @@ function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
     P = at.P + (0.5 * dt * F) 
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
+
     varE, varF = get_com_energy_forces(IP, IPs, at)
     F = forces(IP, at) - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     set_momenta!(at, P)
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
-    p = mean((norm.(varF)))
-    return at, p
+    #p = mean((norm.(varF)))
+    return at  
 end
 
 function VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)

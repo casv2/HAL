@@ -121,6 +121,34 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
     return al
 end
 
+function energy_uncertainty(IP, IPs, at)
+	nIPs = length(IPs)
+
+	Es = [energy(IP, at) for IP in IPs]
+	meanE = energy(IP, at)
+
+	stdE = (sum([ (Es[i] - meanE).^2 for i in 1:nIPs])/nIPs)/length(at)
+	return stdE
+end
+
+function swap(at)
+	ind1, ind2 = rand(1:length(at), 2)
+
+	M1 = at.M[ind1]
+	Z1 = at.Z[ind1]
+
+	M2 = at.M[ind2]
+	Z2 = at.Z[ind2]
+
+	at.M[ind1] = M2
+	at.M[ind2] = M1
+
+	at.Z[ind1] = Z2
+	at.Z[ind2] = Z1
+
+	return at
+end
+
 function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
@@ -140,17 +168,16 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
 
     running = true
 
-    A = 0.01
-
     i = 1
     τ = 0
     while running && i < nsteps
-        if temp == 0
-            at, p = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
-        else
+        #if temp == 0
+        at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
+        p = energy_uncertainty(IP, IPs, at)
+        #else
             # at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
-            at, p = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
-        end
+            #at, p = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
+        #end
         P[i] = p
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
@@ -162,6 +189,16 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         # al = Dat[]
         # push!(al, Dat(at, "HMD"))
         # R = minimum(IPFitting.Aux.rdf(al, 4.0))
+        if i % τstep
+            at = deepcopy(at)
+            p_at = energy_uncertainty(IP, IPs, at)
+            at_new = swap(at)
+            p_at_new = energy_uncertainty(IP, IPs, at_new)
+            if p_at_new > p_at
+                println("SWAP ACCEPTED")
+                at = at_new
+            end
+        end
         if p > maxp #|| R < minR
             running = false
         end
