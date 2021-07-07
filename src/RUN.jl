@@ -127,7 +127,7 @@ function energy_uncertainty(IP, IPs, at)
 	Es = [energy(IP, at) for IP in IPs]
 	meanE = energy(IP, at)
 
-	stdE = (sum([ (Es[i] - meanE).^2 for i in 1:nIPs])/nIPs)/length(at)
+	stdE = sqrt(sum([ (Es[i] - meanE).^2 for i in 1:nIPs])/nIPs)/length(at)
 	return stdE
 end
 
