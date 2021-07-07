@@ -67,6 +67,50 @@ function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
     p = mean((norm.(varF)))
     return at, p
 end
+
+function VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
+    #varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) #- τ * varF
+      
+    P = at.P + (0.5 * dt * F) 
+    set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
+
+    C = A/norm(P)
+    set_momenta!(at, (1+C)*P)
+
+    #varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) #- τ * varF
+      
+    P = at.P + (0.5 * dt * F) 
+    set_momenta!(at, P)
+    #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
+    #p = mean((norm.(varF)))
+    p = get_site_uncertainty(IP, IPs, at)
+
+    return at, p
+end
+
+function _get_site(IP, at)
+    nats = length(at)
+    Es = [sum([site_energy(V, at, i0) for V in IP.components[2:end]]) for i0 in 1:nats]
+    return Es
+end
+
+function get_site_uncertainty(IP, IPs, at)
+    nIPs = length(IPs)
+    Es = zeros(length(at.at), nIPs)
+
+    for j in 1:nIPs
+        Es[:,j] = _get_site(IPs[j], at.at)
+    end
+
+    mean_E = _get_site(IP, at.at)
+
+    E_diff = mean(abs.(Es .- mean_E), dims=2)
+
+    return maximum(E_diff)
+end
+
 function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     varE, varF = get_com_energy_forces(IP, IPs, at)
     F = forces(IP, at) - τ * varF
@@ -86,7 +130,7 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     p = mean((norm.(varF)))
 
     return at, p
- end
+end
 
 function random_p_update(P, M, γ, T, dt)
     V = P ./ M
