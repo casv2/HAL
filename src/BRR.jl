@@ -7,7 +7,7 @@ export do_brr, posterior, maxim_hyper
 
 function do_brr(Ψ, Y, α, β, n)
     m, S = posterior(Ψ, Y, α, β)
-    d = MvNormal(m, Symmetric(S))
+    #d = MvNormal(m, Symmetric(S))
     for e in reverse([10.0^-i for i in 1:50])
         try
             global d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
