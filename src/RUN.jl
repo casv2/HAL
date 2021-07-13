@@ -189,16 +189,16 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         # al = Dat[]
         # push!(al, Dat(at, "HMD"))
         # R = minimum(IPFitting.Aux.rdf(al, 4.0))
-        if i % τstep == 0
-            at = deepcopy(at)
-            p_at = energy_uncertainty(IP, IPs, at)
-            at_new = swap(at)
-            p_at_new = energy_uncertainty(IP, IPs, at_new)
-            if p_at_new > p_at
-                println("SWAP ACCEPTED")
-                at = at_new
-            end
-        end
+        # if i % τstep == 0
+        #     at = deepcopy(at)
+        #     p_at = energy_uncertainty(IP, IPs, at)
+        #     at_new = swap(at)
+        #     p_at_new = energy_uncertainty(IP, IPs, at_new)
+        #     if p_at_new > p_at
+        #         println("SWAP ACCEPTED")
+        #         at = at_new
+        #     end
+        # end
         if p > maxp #|| R < minR
             running = false
         end
