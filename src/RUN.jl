@@ -128,7 +128,7 @@ function energy_uncertainty(IP, IPs, at)
 	meanE = energy(IP, at)
 
 	stdE = sqrt(sum([ (Es[i] - meanE).^2 for i in 1:nIPs])/nIPs)/length(at)
-	return stdE
+	return stdE, meanE
 end
 
 function swap(at)
@@ -189,16 +189,18 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         # al = Dat[]
         # push!(al, Dat(at, "HMD"))
         # R = minimum(IPFitting.Aux.rdf(al, 4.0))
-        # if i % τstep == 0
-        #     at = deepcopy(at)
-        #     p_at = energy_uncertainty(IP, IPs, at)
-        #     at_new = swap(at)
-        #     p_at_new = energy_uncertainty(IP, IPs, at_new)
-        #     if p_at_new > p_at
-        #         println("SWAP ACCEPTED")
-        #         at = at_new
-        #     end
-        # end
+        if i % τstep == 0
+            at = deepcopy(at)
+            p_at, E_at = energy_uncertainty(IP, IPs, at)
+            at_new = swap(at)
+            p_at_new, E_at_new = energy_uncertainty(IP, IPs, at_new)
+            C = exp( - ((E_at_new + p_at_new) - (E_at + p_at)) / (HMD.MD.kB * temp))
+            @show C
+            if C < rand()
+                println("SWAP ACCEPTED")
+                at = at_new
+            end
+        end
         if p > maxp #|| R < minR
             running = false
         end
