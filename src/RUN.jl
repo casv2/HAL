@@ -173,7 +173,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
     while running && i < nsteps
         #if temp == 0
         at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
-        p = energy_uncertainty(IP, IPs, at)
+        p, meanE = energy_uncertainty(IP, IPs, at)
         #else
             # at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
             #at, p = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
