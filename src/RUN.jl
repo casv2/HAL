@@ -9,6 +9,7 @@ using Plots
 using ACE
 using JuLIP.MLIPs: SumIP
 using IPFitting: Dat
+using Distributions
 
 function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
@@ -150,7 +151,8 @@ function swap_step(at)
 end
 
 function vol_step(at)
-	scale = (rand()*2) - 1 
+    d = Normal()
+	scale = 1 + (rand(d) * 0.01)
     at = set_cell!(at, at.cell * scale)
     at = set_positions!(at, at.X * scale)
 
