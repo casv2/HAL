@@ -204,9 +204,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
             p_at, E_at = energy_uncertainty(IP, IPs, at)
             at_new = swap_step(at)
             p_at_new, E_at_new = energy_uncertainty(IP, IPs, at_new)
-            C = exp( - ((E_at_new + p_at_new) - (E_at + p_at)) / (HMD.MD.kB * temp))
+            C = exp( - ((E_at + p_at) - (E_at_new + p_at_new)) / (HMD.MD.kB * temp))
             @show C
-            if C < rand()
+            if rand() < C
                 println("SWAP ACCEPTED")
                 at = at_new
             end
@@ -216,9 +216,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
             p_at, E_at = energy_uncertainty(IP, IPs, at)
             at_new = vol_step(at)
             p_at_new, E_at_new = energy_uncertainty(IP, IPs, at_new)
-            C = exp( - ((E_at_new + p_at_new) - (E_at + p_at)) / (HMD.MD.kB * temp))
+            C = exp( - ((E_at + p_at) - (E_at_new + p_at_new)) / (HMD.MD.kB * temp))
             @show C
-            if C < rand()
+            if rand() < C
                 println("VOL STEP ACCEPTED")
                 at = at_new
             end
