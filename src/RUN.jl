@@ -131,7 +131,7 @@ function energy_uncertainty(IP, IPs, at)
 	return stdE, meanE
 end
 
-function swap(at)
+function swap_step(at)
 	ind1, ind2 = rand(1:length(at), 2)
 
 	M1 = at.M[ind1]
@@ -145,6 +145,14 @@ function swap(at)
 
 	at.Z[ind1] = Z2
 	at.Z[ind2] = Z1
+
+	return at
+end
+
+function vol_step(at)
+	scale = (rand()*2) - 1 
+    at = set_cell!(at, at.cell * scale)
+    at = set_positions!(at, at.X * scale)
 
 	return at
 end
@@ -192,12 +200,24 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         if i % τstep == 0
             at = deepcopy(at)
             p_at, E_at = energy_uncertainty(IP, IPs, at)
-            at_new = swap(at)
+            at_new = swap_step(at)
             p_at_new, E_at_new = energy_uncertainty(IP, IPs, at_new)
             C = exp( - ((E_at_new + p_at_new) - (E_at + p_at)) / (HMD.MD.kB * temp))
             @show C
             if C < rand()
                 println("SWAP ACCEPTED")
+                at = at_new
+            end
+        end
+        if i % (τstep/10) == 0
+            at = deepcopy(at)
+            p_at, E_at = energy_uncertainty(IP, IPs, at)
+            at_new = vol_step(at)
+            p_at_new, E_at_new = energy_uncertainty(IP, IPs, at_new)
+            C = exp( - ((E_at_new + p_at_new) - (E_at + p_at)) / (HMD.MD.kB * temp))
+            @show C
+            if C < rand()
+                println("VOL STEP ACCEPTED")
                 at = at_new
             end
         end
