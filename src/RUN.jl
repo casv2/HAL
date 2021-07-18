@@ -55,13 +55,13 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
             #     @info("FOUND OPTIMUM BASIS: N=$(maxN), D=$(maxdeg)")
             # end
             
-            R = minimum(IPFitting.Aux.rdf(al, 4.0)) + run_info["Rshift"]
+            #R = minimum(IPFitting.Aux.rdf(al, 4.0)) + run_info["Rshift"]
 
             Bsite = rpi_basis(species = Binfo["Z"],
                 N = Binfo["N"],       # correlation order = body-order - 1
                 maxdeg = Binfo["deg"],  # polynomial degree
                 r0 = Binfo["r0"],     # estimate for NN distance
-                rin = R, rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
+                rin = Binfo["R"], rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
                 pin = 2) 
 
             Bpair = pair_basis(species = Binfo["Z"],
