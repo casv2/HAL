@@ -212,7 +212,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
                 at = at_new
             end
         end
-        if i % (τstep/10) == 0
+        if i % (τstep/2) == 0
             at = deepcopy(at)
             p_at, E_at = energy_uncertainty(IP, IPs, at)
             at_new = vol_step(at)
