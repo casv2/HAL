@@ -166,6 +166,8 @@ function _get_site(IP, at)
 end
 
 function get_site_uncertainty(IP, IPs, at)
+    Es = zeros(length(at), nIPs)
+
     Threads.@threads for j in 1:length(IPs)
             Es[:,j] = _get_site(IPs[j], at)
     end
