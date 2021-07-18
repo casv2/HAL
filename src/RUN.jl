@@ -151,12 +151,30 @@ function swap_step(at)
 end
 
 function vol_step(at)
-    d = Normal()
-	scale = 1 + (rand(d) * 0.01)
+    #d = Normal()
+	scale = 1 + (rand() * 0.01)
     at = set_cell!(at, at.cell * scale)
     at = set_positions!(at, at.X * scale)
 
 	return at
+end
+
+function _get_site(IP, at)
+    nats = length(at)
+    Es = [sum([site_energy(V, at, i0) for V in IP.components[2:end]]) for i0 in 1:nats]
+    return Es
+end
+
+function get_site_uncertainty(IP, IPs, at)
+    Threads.@threads for j in 1:length(IPs)
+            Es[:,j] = _get_site(IPs[j], at)
+    end
+
+    mean_E = _get_site(IP, at)
+
+    E_diff =  mean(abs.(Es .- mean_E), dims=2)
+
+    return maximum(E_diff), mean_E
 end
 
 function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true)
@@ -183,7 +201,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
     while running && i < nsteps
         #if temp == 0
         at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
-        p, meanE = energy_uncertainty(IP, IPs, at)
+        p, meanE = get_site_uncertainty(IP, IPs, at)
         #else
             # at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
             #at, p = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
@@ -201,9 +219,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         # R = minimum(IPFitting.Aux.rdf(al, 4.0))
         if i % τstep == 0
             at = deepcopy(at)
-            p_at, E_at = energy_uncertainty(IP, IPs, at)
+            p_at, E_at = get_site_uncertainty(IP, IPs, at)
             at_new = swap_step(at)
-            p_at_new, E_at_new = energy_uncertainty(IP, IPs, at_new)
+            p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HMD.MD.kB * temp))
             C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
             @show C
@@ -214,9 +232,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         end
         if i % (τstep/2) == 0
             at = deepcopy(at)
-            p_at, E_at = energy_uncertainty(IP, IPs, at)
+            p_at, E_at = get_site_uncertainty(IP, IPs, at)
             at_new = vol_step(at)
-            p_at_new, E_at_new = energy_uncertainty(IP, IPs, at_new)
+            p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
             @show C
             if rand() < C
