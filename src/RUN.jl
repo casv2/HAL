@@ -173,11 +173,12 @@ function get_site_uncertainty(IP, IPs, at)
             Es[:,j] = _get_site(IPs[j], at)
     end
 
+    oneB = energy(IP.components[1], at)
     mean_E = _get_site(IP, at)
 
-    E_diff =  mean(abs.(Es .- mean_E), dims=2)
+    E_diff =  std(Es .- mean_E, dims=2)
 
-    return maximum(E_diff), mean_E
+    return maximum(E_diff), sum(mean_E) + oneB
 end
 
 function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true)
