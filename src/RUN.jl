@@ -178,6 +178,9 @@ function get_site_uncertainty(IP, IPs, at)
 
     E_diff =  std(Es .- mean_E, dims=2)
 
+    @show Es
+    @show E_diff
+
     return maximum(E_diff), sum(mean_E) + oneB
 end
 
