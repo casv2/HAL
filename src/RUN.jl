@@ -181,16 +181,17 @@ function get_site_uncertainty(IP, IPs, at)
     # @show Es
     # @show E_diff
 
-    E = energy(IP, at)/length(at)
-    Es_rmse = sqrt(mean([(energy(IP, at)/length(at) - E).^2 for IP in IPs]));
+    #E = energy(IP, at)/length(at)
+    #Es_rmse = sqrt(mean([(energy(IP, at)/length(at) - E).^2 for IP in IPs]));
     
     F = forces(IP, at)
     Fs_rmse = sqrt(mean(reduce(vcat, [vcat((forces(IP, at) - F)...).^2 for IP in IPs])))
     
-    V = virial(IP, at)
-    Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
+    #V = virial(IP, at)
+    #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
     
-    p = 15 * Es_rmse + Fs_rmse + Vs_rmse
+    #p = 15 * Es_rmse + Fs_rmse + Vs_rmse
+    p = Fs_rmse
 
     return p, energy(IP, at)
 end
