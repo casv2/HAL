@@ -11,8 +11,19 @@ using JuLIP.MLIPs: SumIP
 using IPFitting: Dat
 using Distributions
 
-function do_fit(B, Vref, al, weights, ncoms)#; calc_err=true)
+function do_fit(B, Vref, al, weights, ncoms; reweight=false)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
+
+    if reweight
+        for (m,at) in enumerate(al)
+            meanF = mean(abs.(vcat(at.D["F"]...)))
+            at.configtype = "HMD_" * string(m)
+
+            weights[config] = Dict("E" => 15.0, "F" => 1/meanF, "V" => 1.0)
+        end
+    end   
+
+    @show weights
 
     Ψ, Y = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
@@ -190,7 +201,7 @@ function get_site_uncertainty(IP, IPs, at)
     #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
     
     #p = 15 * Es_rmse + Fs_rmse + Vs_rmse
-    p = Fs_rmse / (mean(abs.(vcat(F...))) + 0.1)
+    p = Fs_rmse #/ (mean(abs.(vcat(F...))) + 0.1)
 
     return p, energy(IP, at)
 end
