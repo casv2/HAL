@@ -151,11 +151,10 @@ function swap_step(at)
 end
 
 function vol_step(at)
-    #d = Normal()
-	scale = 1 + (rand() * 0.01)
+    d = Normal()
+	scale = 1 + (rand(d) * 0.01)
     at = set_cell!(at, at.cell * scale)
     at = set_positions!(at, at.X * scale)
-
 	return at
 end
 
@@ -191,7 +190,7 @@ function get_site_uncertainty(IP, IPs, at)
     #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
     
     #p = 15 * Es_rmse + Fs_rmse + Vs_rmse
-    p = Fs_rmse
+    p = Fs_rmse / mean(abs.(vcat(F...))) 
 
     return p, energy(IP, at)
 end
@@ -249,7 +248,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
                 at = at_new
             end
         end
-        if i % (τstep/2) == 0
+        if i % (τstep/10) == 0
             at = deepcopy(at)
             p_at, E_at = get_site_uncertainty(IP, IPs, at)
             at_new = vol_step(at)
