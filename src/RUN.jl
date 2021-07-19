@@ -17,7 +17,9 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false)#; calc_err=true)
     if reweight
         for (m,at) in enumerate(al)
             meanF = mean(abs.(vcat(at.D["F"]...)))
-            at.configtype = "HMD_" * string(m)
+            config = "HMD_" * string(m)
+
+            al[m].configtype = config
 
             weights[config] = Dict("E" => 15.0, "F" => 1/meanF, "V" => 1.0)
         end
@@ -86,10 +88,10 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
-                    global IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"])
+                    global IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"], reweight=true)
                 end
             else
-                IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"])
+                IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"], reweight=true)
             end
 
             if config_type ∉ keys(run_info)
