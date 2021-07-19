@@ -166,22 +166,33 @@ function _get_site(IP, at)
 end
 
 function get_site_uncertainty(IP, IPs, at)
-    nIPs = length(IPs)
-    Es = zeros(length(at), nIPs)
+    # nIPs = length(IPs)
+    # Es = zeros(length(at), nIPs)
 
-    Threads.@threads for j in 1:nIPs
-            Es[:,j] = _get_site(IPs[j], at)
-    end
+    # Threads.@threads for j in 1:nIPs
+    #         Es[:,j] = _get_site(IPs[j], at)
+    # end
 
-    oneB = energy(IP.components[1], at)
-    mean_E = _get_site(IP, at)
+    # oneB = energy(IP.components[1], at)
+    # mean_E = _get_site(IP, at)
 
-    E_diff =  std(Es .- mean_E, dims=2)
+    # E_diff =  std(Es .- mean_E, dims=2)
 
-    @show Es
-    @show E_diff
+    # @show Es
+    # @show E_diff
 
-    return maximum(E_diff), sum(mean_E) + oneB
+    E = energy(IP, at)/length(at)
+    Es_rmse = sqrt(mean([(energy(IP, at)/length(at) - E).^2 for IP in IPs]));
+    
+    F = forces(IP, at)
+    Fs_rmse = sqrt(mean(reduce(vcat, [vcat((forces(IP, at) - F)...).^2 for IP in IPs])))
+    
+    V = virial(IP, at)
+    Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
+    
+    p = 15 * Es_rmse + Fs_rmse + Vs_rmse
+
+    return p, energy(IP, at)
 end
 
 function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true)

@@ -15,6 +15,7 @@ function do_brr(Ψ, Y, α, β, n)
     #     catch
     #     end
     #  end
+    @show α, β
     c_samples = rand(d, n)
     return c_samples
 end
