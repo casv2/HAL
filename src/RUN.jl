@@ -261,18 +261,18 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
                 at = at_new
             end
         end
-        if i % (τstep/10) == 0
-            at = deepcopy(at)
-            p_at, E_at = get_site_uncertainty(IP, IPs, at)
-            at_new = vol_step(at)
-            p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
-            C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
-            @show C
-            if rand() < C
-                println("VOL STEP ACCEPTED")
-                at = at_new
-            end
-        end
+        # if i % (τstep/10) == 0
+        #     at = deepcopy(at)
+        #     p_at, E_at = get_site_uncertainty(IP, IPs, at)
+        #     at_new = vol_step(at)
+        #     p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
+        #     C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
+        #     @show C
+        #     if rand() < C
+        #         println("VOL STEP ACCEPTED")
+        #         at = at_new
+        #     end
+        # end
         if p > maxp #|| R < minR
             running = false
         end
