@@ -190,7 +190,7 @@ function get_site_uncertainty(IP, IPs, at)
     #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
     
     #p = 15 * Es_rmse + Fs_rmse + Vs_rmse
-    p = Fs_rmse / mean(abs.(vcat(F...))) 
+    p = Fs_rmse / (mean(abs.(vcat(F...))) + 0.1)
 
     return p, energy(IP, at)
 end
