@@ -106,7 +106,9 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                     τstep=run_info[config_type]["τstep"], 
                     dτ=run_info[config_type]["dτ"], 
                     maxp=run_info[config_type]["maxp"],
-                    γ=run_info[config_type]["γ"])
+                    γ=run_info[config_type]["γ"],
+                    swap=run_info[config_type]["swap"],
+                    vol=run_info[config_type]["vol"])
                     #minR=run_info[config_type]["minR"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
@@ -213,7 +215,7 @@ function get_site_uncertainty(IP, IPs, at)
     return p, energy(IP, at)
 end
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true)
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true, swap=false, vol=false)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -253,20 +255,20 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         # al = Dat[]
         # push!(al, Dat(at, "HMD"))
         # R = minimum(IPFitting.Aux.rdf(al, 4.0))
-        # if i % τstep == 0
-        #     at = deepcopy(at)
-        #     p_at, E_at = get_site_uncertainty(IP, IPs, at)
-        #     at_new = swap_step(at)
-        #     p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
-        #     #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HMD.MD.kB * temp))
-        #     C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
-        #     @show C
-        #     if rand() < C
-        #         println("SWAP ACCEPTED")
-        #         at = at_new
-        #     end
-        # end
-        if i % (τstep/10) == 0
+        if i % τstep == 0 && swap
+            at = deepcopy(at)
+            p_at, E_at = get_site_uncertainty(IP, IPs, at)
+            at_new = swap_step(at)
+            p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
+            #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HMD.MD.kB * temp))
+            C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
+            @show C
+            if rand() < C
+                println("SWAP ACCEPTED")
+                at = at_new
+            end
+        end
+        if i % (τstep/10) == 0 && vol
             at = deepcopy(at)
             p_at, E_at = get_site_uncertainty(IP, IPs, at)
             at_new = vol_step(at)
