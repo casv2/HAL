@@ -86,9 +86,9 @@ function VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
     set_momenta!(at, P)
     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
     #p = mean((norm.(varF)))
-    p = get_site_uncertainty(IP, IPs, at)
+    #p = get_site_uncertainty(IP, IPs, at)
 
-    return at, p
+    return at#, p
 end
 
 function _get_site(IP, at)
