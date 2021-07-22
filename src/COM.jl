@@ -139,7 +139,7 @@ function random_p_update(P, M, γ, T, dt)
     V = P ./ M
     R = rand(Normal(), (length(M)*3)) |> vecs
     c1 = exp(-γ*dt)
-    c2 = sqrt(1-c1^2)*sqrt.(T ./ M)
+    c2 = sqrt(1-c1^2)*sqrt(T)
     #@show c1, c2
     V_new = c1*V + c2 .* R
     return V_new .* M
