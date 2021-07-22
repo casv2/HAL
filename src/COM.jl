@@ -5,7 +5,7 @@ using JuLIP.MLIPs: SumIP
 using HMD
 using Random
 
-export VelocityVerlet_com, get_com_energy_forces
+#export VelocityVerlet_com, get_com_energy_forces
 
 # function VelocityVerlet_com(Vref, B, c, k, at, dt; τ = 0.0)
 #     varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
@@ -114,26 +114,26 @@ function get_site_uncertainty(IP, IPs, at)
     return maximum(E_diff)
 end
 
-function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
-    varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) - τ * varF
+# function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
+#     varE, varF = get_com_energy_forces(IP, IPs, at)
+#     F = forces(IP, at) - τ * varF
       
-    P = at.P + (0.5 * dt * F) 
-    P = random_p_update(P, at.M, γ, T, dt)
-    set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
-    set_momenta!(at, P)
-    varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) - τ * varF
+#     P = at.P + (0.5 * dt * F) 
+#     P = random_p_update(P, at.M, γ, T, dt)
+#     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
+#     set_momenta!(at, P)
+#     varE, varF = get_com_energy_forces(IP, IPs, at)
+#     F = forces(IP, at) - τ * varF
       
-    P = at.P + (0.5 * dt * F) 
-    P = random_p_update(P, at.M, γ, T, dt)
-    set_momenta!(at, P)
+#     P = at.P + (0.5 * dt * F) 
+#     P = random_p_update(P, at.M, γ, T, dt)
+#     set_momenta!(at, P)
 
-    #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
-    p = mean((norm.(varF)))
+#     #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
+#     p = mean((norm.(varF)))
 
-    return at, p
-end
+#     return at, p
+# end
 
 function random_p_update(P, M, γ, T, dt)
     V = P ./ M
