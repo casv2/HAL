@@ -216,7 +216,7 @@ function get_site_uncertainty(IP, IPs, at)
     return p, energy(IP, at)
 end
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true, A=1e-4, swap=false, vol=false, heat=false)
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true, A=1e-6, swap=false, vol=false, heat=false)
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
