@@ -54,15 +54,15 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
 end
 
 function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
-    varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) - τ * varF
+    #varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) # - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
-    varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) - τ * varF
+    #varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) #- τ * varF
       
     P = at.P + (0.5 * dt * F) 
     set_momenta!(at, P)
