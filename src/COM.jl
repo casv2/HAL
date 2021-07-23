@@ -79,6 +79,7 @@ function VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
 
     C = A/norm(P)
+    C = 1e-10
     set_momenta!(at, (1+C)*P)
 
     #varE, varF = get_com_energy_forces(IP, IPs, at)
