@@ -257,10 +257,10 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
         E_pot[i] = Ep
         E_kin[i] = Ek
         T[i] = Ek / (1.5 * HMD.MD.kB)
-        @show p, τ
         cur_al = Dat[]
         push!(cur_al, Dat(at, "HMD"))
         R = minimum(IPFitting.Aux.rdf(cur_al, 4.0))
+        @show p, τ, R
         if i % τstep == 0 && swap
             at = deepcopy(at)
             p_at, E_at = get_site_uncertainty(IP, IPs, at)
