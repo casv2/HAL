@@ -109,8 +109,8 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                     γ=run_info[config_type]["γ"],
                     swap=run_info[config_type]["swap"],
                     vol=run_info[config_type]["vol"],
-                    heat=run_info[config_type]["heat"])
-                    #minR=run_info[config_type]["minR"])
+                    heat=run_info[config_type]["heat"],
+                    minR=run_info[config_type]["minR"])
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
 
