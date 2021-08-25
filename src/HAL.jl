@@ -516,7 +516,7 @@ function HAL_F2(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; s
 end
 
 
-function save_configs(al, i, fname)
+function save_configs(al, i, fname; energy_key="energy", force_key="forces", energy_key="virial")
     py_write = pyimport("ase.io")["write"]
     al_save = []
     for at in al
@@ -526,9 +526,9 @@ function save_configs(al, i, fname)
         D_arrays = PyDict(py_at.po[:arrays])
 
         D_info["config_type"] = configtype(at) #"HAL_$(i)_" * configtype(at)
-        try D_info["energy"] = at.D["E"] catch end
-        try D_info["virial"] = [at.D["V"][1], at.D["V"][6], at.D["V"][5], at.D["V"][6], at.D["V"][2], at.D["V"][4], at.D["V"][5], at.D["V"][4], at.D["V"][3]] catch end
-        try D_arrays["forces"] = transpose(reshape(at.D["F"], 3, length(at.at))) catch end
+        try D_info[energy_key] = at.D["E"] catch end
+        try D_info[virial_key] = [at.D["V"][1], at.D["V"][6], at.D["V"][5], at.D["V"][6], at.D["V"][2], at.D["V"][4], at.D["V"][5], at.D["V"][4], at.D["V"][3]] catch end
+        try D_arrays[force_key] = transpose(reshape(at.D["F"], 3, length(at.at))) catch end
 
         py_at.po[:info] = D_info
         py_at.po[:arrays] = D_arrays
