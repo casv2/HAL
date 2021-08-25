@@ -516,7 +516,7 @@ function HAL_F2(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict; s
 end
 
 
-function save_configs(al, i, fname; energy_key="energy", force_key="forces", energy_key="virial")
+function save_configs(al, i, fname; energy_key="energy", force_key="forces", virial_key="virial")
     py_write = pyimport("ase.io")["write"]
     al_save = []
     for at in al
