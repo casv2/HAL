@@ -207,8 +207,10 @@ function get_site_uncertainty(IP, IPs, at)
     #F = forces(IP, at)
     #Fs_rmse = sqrt(mean(reduce(vcat, [vcat((forces(IP, at) - F)...).^2 for IP in IPs])))
     
+
+    nIPs = length(IPs)
     F = forces(IP, at)
-    Fs = Vector(undef, length(IPs))
+    Fs = Vector(undef, nIPs)
 
     @Threads.threads for i in 1:nIPs
         Fs[i] = forces(IPs[i], at)
@@ -323,14 +325,14 @@ function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
     plot!(p1,E_tot[1:end-k], label="")
     plot!(p1,E_kin[1:end-k], label="")
     plot!(p1,E_pot[1:end-k], label="")
-    ylabel!(p1, "Energy (eV)")
+    ylabel!(p1, "Energy (eV/atom)")
     p2 = plot()
     plot!(p2, T[1:end-k],label="")
     ylabel!(p2, "T (K)")
     p4 = plot()
     plot!(p4, P[1:end-k],label="")
     xlabel!(p4,"MDstep")
-    ylabel!(p4, "maximum F_s")
+    ylabel!(p4, "rel F error [%")
     p5 = plot(p1, p2, p4, size=(400,550), layout=grid(3, 1, heights=[0.6, 0.2, 0.2]))
     savefig("./HMD_$(i).pdf")
 end
