@@ -204,14 +204,26 @@ function get_site_uncertainty(IP, IPs, at)
     #E = energy(IP, at)/length(at)
     #Es_rmse = sqrt(mean([(energy(IP, at)/length(at) - E).^2 for IP in IPs]));
     
-    F = forces(IP, at)
-    Fs_rmse = sqrt(mean(reduce(vcat, [vcat((forces(IP, at) - F)...).^2 for IP in IPs])))
+    #F = forces(IP, at)
+    #Fs_rmse = sqrt(mean(reduce(vcat, [vcat((forces(IP, at) - F)...).^2 for IP in IPs])))
     
+    F = forces(IP, at)
+    Fs = Vector(undef, length(IPs))
+
+    @Threads.threads for i in 1:nIPs
+        Fs[i] = forces(IPs[i], at)
+    end
+
+    dFn = norm.(sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs))
+    Fn = norm.(F)
+
+    p = mean(dFn ./ (Fn .+ 0.1))
+
     #V = virial(IP, at)
     #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
     
     #p = 15 * Es_rmse + Fs_rmse + Vs_rmse
-    p = Fs_rmse #/ (mean(abs.(vcat(F...))) + 0.1)
+    #p = Fs_rmse #/ (mean(abs.(vcat(F...))) + 0.1)
 
     return p, energy(IP, at)
 end
