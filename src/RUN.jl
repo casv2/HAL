@@ -220,7 +220,7 @@ function get_site_uncertainty(IP, IPs, at)
     #Fn = norm.(F)
 
     #p = mean(dFn ./ (Fn .+ 0.1))
-    p = maximum(dFn)
+    p = mean(dFn)
 
     #V = virial(IP, at)
     #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
