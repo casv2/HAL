@@ -185,6 +185,8 @@ function _get_site(IP, at)
     return Es
 end
 
+f_w(fi, fm; A=0.05, B=0.5, f0=1.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
+
 function get_site_uncertainty(IP, IPs, at)
     # nIPs = length(IPs)
     # Es = zeros(length(at), nIPs)
@@ -216,11 +218,20 @@ function get_site_uncertainty(IP, IPs, at)
         Fs[i] = forces(IPs[i], at)
     end
 
-    dFn = norm.(sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs))
+    #dFn = norm.(sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs))
     #Fn = norm.(F)
 
     #p = mean(dFn ./ (Fn .+ 0.1))
-    p = mean(dFn)
+    #p = mean(dFn)
+
+    dF = sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs)
+
+    dF_flat = abs.(vcat(dF...))
+    F_flat = abs.(vcat(F...))
+
+    dFs = f_w.(dF_flat, mean(F_flat)).^(-1.0) 
+
+    p = mean(dFs)
 
     #V = virial(IP, at)
     #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
