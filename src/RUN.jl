@@ -185,7 +185,7 @@ function _get_site(IP, at)
     return Es
 end
 
-f_w(fi, fm; A=0.5, B=0.5, f0=0.5) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
+f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
 function get_site_uncertainty(IP, IPs, at)
     # nIPs = length(IPs)
