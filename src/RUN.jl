@@ -224,14 +224,30 @@ function get_site_uncertainty(IP, IPs, at)
     #p = mean(dFn ./ (Fn .+ 0.1))
     #p = mean(dFn)
 
+    # dF = sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs)
+
+    # dF_flat = abs.(vcat(dF...))
+    # F_flat = abs.(vcat(F...))
+
+    # dFs = f_w.(dF_flat, mean(F_flat)).^(-1.0) 
+
+    # p = mean(dFs)
+
+
     dF = sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs)
 
     dF_flat = abs.(vcat(dF...))
     F_flat = abs.(vcat(F...))
 
-    dFs = f_w.(dF_flat, mean(F_flat)).^(-1.0) 
+    if sqrt(mean(F_flat)) + sqrt(mean(dF_flat)) > mean(F_flat) 
+        p = 0.5
+    else
+        p = 0.0
+    end
 
-    p = mean(dFs)
+    @show sqrt(mean(F_flat)) 
+    @show sqrt(mean(dF_flat))
+    @show sqrt(mean(F_flat)) + sqrt(mean(dF_flat))
 
     #V = virial(IP, at)
     #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
