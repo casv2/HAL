@@ -103,8 +103,9 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                     nsteps=run_info["nsteps"], 
                     temp=run_info[config_type]["temp"], 
                     dt=run_info[config_type]["dt"], 
-                    τstep=run_info[config_type]["τstep"], 
-                    dτ=run_info[config_type]["dτ"], 
+                    #τstep=run_info[config_type]["τstep"], 
+                    #dτ=run_info[config_type]["dτ"], 
+                    τ=run_info[config_type]["τ"],
                     maxp=run_info[config_type]["maxp"],
                     γ=run_info[config_type]["γ"],
                     swap=run_info[config_type]["swap"],
@@ -258,7 +259,7 @@ function get_site_uncertainty(IP, IPs, at)
     return p, energy(IP, at)
 end
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50, dτ=0.01, maxp=0.15, minR=2.0, var=true, A=1e-6, swap=false, vol=false, heat=false)
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τ=0.5, maxp=0.15, minR=2.0, swap=false, vol=false, heat=false) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -278,13 +279,13 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τstep=50,
     running = true
 
     i = 1
-    τ = 0
+    #τ = 0
     while running && i < nsteps
         if heat
-            #at = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HMD.MD.fs, A; τ = 0.0)
-            #at = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
+            #at = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HMD.MD.fs, A; τ=τ)
+            at = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
         else
-            τ = 0
+            #τ = 0
             at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
         end
         p, meanE = get_site_uncertainty(IP, IPs, at)
