@@ -108,6 +108,8 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                     τ=run_info[config_type]["τ"],
                     maxp=run_info[config_type]["maxp"],
                     γ=run_info[config_type]["γ"],
+                    volstep=run_info[config_type]["volstep"],
+                    swapstep=run_info[config_type]["swapstep"],
                     swap=run_info[config_type]["swap"],
                     vol=run_info[config_type]["vol"],
                     heat=run_info[config_type]["heat"],
@@ -259,7 +261,7 @@ function get_site_uncertainty(IP, IPs, at)
     return p, energy(IP, at)
 end
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τ=0.5, maxp=0.15, minR=2.0, swap=false, vol=false, heat=false) #
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τ=0.5, maxp=0.15, minR=2.0, volstep=10, swapstep=10, swap=false, vol=false, heat=false) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -304,7 +306,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τ=0.5, ma
         push!(cur_al, Dat(at, "HMD"))
         R = minimum(IPFitting.Aux.rdf(cur_al, 4.0))
         @show p, τ, R
-        if i % τstep == 0 && swap
+        if i % swapstep == 0 && swap
             at = deepcopy(at)
             p_at, E_at = get_site_uncertainty(IP, IPs, at)
             at_new = swap_step(at)
@@ -317,7 +319,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τ=0.5, ma
                 at = at_new
             end
         end
-        if i % (τstep/10) == 0 && vol
+        if i % volstep == 0 && vol
             at = deepcopy(at)
             p_at, E_at = get_site_uncertainty(IP, IPs, at)
             at_new = vol_step(at)
@@ -332,9 +334,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τ=0.5, ma
         if p > maxp || R < minR
             running = false
         end
-        if i % τstep == 0
-            τ += dτ
-        end
+        # if i % τstep == 0
+        #     τ += dτ
+        # end
         #push!(cfgs, at)
         i+=1
     end
