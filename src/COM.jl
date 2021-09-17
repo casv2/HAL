@@ -29,9 +29,9 @@ using Random
 # end
 
 function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
-    #varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
-    #F = meanF - τ * varF
-    F = forces(IP, at) 
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
+    #F = forces(IP, at) 
     
     P = at.P + (0.5 * dt * F) 
     P = random_p_update(P, at.M, γ, T, dt)
@@ -39,9 +39,8 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
-    #varE, varF, meanF = get_com_energy_forces(Vref, B, c, k, at)
-    #F = meanF - τ * varF
-    F = forces(IP, at) 
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
     
     P = at.P + (0.5 * dt * F) 
     P = random_p_update(P, at.M, γ, T, dt)
@@ -54,15 +53,15 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
 end
 
 function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
-    #varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) # - τ * varF
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
-    #varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) #- τ * varF
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     set_momenta!(at, P)
@@ -72,8 +71,8 @@ function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
 end
 
 function VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
-    #varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) #- τ * varF
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
@@ -82,8 +81,8 @@ function VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
     C = 1e-20
     set_momenta!(at, (1+C)*P)
 
-    #varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) #- τ * varF
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
       
     P = at.P + (0.5 * dt * F) 
     set_momenta!(at, P)
