@@ -224,7 +224,7 @@ function get_site_uncertainty(IP, IPs, at)
     dFn = norm.(sum([(Fs[m] - F) for m in 1:length(IPs)])/length(IPs))
     Fn = norm.(F)
 
-    p = mean(dFn ./ (Fn .+ 0.1))
+    p = mean(dFn ./ (Fn .+ 0.2))
     #p = mean(dFn)
 
     # dF = sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs)
