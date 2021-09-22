@@ -112,7 +112,7 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                     swapstep=run_info[config_type]["swapstep"],
                     swap=run_info[config_type]["swap"],
                     vol=run_info[config_type]["vol"],
-                    heat=run_info[config_type]["heat"],
+                    baro_thermo=run_info[config_type]["baro_thermo"],
                     minR=run_info[config_type]["minR"],
                     Freg=run_info[config_type]["Freg"])
             
