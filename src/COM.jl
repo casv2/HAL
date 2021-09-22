@@ -28,7 +28,8 @@ using Random
 #     return at, p
 # end
 
-function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
+
+function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Pr0 = 0.0001, μ=μ)
     varE, varF = get_com_energy_forces(IP, IPs, at)
     F = forces(IP, at) - τ * varF
     #F = forces(IP, at) 
@@ -46,8 +47,29 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     P = random_p_update(P, at.M, γ, T, dt)
     set_momenta!(at, P)
 
-    #p = maximum((norm.(varF) ./ (norm.(F) .+ minF)))
-    #p = maximum((norm.(varF)))
+    at = barostat(IP, at, Pr0; μ=5e-7)
+
+    return at
+end
+
+
+function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
+    #F = forces(IP, at) 
+    
+    P = at.P + (0.5 * dt * F) 
+    P = random_p_update(P, at.M, γ, T, dt)
+
+    set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
+    set_momenta!(at, P)
+
+    varE, varF = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at) - τ * varF
+    
+    P = at.P + (0.5 * dt * F) 
+    P = random_p_update(P, at.M, γ, T, dt)
+    set_momenta!(at, P)
 
     return at
 end
@@ -139,10 +161,17 @@ function random_p_update(P, M, γ, T, dt)
     V = P ./ M
     R = rand(Normal(), (length(M)*3)) |> vecs
     c1 = exp(-γ*dt)
-    c2 = sqrt(1-c1^2)*sqrt(T)
-    #@show c1, c2
+    c2 = sqrt(1-c1^2)*sqrt.(T ./ M)
     V_new = c1*V + c2 .* R
     return V_new .* M
+end
+
+function barostat(IP, at, Pr0; μ=5e-7)
+    Pr = -tr(stress(IP,at)) / 3 * HMD.MD.GPa
+    scl_pres = (1.0 - (μ * (Pr0 - Pr)))
+    at = set_cell!(at, scl_pres * at.cell)
+    at = set_positions!(at, scl_pres * at.X)
+    return at
 end
 
 function get_com_energy_forces(IP, IPs, at)

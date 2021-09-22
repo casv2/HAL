@@ -2,6 +2,7 @@ module MD
 
 kB = 8.617330337217213e-05 #units
 fs = 0.09822694788464063
+GPa = 160.21766208 
 
 using JuLIP, Distributions, LinearAlgebra
 
