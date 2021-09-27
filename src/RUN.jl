@@ -275,19 +275,27 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=0, dt=1.0, τ=0.5, ma
 
     E0 = energy(IP, at)
 
-    at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
-    at = HMD.MD.Stationary(at)
+    #at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
+    #at = HMD.MD.Stationary(at)
 
     nIPs = length(k[1,:])
     IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, k[:,i])) for i in 1:nIPs]
 
+
     running = true
+
+    temp_steps = sort(collect(keys(temp_dict)))
 
     i = 1
     #τ = 0
+    j = 1
     while running && i < nsteps
         if baro_thermo
             #at = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HMD.MD.fs, A; τ=τ)
+            temp = temp_steps[j]
+            if i > temp_dict[temp_steps[j]]
+                j +=1
+            end
             at = HMD.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
         else
             #τ = 0
