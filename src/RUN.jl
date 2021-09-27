@@ -101,7 +101,7 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
             E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP,Vref, B, k, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
-                    temp=run_info[config_type]["temp"], 
+                    temp_dict=run_info[config_type]["temp_dict"], 
                     dt=run_info[config_type]["dt"], 
                     #τstep=run_info[config_type]["τstep"], 
                     #dτ=run_info[config_type]["dτ"], 
