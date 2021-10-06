@@ -90,6 +90,7 @@ function CASTEP_calculator(at, config_type, calc_settings)
     delete!(calc_settings, "_castep_command")
     delete!(calc_settings, "_directory")
     delete!(calc_settings, "kpoint_mp_spacing")
+    delete!(calc_settings, "calculator")
     #calculator[:_castep_pp_path] = calc_settings["_castep_pp_path"]
     for (key, value) in calc_settings
         calculator.param[Symbol(key)] = value
