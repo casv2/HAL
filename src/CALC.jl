@@ -89,7 +89,7 @@ function CASTEP_calculator(at, config_type, calc_settings)
 
     #calculator[:_castep_pp_path] = calc_settings["_castep_pp_path"]
     for (key, value) in calc_settings
-        if key ∉ ["_castep_command", "_directory", "kpoint_mp_spacing"]
+        if key ∉ ["calculator", "_castep_command", "_directory", "kpoint_mp_spacing"]
             calculator.param[Symbol(key)] = value
         end
     end
