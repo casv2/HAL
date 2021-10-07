@@ -380,6 +380,7 @@ function plot_HMD(E_tot, E_pot, E_kin, T, P, Pr, i; k=50) # varEs,
     ylabel!(p4, "predicted rel. f err.")
     p5 = plot()
     ylabel!(p5, "Pres [GPa]")
+    plot!(p5, Pr[1:end-k], label="")
     p5 = plot(p1, p2, p5, p4, size=(400,550), layout=grid(4, 1, heights=[0.4, 0.2, 0.2, 0.2]))
     savefig("./HMD_$(i).pdf")
 end
