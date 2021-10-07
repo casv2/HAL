@@ -98,7 +98,7 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                 run_info[config_type] = D
             end
 
-            E_tot, E_pot, E_kin, T, P, varEs, varFs, selected_config = run(IP,Vref, B, k, 
+            E_tot, E_pot, E_kin, T, P, Pr, varEs, varFs, selected_config = run(IP,Vref, B, k, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
                     temp_dict=run_info[config_type]["temp_dict"], 
@@ -118,7 +118,7 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                     μ=run_info[config_type]["μ"],
                     Pr0=run_info[config_type]["Pr0"])
             
-            plot_HMD(E_tot, E_pot, E_kin, T, P, m, k=1)
+            plot_HMD(E_tot, E_pot, E_kin, T, P, Pr, m, k=1)
 
             #try 
             if calc_settings["calculator"] == "DFTB"
@@ -270,6 +270,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, τ=0.
     E_kin = zeros(nsteps)
     T = zeros(nsteps)
     P = zeros(nsteps)
+    Pr = zeros(nsteps)
     varEs = zeros(nsteps)
     varFs = zeros(nsteps)
 
@@ -308,6 +309,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, τ=0.
             #at, p = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
         #end
         P[i] = p
+        Pr[i] = -tr(stress(IP,at)) / 3 * HMD.MD.GPa
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
         E_tot[i] = Ek + Ep
@@ -360,10 +362,10 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, τ=0.
     #     selected_config = cfgs[max_ind]
     # end
     
-    return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], varEs[1:i], varFs[1:i], at #selected_config
+    return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], Pr[1:i], varEs[1:i], varFs[1:i], at #selected_config
 end
 
-function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
+function plot_HMD(E_tot, E_pot, E_kin, T, P, Pr, i; k=50) # varEs,
     p1 = plot()
     plot!(p1,E_tot[1:end-k], label="")
     plot!(p1,E_kin[1:end-k], label="")
@@ -376,7 +378,9 @@ function plot_HMD(E_tot, E_pot, E_kin, T, P, i; k=50) # varEs,
     plot!(p4, P[1:end-k],label="")
     xlabel!(p4,"MDstep")
     ylabel!(p4, "predicted rel. f err.")
-    p5 = plot(p1, p2, p4, size=(400,550), layout=grid(3, 1, heights=[0.6, 0.2, 0.2]))
+    p5 = plot()
+    ylabel!(p5, "Pres [GPa]")
+    p5 = plot(p1, p2, p5, p4, size=(400,550), layout=grid(4, 1, heights=[0.4, 0.2, 0.2, 0.2]))
     savefig("./HMD_$(i).pdf")
 end
 
