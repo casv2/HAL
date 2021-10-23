@@ -14,7 +14,7 @@ using LaTeXStrings
 using ASE
 using HMD
 
-function get_coeff(al, B, ncomms, weights, Vref, sparsify)
+function get_coeff(al, B, ncomms, weights, Vref; sparsify=false, return_S=false)
     ARDRegression = pyimport("sklearn.linear_model")["ARDRegression"]
     BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
 
@@ -56,7 +56,12 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
             _k[inds] = c_samples[:,i]
             k[:,i] = _k
         end
-        return c, k
+
+        if return_S
+            return c, c_samples, S
+        else
+            return c, c_samples
+        end
     else
         clf = BRR()#fit_intercept=false)
         clf.fit(Ψ, Y)
@@ -77,7 +82,11 @@ function get_coeff(al, B, ncomms, weights, Vref, sparsify)
         c_samples = rand(d, ncomms);
         c = clf.coef_
 
-        return c, c_samples
+        if return_S
+            return c, c_samples, S
+        else
+            return c, c_samples
+        end
     end
 end
 
