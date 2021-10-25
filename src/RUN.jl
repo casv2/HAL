@@ -154,13 +154,23 @@ function energy_uncertainty(IP, IPs, at)
 end
 
 function swap_step(at)
-	ind1, ind2 = rand(1:length(at), 2)
+	found = false
+    while found == false
+        global ind1, ind2 = rand(1:length(at), 2)
 
-	M1 = at.M[ind1]
-	Z1 = at.Z[ind1]
+        Z1 = at.Z[ind1]
+        Z2 = at.Z[ind2]
 
-	M2 = at.M[ind2]
-	Z2 = at.Z[ind2]
+        if Z1 != Z2
+            found = true
+        end
+    end
+
+    M1 = at.M[ind1]
+    Z1 = at.Z[ind1]
+
+    M2 = at.M[ind2]
+    Z2 = at.Z[ind2]
 
 	at.M[ind1] = M2
 	at.M[ind2] = M1
