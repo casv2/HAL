@@ -120,24 +120,24 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
             
             plot_HMD(E_tot, E_pot, E_kin, T, P, Pr, m, k=1)
 
-            #try 
-            if calc_settings["calculator"] == "DFTB"
-                at, py_at = HMD.CALC.DFTB_calculator(selected_config, config_type, calc_settings)
-            elseif calc_settings["calculator"] == "ORCA"
-                at, py_at = HMD.CALC.ORCA_calculator(selected_config, config_type, calc_settings)
-            elseif calc_settings["calculator"] == "CASTEP"
-                at, py_at = HMD.CALC.CASTEP_calculator(selected_config, config_type, calc_settings)
-            elseif calc_settings["calculator"] == "NRLTB"
-                at, py_at = HMD.CALC.NRLTB_calculator(selected_config, config_type, m)
-            elseif calc_settings["calculator"] == "NRLTBpy3"
-                at, py_at = HMD.CALC.NRLTBpy3_calculator(selected_config, config_type, calc_settings, m)
-            end
+            try 
+                if calc_settings["calculator"] == "DFTB"
+                    at, py_at = HMD.CALC.DFTB_calculator(selected_config, config_type, calc_settings)
+                elseif calc_settings["calculator"] == "ORCA"
+                    at, py_at = HMD.CALC.ORCA_calculator(selected_config, config_type, calc_settings)
+                elseif calc_settings["calculator"] == "CASTEP"
+                    at, py_at = HMD.CALC.CASTEP_calculator(selected_config, config_type, calc_settings)
+                elseif calc_settings["calculator"] == "NRLTB"
+                    at, py_at = HMD.CALC.NRLTB_calculator(selected_config, config_type, m)
+                elseif calc_settings["calculator"] == "NRLTBpy3"
+                    at, py_at = HMD.CALC.NRLTBpy3_calculator(selected_config, config_type, calc_settings, m)
+                end
 
-            al = vcat(al, at)
-            write_xyz("./HMD_it$(m).xyz", py_at)
-            # catch
-            #     println("Iteration failed! Calulator probably failed!")
-            # end
+                al = vcat(al, at)
+                write_xyz("./HMD_it$(m).xyz", py_at)
+            catch
+                println("Iteration failed! Calulator probably failed!")
+            end
         end
     end
     return al
