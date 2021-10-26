@@ -9,8 +9,9 @@ function do_brr(Ψ, Y, α, β, n)
     m, S = posterior(Ψ, Y, α, β)
     #d = MvNormal(m, Symmetric(S))
     for e in reverse([10.0^-i for i in 1:50])
+        min_eig_val = minimum(eigvals(Symmetric(S)))
         try
-            global d = MvNormal(m, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - e)*I)
+            global d = MvNormal(m, Symmetric(S) - (min_eig_val - e)*I)
             break
         catch
         end
