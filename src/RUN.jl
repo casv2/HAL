@@ -11,7 +11,7 @@ using JuLIP.MLIPs: SumIP
 using IPFitting: Dat
 using Distributions
 
-function do_fit(B, Vref, al, weights, ncoms; reweight=false)#; calc_err=true)
+function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
 
     if reweight
@@ -30,7 +30,7 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false)#; calc_err=true)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y)
+    α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y, brrtol=brrtol)
 
     #@show lml_score
     
@@ -90,7 +90,7 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                     global IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"])
                 end
             else
-                IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"])
+                IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"], brrtol=run_info["brrtol"])
             end
 
             if config_type ∉ keys(run_info)
