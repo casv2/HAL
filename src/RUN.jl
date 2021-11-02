@@ -183,9 +183,9 @@ end
 
 function vol_step(at)
     d = Normal()
-	scale = 1 + (rand(d) * 0.01)
+	scale = 1 + (rand(d) * 0.001)
     C1 = at.cell
-    C2 = at.cell*scale .+ (rand(d, (3,3)) * 0.01)
+    C2 = at.cell*scale .+ (rand(d, (3,3)) * 0.001)
     s = C2 / C1
     for i in 1:length(at)
         at.X[i] = at.X[i]' * s
