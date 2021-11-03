@@ -49,7 +49,7 @@ function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, P
 
     at = barostat(IP, at, Pr0; μ=5e-7)
 
-    return at
+    return at, mean(norm.(varF))
 end
 
 

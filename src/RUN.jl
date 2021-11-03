@@ -105,7 +105,7 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                     dt=run_info[config_type]["dt"], 
                     #τstep=run_info[config_type]["τstep"], 
                     #dτ=run_info[config_type]["dτ"], 
-                    τ=run_info[config_type]["τ"],
+                    rτ=run_info[config_type]["rτ"],
                     maxp=run_info[config_type]["maxp"],
                     γ=run_info[config_type]["γ"],
                     volstep=run_info[config_type]["volstep"],
@@ -204,28 +204,7 @@ end
 f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
 function get_site_uncertainty(IP, IPs, at; Freg=0.5)
-    # nIPs = length(IPs)
-    # Es = zeros(length(at), nIPs)
-
-    # Threads.@threads for j in 1:nIPs
-    #         Es[:,j] = _get_site(IPs[j], at)
-    # end
-
-    # oneB = energy(IP.components[1], at)
-    # mean_E = _get_site(IP, at)
-
-    # E_diff =  std(Es .- mean_E, dims=2)
-
-    # @show Es
-    # @show E_diff
-
-    #E = energy(IP, at)/length(at)
-    #Es_rmse = sqrt(mean([(energy(IP, at)/length(at) - E).^2 for IP in IPs]));
     
-    #F = forces(IP, at)
-    #Fs_rmse = sqrt(mean(reduce(vcat, [vcat((forces(IP, at) - F)...).^2 for IP in IPs])))
-    
-
     nIPs = length(IPs)
     F = forces(IP, at)
     Fs = Vector(undef, nIPs)
@@ -234,53 +213,23 @@ function get_site_uncertainty(IP, IPs, at; Freg=0.5)
         Fs[i] = forces(IPs[i], at)
     end
 
-    dFn = norm.(sum([(Fs[m] - F) for m in 1:length(IPs)])/length(IPs))
+    dFn = norm.(sum([(Fs[m] - F) for m in 1:length(IPs)])/nIPs)
     Fn = norm.(F)
 
     p = mean(dFn ./ (Fn .+ Freg))
-    #p = mean(dFn)
 
-    # dF = sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs)
-
-    # dF_flat = abs.(vcat(dF...))
-    # F_flat = abs.(vcat(F...))
-
-    # dFs = f_w.(dF_flat, mean(F_flat)).^(-1.0) 
-
-    # p = mean(dFs)
-
-
-    # dF = sum([ (Fs[m] - F) for m in 1:length(IPs)])/length(IPs)
-
-    # dF_flat = abs.(vcat(dF...))
-    # F_flat = abs.(vcat(F...))
-
-    # if sqrt(mean(F_flat)) + sqrt(mean(dF_flat)) > mean(F_flat) 
-    #     p = 0.5
-    # else
-    #     p = 0.0
-    # end
-
-    # @show sqrt(mean(F_flat)) 
-    # @show sqrt(mean(dF_flat))
-    # @show sqrt(mean(F_flat)) + sqrt(mean(dF_flat))
-
-    #V = virial(IP, at)
-    #Vs_rmse = sqrt(mean(reduce(vcat, [vcat((virial(IP, at) - V)...).^2 for IP in IPs])))
-    
-    #p = 15 * Es_rmse + Fs_rmse + Vs_rmse
-    #p = Fs_rmse #/ (mean(abs.(vcat(F...))) + 0.1)
-
-    return p, energy(IP, at)
+    return p, mean(Fn)
 end
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, τ=0.5, maxp=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro_thermo=false, Freg=0.5, Pr0=0.1) #
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0.5, maxp=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro_thermo=false, Freg=0.5, Pr0=0.1) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
     T = zeros(nsteps)
     P = zeros(nsteps)
     Pr = zeros(nsteps)
+    mFs = zeros(nsteps)
+    mvarFs = zeros(nsteps)
     varEs = zeros(nsteps)
     varFs = zeros(nsteps)
 
@@ -292,7 +241,6 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, τ=0.
     nIPs = length(k[1,:])
     IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, k[:,i])) for i in 1:nIPs]
 
-
     running = true
 
     temp_steps = sort(collect(keys(temp_dict)))
@@ -301,6 +249,10 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, τ=0.
     #τ = 0
     j = 1
     while running && i < nsteps
+        if i < 100
+            τ = 0.0
+        end
+
         if baro_thermo
             #at = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HMD.MD.fs, A; τ=τ)
             if i > temp_steps[j]
@@ -308,16 +260,22 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, τ=0.
             end
             temp_step = temp_steps[j]
             temp = temp_dict[temp_step]
-            at = HMD.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
+            at, mvarF = HMD.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
+            mvarFs[i] = mvarF
         else
             #τ = 0
             at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
         end
-        p, meanE = get_site_uncertainty(IP, IPs, at, Freg=Freg)
         #else
             # at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
             #at, p = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
         #end
+        p, meanF = get_site_uncertainty(IP, IPs, at, Freg=Freg)
+        mFs[i] = meanF
+        if i > 100
+            τ = (rτ * mean(mFs)) / mean(mvarFs)
+        end
+
         P[i] = p
         Pr[i] = -tr(stress(IP,at)) / 3 * HMD.MD.GPa
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
