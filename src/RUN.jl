@@ -246,7 +246,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
     temp_steps = sort(collect(keys(temp_dict)))
 
     i = 1
-    #τ = 0
+    τ = 0.0
     j = 1
     while running && i < nsteps
         if i < 100
