@@ -265,7 +265,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             mvarFs[i] = mvarF
         else
             #τ = 0
-            at, mvarF = VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
+            at, mvarF = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
             mvarFs[i] = mvarF
             #at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
         end
