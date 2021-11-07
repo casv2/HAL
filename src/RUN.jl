@@ -253,13 +253,14 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             τ = 0.0
         end
 
+        if i > temp_steps[j]
+            j += 1
+        end
+        temp_step = temp_steps[j]
+        temp = temp_dict[temp_step]
+
         if baro_thermo
             #at = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HMD.MD.fs, A; τ=τ)
-            if i > temp_steps[j]
-                j += 1
-            end
-            temp_step = temp_steps[j]
-            temp = temp_dict[temp_step]
             at, mvarF = HMD.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
             mvarFs[i] = mvarF
         else
