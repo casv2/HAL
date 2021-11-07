@@ -49,7 +49,7 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
     return IP, k
 end
 
-function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binfo)#, nsteps=10000)
+function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
@@ -69,21 +69,21 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
             
             #R = minimum(IPFitting.Aux.rdf(al, 4.0)) + run_info["Rshift"]
 
-            Bsite = rpi_basis(species = Binfo["Z"],
-                N = Binfo["N"],       # correlation order = body-order - 1
-                maxdeg = Binfo["deg"],  # polynomial degree
-                r0 = Binfo["r0"],     # estimate for NN distance
-                rin = Binfo["R"], rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
-                pin = 2) 
+            # Bsite = rpi_basis(species = Binfo["Z"],
+            #     N = Binfo["N"],       # correlation order = body-order - 1
+            #     maxdeg = Binfo["deg"],  # polynomial degree
+            #     r0 = Binfo["r0"],     # estimate for NN distance
+            #     rin = Binfo["R"], rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
+            #     pin = 2) 
 
-            Bpair = pair_basis(species = Binfo["Z"],
-                r0 = Binfo["r0"],
-                maxdeg = Binfo["2B"],
-                rcut = Binfo["2Brcut"],
-                pcut = 1,
-                pin = 0) 
+            # Bpair = pair_basis(species = Binfo["Z"],
+            #     r0 = Binfo["r0"],
+            #     maxdeg = Binfo["2B"],
+            #     rcut = Binfo["2Brcut"],
+            #     pcut = 1,
+            #     pin = 0) 
 
-            B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
+            # B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
@@ -264,7 +264,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             mvarFs[i] = mvarF
         else
             #τ = 0
-            at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
+            at, mvarF = VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
+            mvarFs[i] = mvarF
+            #at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
         end
         #else
             # at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)

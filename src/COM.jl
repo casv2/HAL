@@ -71,7 +71,7 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     P = random_p_update(P, at.M, γ, T, dt)
     set_momenta!(at, P)
 
-    return at
+    return at, mean(norm.(varF))
 end
 
 function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
