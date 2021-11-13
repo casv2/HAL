@@ -63,33 +63,33 @@ function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6,
     return _lml
 end
 
-function find_N_deg(Binfo, Vref, weights, al; Ns=[2], degs=[3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20])
-    _lml = zeros(length(degs), length(Ns))
-    _D = Dict()
+function find_N_deg(Binfo, Vref, weights, al; N=2, degs=[3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20])
+    # _lml = zeros(length(degs), length(Ns))
+    # _D = Dict()
 
-    for (i,N) in enumerate(Ns)
-        for (j,deg) = enumerate(degs)
-            _lml[j,i] = round(get_lml(N, deg, Binfo, Vref, weights, al), digits=2)
-            _D[(N, deg)] = _lml[j,i]
-        end
-    end
+    # for (i,N) in enumerate(Ns)
+    #     for (j,deg) = enumerate(degs)
+    #         _lml[j,i] = round(get_lml(N, deg, Binfo, Vref, weights, al), digits=2)
+    #         _D[(N, deg)] = _lml[j,i]
+    #     end
+    # end
 
-    _, (maxN, maxdeg) = findmax(_D)
+    # _, (maxN, maxdeg) = findmax(_D)
 
-    hl = Highlighter((lml,i,j)->true,
-                            (h,lml,i,j)->begin
-                                color = get(colorschemes[:coolwarm], lml[i,j], (minimum(_lml),maximum(_lml)))
-                                return Crayon(foreground = (round(Int,color.r*255),
-                                                            round(Int,color.g*255),
-                                                            round(Int,color.b*255)))
-                            end)
+    # hl = Highlighter((lml,i,j)->true,
+    #                         (h,lml,i,j)->begin
+    #                             color = get(colorschemes[:coolwarm], lml[i,j], (minimum(_lml),maximum(_lml)))
+    #                             return Crayon(foreground = (round(Int,color.r*255),
+    #                                                         round(Int,color.g*255),
+    #                                                         round(Int,color.b*255)))
+    #                         end)
 
-    pretty_table(_lml, Ns, row_names = degs, highlighters = hl)
+    # pretty_table(_lml, Ns, row_names = degs, highlighters = hl)
 
     M = []
     lml0 = -1e10
     for deg in degs
-        lml = round(get_lml(maxN, deg, Binfo, Vref, weights, al), digits=2)
+        lml = round(get_lml(N, deg, Binfo, Vref, weights, al), digits=2)
         @show lml
         if lml > lml0
             lml0 = lml
