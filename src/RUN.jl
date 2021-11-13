@@ -67,7 +67,7 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
                 @info("FOUND OPTIMUM BASIS: N=$(maxN), D=$(maxdeg)")
             end
             
-            R = minimum(IPFitting.Aux.rdf(al, 4.0)) + run_info["Rshift"]
+            #R = minimum(IPFitting.Aux.rdf(al, 4.0)) + run_info["Rshift"]
 
             Bsite = rpi_basis(species = Binfo["Z"],
                 N = Binfo["N"],       # correlation order = body-order - 1
@@ -78,7 +78,7 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binf
 
             Bpair = pair_basis(species = Binfo["Z"],
                 r0 = Binfo["r0"],
-                maxdeg = Binfo["2B"],
+                maxdeg = Binfo["deg"],
                 rcut = Binfo["2Brcut"],
                 pcut = 1,
                 pin = 0) 
