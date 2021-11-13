@@ -19,7 +19,7 @@ function get_lml(N, deg, Binfo, Vref, weights, al)
 
     Bpair = pair_basis(species = Binfo["Z"],
         r0 = Binfo["r0"],
-        maxdeg = Binfo["2B"],
+        maxdeg = deg,
         rcut = Binfo["2Brcut"],
         pcut = 1,
         pin = 0) 
