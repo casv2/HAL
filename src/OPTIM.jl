@@ -63,7 +63,7 @@ function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6,
     return _lml
 end
 
-function find_N_deg(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6,7])
+function find_N_deg(Binfo, Vref, weights, al; Ns=[2], degs=[3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20])
     _lml = zeros(length(degs), length(Ns))
     _D = Dict()
 
@@ -88,7 +88,7 @@ function find_N_deg(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6,7])
 
     M = []
     lml0 = -1e10
-    for deg in maximum(degs):24
+    for deg in degs
         lml = round(get_lml(maxN, deg, Binfo, Vref, weights, al), digits=2)
         @show lml
         if lml > lml0

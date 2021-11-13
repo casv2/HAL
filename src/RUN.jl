@@ -60,30 +60,30 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
             #init_config = deepcopy(al[end])
             m = (j-1)*run_info["HMD_iters"] + l
 
-            # if run_info["optim_basis"] == true
-            #     maxN, maxdeg = HMD.OPTIM.find_N_deg(Binfo, Vref, weights, al)
-            #     Binfo["N"] = maxN
-            #     Binfo["deg"] = maxdeg
-            #     @info("FOUND OPTIMUM BASIS: N=$(maxN), D=$(maxdeg)")
-            # end
+            if run_info["optim_basis"] == true
+                maxN, maxdeg = HMD.OPTIM.find_N_deg(Binfo, Vref, weights, al)
+                Binfo["N"] = maxN
+                Binfo["deg"] = maxdeg
+                @info("FOUND OPTIMUM BASIS: N=$(maxN), D=$(maxdeg)")
+            end
             
-            #R = minimum(IPFitting.Aux.rdf(al, 4.0)) + run_info["Rshift"]
+            R = minimum(IPFitting.Aux.rdf(al, 4.0)) + run_info["Rshift"]
 
-            # Bsite = rpi_basis(species = Binfo["Z"],
-            #     N = Binfo["N"],       # correlation order = body-order - 1
-            #     maxdeg = Binfo["deg"],  # polynomial degree
-            #     r0 = Binfo["r0"],     # estimate for NN distance
-            #     rin = Binfo["R"], rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
-            #     pin = 2) 
+            Bsite = rpi_basis(species = Binfo["Z"],
+                N = Binfo["N"],       # correlation order = body-order - 1
+                maxdeg = Binfo["deg"],  # polynomial degree
+                r0 = Binfo["r0"],     # estimate for NN distance
+                rin = Binfo["R"], rcut = Binfo["Nrcut"],   # domain for radial basis (cf documentation)
+                pin = 2) 
 
-            # Bpair = pair_basis(species = Binfo["Z"],
-            #     r0 = Binfo["r0"],
-            #     maxdeg = Binfo["2B"],
-            #     rcut = Binfo["2Brcut"],
-            #     pcut = 1,
-            #     pin = 0) 
+            Bpair = pair_basis(species = Binfo["Z"],
+                r0 = Binfo["r0"],
+                maxdeg = Binfo["2B"],
+                rcut = Binfo["2Brcut"],
+                pcut = 1,
+                pin = 0) 
 
-            # B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
+            B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
