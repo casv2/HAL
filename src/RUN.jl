@@ -49,7 +49,7 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
     return IP, k
 end
 
-function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
+function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, Binfo)#, nsteps=10000)
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
