@@ -89,6 +89,7 @@ function find_N_deg(Binfo, Vref, weights, al; N=2, degs=[3,4,5,6,7,8,9,10,11,12,
     M = []
     lml0 = -1e10
     maxdeg=0
+
     for deg in degs
         lml = round(get_lml(N, deg, Binfo, Vref, weights, al), digits=2)
         @show N, deg, lml
@@ -100,7 +101,7 @@ function find_N_deg(Binfo, Vref, weights, al; N=2, degs=[3,4,5,6,7,8,9,10,11,12,
         end
     end
 
-    return maxN, maxdeg
+    return N, maxdeg
 end
 
 end
