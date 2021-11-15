@@ -63,7 +63,7 @@ function find_N_deg_table(Binfo, Vref, weights, al; Ns=[2,3,4,5], degs=[3,4,5,6,
     return _lml
 end
 
-function find_N_deg(Binfo, Vref, weights, al; N=2, degs=[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
+function find_N_deg(Binfo, Vref, weights, al; N=2, degs=[7,8,9,10,11,12,13,14,15,16,17,18,19,20])
     # _lml = zeros(length(degs), length(Ns))
     # _D = Dict()
 
