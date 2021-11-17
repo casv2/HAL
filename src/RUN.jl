@@ -131,6 +131,8 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     at, py_at = HMD.CALC.NRLTB_calculator(selected_config, config_type, m)
                 elseif calc_settings["calculator"] == "NRLTBpy3"
                     at, py_at = HMD.CALC.NRLTBpy3_calculator(selected_config, config_type, calc_settings, m)
+                elseif calc_settings["calculator"] == "Aims"
+                    at, py_at = HMD.CALC.Aims_calculator(selected_config, config_type, calc_settings)
                 end
 
                 al = vcat(al, at)
