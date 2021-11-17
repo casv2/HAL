@@ -122,8 +122,10 @@ function Aims_calculator(at, config_type, calc_settings)
     py_at = ASEAtoms(at)
 
     calculator = Aims()
-    for setting in calc_settings
-        pycall(calculator."parameters"."__setattr__", Nothing, setting.first, setting.second)
+    for (key, value) in calc_settings
+        if key ∉ ["calculator"]
+            pycall(calculator."parameters"."__setattr__", Nothing, key, value)
+        end
     end
 
     py_at.po[:set_calculator](calculator)
