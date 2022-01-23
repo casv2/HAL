@@ -2,6 +2,10 @@
 *.jl.*.cov
 *.jl.mem
 *.pyc
+*.json
+*.xyz
+*.pdf
+*.png
 src/plottools.pyc
 temp
 Manifest.toml
