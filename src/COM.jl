@@ -121,20 +121,38 @@ function _get_site(IP, at)
     return Es
 end
 
-function get_site_uncertainty(IP, IPs, at)
+function get_site_uncertainty(IP, IPs, at; Freg=0.5)
+    
     nIPs = length(IPs)
-    Es = zeros(length(at.at), nIPs)
+    F = forces(IP, at)
+    Fs = Vector(undef, nIPs)
 
-    for j in 1:nIPs
-        Es[:,j] = _get_site(IPs[j], at.at)
+    @Threads.threads for i in 1:nIPs
+        Fs[i] = forces(IPs[i], at)
     end
 
-    mean_E = _get_site(IP, at.at)
+    dFn = norm.(sum([(Fs[m] - F) for m in 1:length(IPs)])/nIPs)
+    Fn = norm.(F)
 
-    E_diff = mean(abs.(Es .- mean_E), dims=2)
+    p = mean(dFn ./ (Fn .+ Freg))
 
-    return maximum(E_diff)
+    return p, mean(Fn)
 end
+
+# function get_site_uncertainty(IP, IPs, at)
+#     nIPs = length(IPs)
+#     Es = zeros(length(at.at), nIPs)
+
+#     for j in 1:nIPs
+#         Es[:,j] = _get_site(IPs[j], at.at)
+#     end
+
+#     mean_E = _get_site(IP, at.at)
+
+#     E_diff = mean(abs.(Es .- mean_E), dims=2)
+
+#     return maximum(E_diff)
+# end
 
 # function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
 #     varE, varF = get_com_energy_forces(IP, IPs, at)

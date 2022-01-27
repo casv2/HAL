@@ -205,24 +205,6 @@ end
 
 f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
-function get_site_uncertainty(IP, IPs, at; Freg=0.5)
-    
-    nIPs = length(IPs)
-    F = forces(IP, at)
-    Fs = Vector(undef, nIPs)
-
-    @Threads.threads for i in 1:nIPs
-        Fs[i] = forces(IPs[i], at)
-    end
-
-    dFn = norm.(sum([(Fs[m] - F) for m in 1:length(IPs)])/nIPs)
-    Fn = norm.(F)
-
-    p = mean(dFn ./ (Fn .+ Freg))
-
-    return p, mean(Fn)
-end
-
 function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0.5, maxp=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro_thermo=false, Freg=0.5, Pr0=0.1) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
@@ -295,9 +277,11 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
         @show p, τ, R
         if i % swapstep == 0 && swap
             at = deepcopy(at)
-            p_at, E_at = get_site_uncertainty(IP, IPs, at)
+            #p_at, E_at = get_site_uncertainty(IP, IPs, at)
+            E_at = energy(IP, at)
             at_new = swap_step(at)
-            p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
+            E_at_new = energy(IP, at_new)
+            #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HMD.MD.kB * temp))
             C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
             @show C
@@ -308,9 +292,11 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
         end
         if i % volstep == 0 && vol
             at = deepcopy(at)
-            p_at, E_at = get_site_uncertainty(IP, IPs, at)
+            #p_at, E_at = get_site_uncertainty(IP, IPs, at)
+            E_at = energy(IP, at)
             at_new = vol_step(at)
-            p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
+            E_at_new = energy(IP, at_new)
+            #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
             @show C
             if rand() < C
