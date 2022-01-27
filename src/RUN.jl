@@ -257,7 +257,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             # at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
             #at, p = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
         #end
-        p, meanF = get_site_uncertainty(IP, IPs, at, Freg=Freg)
+        p, meanF = HMD.COM.get_site_uncertainty(IP, IPs, at, Freg=Freg)
         mFs[i] = meanF
         if i > 100
             τ = (rτ * mean(mFs)) / mean(mvarFs)
