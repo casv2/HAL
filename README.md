@@ -1,1 +1,1 @@
-# HMD (Hyperactive MD)
+# HAL (Hyperactive Learning)
