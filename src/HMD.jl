@@ -1,4 +1,4 @@
-module HMD
+module HAL
 
 include("./COM.jl")
 include("./MD.jl")

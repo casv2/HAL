@@ -12,7 +12,7 @@ using Statistics
 using Distributions
 using LaTeXStrings
 using ASE
-using HMD
+using HAL
 
 function get_coeff(al, B, ncomms, weights, Vref; sparsify=false, return_S=false)
     ARDRegression = pyimport("sklearn.linear_model")["ARDRegression"]
@@ -332,7 +332,7 @@ function HAL_E_dev(al, al_test, B, ncomms, iters, nadd, weights, Vref, plot_dict
         # for (j, selected_config) in enumerate(al_test[inds])
         #     #try
         #     #at, py_at = 
-        #     HMD.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", i, j, calc_settings)
+        #     HAL.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", i, j, calc_settings)
         #     #catch
         #     #    @show("VASP failed?")
         #     #end
@@ -387,7 +387,7 @@ function HAL_E(al, al_test, B, ncomms, iters, nadd, weights, Vref; sparsify=true
         # for (j, selected_config) in enumerate(al_test[inds])
         #     #try
         #     #at, py_at = 
-        #     HMD.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", i, j, calc_settings)
+        #     HAL.CALC.VASP_calculator(selected_config.at, "HAL_$(i)", i, j, calc_settings)
         #     #catch
         #     #    @show("VASP failed?")
         #     #end

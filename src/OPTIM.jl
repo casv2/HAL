@@ -4,7 +4,7 @@ using ACE
 using IPFitting
 using ColorSchemes
 using PrettyTables
-using HMD
+using HAL
 
 function get_lml(N, deg, Binfo, Vref, weights, al)
 
@@ -32,7 +32,7 @@ function get_lml(N, deg, Binfo, Vref, weights, al)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y)
+    α, β, c, lml_score = HAL.BRR.maxim_hyper(Ψ, Y)
 
     return lml_score
 end

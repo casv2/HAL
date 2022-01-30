@@ -1,4 +1,4 @@
-name = "HMD"
+name = "HAL"
 uuid = "17fd49a3-1307-4a8d-87cb-74009ad65e23"
 authors = ["casv2 <casv2@cam.ac.uk>"]
 version = "0.1.0"

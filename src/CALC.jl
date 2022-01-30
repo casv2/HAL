@@ -31,14 +31,14 @@ function EAM_calculator(at, config_type)
     D_info = PyDict(py_at.po[:info])
     D_arrays = PyDict(py_at.po[:arrays])
 
-    D_info["config_type"] = "HMD_" * config_type
+    D_info["config_type"] = "HAL_" * config_type
     D_info["energy"] = E
     D_arrays["force"] = F
 
     py_at.po[:info] = D_info
     py_at.po[:arrays] = D_arrays
 
-    dat = Dat( at,"HMD_" * config_type, E = E, F = F)#, V = V)
+    dat = Dat( at,"HAL_" * config_type, E = E, F = F)#, V = V)
 
     return dat, py_at
 end
@@ -46,15 +46,15 @@ end
 function NRLTB_calculator(at, config_type, m)
     py_at = ASEAtoms(at)
 
-    write_xyz("/Users/Cas/.julia/dev/HMD/NRLTB/crash_$(m).xyz", py_at)
-    run(`/Users/Cas/anaconda2/bin/python /Users/Cas/.julia/dev/HMD/NRLTB/convert.py $(m)`)
+    write_xyz("/Users/Cas/.julia/dev/HAL/NRLTB/crash_$(m).xyz", py_at)
+    run(`/Users/Cas/anaconda2/bin/python /Users/Cas/.julia/dev/HAL/NRLTB/convert.py $(m)`)
     #V = -1.0 * py_at.get_stress() * py_at.get_volume()
 
-    al = IPFitting.Data.read_xyz("/Users/Cas/.julia/dev/HMD/NRLTB/crash_conv_$(m).xyz", energy_key="energy", force_key="forces")
+    al = IPFitting.Data.read_xyz("/Users/Cas/.julia/dev/HAL/NRLTB/crash_conv_$(m).xyz", energy_key="energy", force_key="forces")
     E = al[1].D["E"]
     F = al[1].D["F"]
 
-    dat = Dat( at,"HMD_" * config_type, E = E, F = F)#, V = V)
+    dat = Dat( at,"HAL_" * config_type, E = E, F = F)#, V = V)
 
     return dat, py_at
 end
@@ -75,7 +75,7 @@ function NRLTBpy3_calculator(at, config_type, calc_settings, m)
     F = al[1].D["F"]
     #V = -1.0 * py_at.get_stress() * py_at.get_volume()
 
-    dat = Dat( at,"HMD_" * config_type, E = E, F = F)#, V = V)
+    dat = Dat( at,"HAL_" * config_type, E = E, F = F)#, V = V)
 
     return dat, py_at
 end
@@ -96,12 +96,12 @@ function Aims_calculator(at, config_type, calc_settings)
     F = py_at.po.get_forces()
     V = -1.0 * py_at.po.get_stress(voigt=false) * py_at.po.get_volume()
 
-    dat = Dat( at, "HMD_" * config_type, E = E, F = vcat(F'...), V = V')
+    dat = Dat( at, "HAL_" * config_type, E = E, F = vcat(F'...), V = V')
 
     D_info = PyDict(py_at.po[:info])
     D_arrays = PyDict(py_at.po[:arrays])
 
-    D_info["config_type"] = "HMD_" * config_type
+    D_info["config_type"] = "HAL_" * config_type
     D_info["energy"] = E
     D_info["virial"] = V
     D_arrays["forces"] = F
@@ -134,12 +134,12 @@ function CASTEP_calculator(at, config_type, calc_settings)
     F = py_at.po.get_forces()
     V = -1.0 * py_at.po.get_stress(voigt=false) * py_at.po.get_volume()
 
-    dat = Dat( at, "HMD_" * config_type, E = E, F = vcat(F'...), V = V')
+    dat = Dat( at, "HAL_" * config_type, E = E, F = vcat(F'...), V = V')
 
     D_info = PyDict(py_at.po[:info])
     D_arrays = PyDict(py_at.po[:arrays])
 
-    D_info["config_type"] = "HMD_" * config_type
+    D_info["config_type"] = "HAL_" * config_type
     D_info["energy"] = E
     D_info["virial"] = V
     D_arrays["forces"] = F
@@ -163,12 +163,12 @@ function ORCA_calculator(at, config_type, calc_settings)
     E = py_at.po.get_potential_energy()
     F = py_at.po.get_forces()
 
-    dat = Dat( at, "HMD_" * config_type, E = E, F = vcat(F'...))
+    dat = Dat( at, "HAL_" * config_type, E = E, F = vcat(F'...))
 
     D_info = PyDict(py_at.po[:info])
     D_arrays = PyDict(py_at.po[:arrays])
 
-    D_info["config_type"] = "HMD_" * config_type
+    D_info["config_type"] = "HAL_" * config_type
     D_info["energy"] = E
     D_arrays["forces"] = F
 
@@ -206,12 +206,12 @@ function DFTB_calculator(at, config_type, calc_settings)
     F = py_at.po.get_forces()
     #V = -1.0 * py_at.po.get_stress(voigt=false) * py_at.po.get_volume()
 
-    dat = Dat( at, "HMD_" * config_type, E = E, F = F)#, V = V)
+    dat = Dat( at, "HAL_" * config_type, E = E, F = F)#, V = V)
 
     D_info = PyDict(py_at.po[:info])
     D_arrays = PyDict(py_at.po[:arrays])
 
-    D_info["config_type"] = "HMD_" * config_type
+    D_info["config_type"] = "HAL_" * config_type
     D_info["energy"] = E
     D_arrays["force"] = F
     #D_info["virial"] = V

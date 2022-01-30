@@ -3,7 +3,7 @@ module RUN
 using IPFitting
 using JuLIP
 using ASE
-using HMD
+using HAL
 using LinearAlgebra
 using Plots
 using ACE
@@ -17,7 +17,7 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
     if reweight
         for (m,at) in enumerate(al)
             meanF = mean(abs.(vcat(at.D["F"]...)))
-            config = "HMD_" * string(m)
+            config = "HAL_" * string(m)
             al[m].configtype = config
 
             weights[config] = Dict("E" => 15.0, "F" => 1/meanF, "V" => 1.0)
@@ -30,13 +30,13 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    α, β, c, lml_score = HMD.BRR.maxim_hyper(Ψ, Y, brrtol=brrtol)
+    α, β, c, lml_score = HAL.BRR.maxim_hyper(Ψ, Y, brrtol=brrtol)
 
     #@show lml_score
     
-    k = HMD.BRR.do_brr(Ψ, Y, α, β, ncoms);
+    k = HAL.BRR.do_brr(Ψ, Y, α, β, ncoms);
 
-    #c, c_samples = HMD.BRR.get_coeff(Ψ, Y, ncoms)
+    #c, c_samples = HAL.BRR.get_coeff(Ψ, Y, ncoms)
     
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
     
@@ -49,19 +49,19 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
     return IP, k
 end
 
-function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
+function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
-        for l in 1:convert(Int,run_info["HMD_iters"])
+        for l in 1:convert(Int,run_info["HAL_iters"])
             init_config = deepcopy(start_config)
             #init_config = deepcopy(al[end])
-            m = (j-1)*run_info["HMD_iters"] + l
+            m = (j-1)*run_info["HAL_iters"] + l
 
             # if run_info["optim_basis"] == true
-            #     maxN, maxdeg = HMD.OPTIM.find_N_deg(Binfo, Vref, weights, al)
+            #     maxN, maxdeg = HAL.OPTIM.find_N_deg(Binfo, Vref, weights, al)
             #     Binfo["N"] = maxN
             #     Binfo["deg"] = maxdeg
             #     @info("FOUND OPTIMUM BASIS: N=$(maxN), D=$(maxdeg)")
@@ -118,25 +118,25 @@ function run_HMD(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     μ=run_info[config_type]["μ"],
                     Pr0=run_info[config_type]["Pr0"])
             
-            plot_HMD(E_tot, E_pot, E_kin, T, P, Pr, m, k=1)
+            plot_HAL(E_tot, E_pot, E_kin, T, P, Pr, m, k=1)
 
             try 
                 if calc_settings["calculator"] == "DFTB"
-                    at, py_at = HMD.CALC.DFTB_calculator(selected_config, config_type, calc_settings)
+                    at, py_at = HAL.CALC.DFTB_calculator(selected_config, config_type, calc_settings)
                 elseif calc_settings["calculator"] == "ORCA"
-                    at, py_at = HMD.CALC.ORCA_calculator(selected_config, config_type, calc_settings)
+                    at, py_at = HAL.CALC.ORCA_calculator(selected_config, config_type, calc_settings)
                 elseif calc_settings["calculator"] == "CASTEP"
-                    at, py_at = HMD.CALC.CASTEP_calculator(selected_config, config_type, calc_settings)
+                    at, py_at = HAL.CALC.CASTEP_calculator(selected_config, config_type, calc_settings)
                 elseif calc_settings["calculator"] == "NRLTB"
-                    at, py_at = HMD.CALC.NRLTB_calculator(selected_config, config_type, m)
+                    at, py_at = HAL.CALC.NRLTB_calculator(selected_config, config_type, m)
                 elseif calc_settings["calculator"] == "NRLTBpy3"
-                    at, py_at = HMD.CALC.NRLTBpy3_calculator(selected_config, config_type, calc_settings, m)
+                    at, py_at = HAL.CALC.NRLTBpy3_calculator(selected_config, config_type, calc_settings, m)
                 elseif calc_settings["calculator"] == "Aims"
-                    at, py_at = HMD.CALC.Aims_calculator(selected_config, config_type, calc_settings)
+                    at, py_at = HAL.CALC.Aims_calculator(selected_config, config_type, calc_settings)
                 end
 
                 al = vcat(al, at)
-                write_xyz("./HMD_it$(m).xyz", py_at)
+                write_xyz("./HAL_it$(m).xyz", py_at)
             catch
                 println("Iteration failed! Calulator probably failed!")
             end
@@ -219,8 +219,8 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
 
     E0 = energy(IP, at)
 
-    #at = HMD.MD.MaxwellBoltzmann_scale(at, temp)
-    #at = HMD.MD.Stationary(at)
+    #at = HAL.MD.MaxwellBoltzmann_scale(at, temp)
+    #at = HAL.MD.Stationary(at)
 
     nIPs = length(k[1,:])
     IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, k[:,i])) for i in 1:nIPs]
@@ -244,35 +244,35 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
         temp = temp_dict[temp_step]
 
         if baro_thermo
-            #at = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HMD.MD.fs, A; τ=τ)
-            at, mvarF = HMD.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
+            #at = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HAL.MD.fs, A; τ=τ)
+            at, mvarF = HAL.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
             mvarFs[i] = mvarF
         else
             #τ = 0
-            at, mvarF = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
+            at, mvarF = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
             mvarFs[i] = mvarF
-            #at = HMD.COM.VelocityVerlet_com(IP, IPs, at, dt * HMD.MD.fs, τ=τ)
+            #at = HAL.COM.VelocityVerlet_com(IP, IPs, at, dt * HAL.MD.fs, τ=τ)
         end
         #else
-            # at, p = HMD.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HMD.MD.fs, temp * HMD.MD.kB, γ=γ, τ=τ)
-            #at, p = HMD.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
+            # at, p = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
+            #at, p = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
         #end
-        p, meanF = HMD.COM.get_site_uncertainty(IP, IPs, at, Freg=Freg)
+        p, meanF = HAL.COM.get_site_uncertainty(IP, IPs, at, Freg=Freg)
         mFs[i] = meanF
         if i > 100
             τ = (rτ * mean(mFs)) / mean(mvarFs)
         end
 
         P[i] = p
-        Pr[i] = -tr(stress(IP,at)) / 3 * HMD.MD.GPa
+        Pr[i] = -tr(stress(IP,at)) / 3 * HAL.MD.GPa
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
         E_tot[i] = Ek + Ep
         E_pot[i] = Ep
         E_kin[i] = Ek
-        T[i] = Ek / (1.5 * HMD.MD.kB)
+        T[i] = Ek / (1.5 * HAL.MD.kB)
         cur_al = Dat[]
-        push!(cur_al, Dat(at, "HMD"))
+        push!(cur_al, Dat(at, "HAL"))
         R = minimum(IPFitting.Aux.rdf(cur_al, 4.0))
         @show p, τ, R
         if i % swapstep == 0 && swap
@@ -282,8 +282,8 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             at_new = swap_step(at)
             E_at_new = energy(IP, at_new)
             #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
-            #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HMD.MD.kB * temp))
-            C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
+            #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HAL.MD.kB * temp))
+            C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
             @show C
             if rand() < C
                 println("SWAP ACCEPTED")
@@ -297,7 +297,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             at_new = vol_step(at)
             E_at_new = energy(IP, at_new)
             #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
-            C = exp( - (E_at - E_at_new) / (HMD.MD.kB * temp))
+            C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
             @show C
             if rand() < C
                 println("VOL STEP ACCEPTED")
@@ -324,7 +324,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
     return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], Pr[1:i], varEs[1:i], varFs[1:i], at #selected_config
 end
 
-function plot_HMD(E_tot, E_pot, E_kin, T, P, Pr, i; k=50) # varEs,
+function plot_HAL(E_tot, E_pot, E_kin, T, P, Pr, i; k=50) # varEs,
     p1 = plot()
     plot!(p1,E_tot[1:end-k], label="")
     plot!(p1,E_kin[1:end-k], label="")
@@ -341,7 +341,7 @@ function plot_HMD(E_tot, E_pot, E_kin, T, P, Pr, i; k=50) # varEs,
     ylabel!(p5, "Pres [GPa]")
     plot!(p5, Pr[1:end-k], label="")
     p5 = plot(p1, p2, p5, p4, size=(400,550), layout=grid(4, 1, heights=[0.4, 0.2, 0.2, 0.2]))
-    savefig("./HMD_$(i).pdf")
+    savefig("./HAL_$(i).pdf")
 end
 
 
