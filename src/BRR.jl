@@ -33,10 +33,10 @@ function posterior(Ψ, Y, α, β; return_inverse=false)
     end
 end
 
-function maxim_hyper(Ψ, Y; brrtol=1e-3)
+function maxim_hyper(Ψ, Y, alpha_init, beta_init; brrtol=1e-3)
     BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
 
-    clf = BRR(tol=brrtol, fit_intercept=false, compute_score=true)
+    clf = BRR(tol=brrtol, alpha_init=alpha_init, lambda_init=beta_init, fit_intercept=false, compute_score=true)
     clf.fit(Ψ, Y)
 
     α = clf.alpha_

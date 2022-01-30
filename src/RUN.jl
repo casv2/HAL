@@ -24,15 +24,23 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
         end
     end   
 
-    @show weights
-
     Ψ, Y = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    α, β, c, lml_score = HAL.BRR.maxim_hyper(Ψ, Y, brrtol=brrtol)
+    global alpha_init, beta_init = 0,0
 
-    #@show lml_score
+    if alpha_init == 0.0 && beta_init == 0.0
+        alpha_init = 1/var(Y)
+        beta_init = 1
+    end
+    
+    @show alpha_init, beta_init
+
+    α, β, c, lml_score = HAL.BRR.maxim_hyper(Ψ, Y, alpha_init, beta_init; brrtol=brrtol)
+
+    alpha_init = α
+    beta_init = β
     
     k = HAL.BRR.do_brr(Ψ, Y, α, β, ncoms);
 
