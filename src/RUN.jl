@@ -11,7 +11,7 @@ using JuLIP.MLIPs: SumIP
 using IPFitting: Dat
 using Distributions
 
-function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc_err=true)
+function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, beta_init=1.0, reweight=false, brrtol=1e-3)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
 
     if reweight
@@ -28,17 +28,9 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    if alpha_init == 0.0 && beta_init == 0.0
-        alpha_init = 1/var(Y)
-        beta_init = 1.0
-    end
-    
     @show alpha_init, beta_init
 
     α, β, c, lml_score = HAL.BRR.maxim_hyper(Ψ, Y, alpha_init, beta_init; brrtol=brrtol)
-
-    alpha_init = α
-    beta_init = β
     
     k = HAL.BRR.do_brr(Ψ, Y, α, β, ncoms);
 
@@ -52,14 +44,14 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
     rmse_table(rmse_, rmserel_)
     #end
     
-    return IP, k
+    return IP, k, α, β
 end
 
 function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
-    global alpha_init, beta_init = 0,0
+    global α, β = 0.2,1.0
 
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
@@ -95,10 +87,10 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
-                    global IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"])
+                    global IP, k, α, β = do_fit(B, Vref, al, weights, alpha_init=α, beta_init=β,  run_info["ncoms"])
                 end
             else
-                IP, k = do_fit(B, Vref, al, weights, run_info["ncoms"], brrtol=run_info["brrtol"])
+                IP, k, α, β = do_fit(B, Vref, al, weights, alpha_init=α, beta_init=β, run_info["ncoms"], brrtol=run_info["brrtol"])
             end
 
             if config_type ∉ keys(run_info)
