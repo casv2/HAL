@@ -28,8 +28,6 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    global alpha_init, beta_init = 0,0
-
     if alpha_init == 0.0 && beta_init == 0.0
         alpha_init = 1/var(Y)
         beta_init = 1.0
@@ -61,6 +59,8 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
+    global alpha_init, beta_init = 0,0
+
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
         for l in 1:convert(Int,run_info["HAL_iters"])
