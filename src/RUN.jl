@@ -32,7 +32,7 @@ function do_fit(B, Vref, al, weights, ncoms; reweight=false, brrtol=1e-3)#; calc
 
     if alpha_init == 0.0 && beta_init == 0.0
         alpha_init = 1/var(Y)
-        beta_init = 1
+        beta_init = 1.0
     end
     
     @show alpha_init, beta_init
