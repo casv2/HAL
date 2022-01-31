@@ -51,7 +51,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
-    global α, β = 1.0,1000.0
+    global α, β = 1.0,1.0
 
     for (j,start_config) in enumerate(start_configs)
         config_type = configtype(start_config)
