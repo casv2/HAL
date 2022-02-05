@@ -1,6 +1,5 @@
 module OPTIM
 
-using ACE
 using IPFitting
 using ColorSchemes
 using PrettyTables

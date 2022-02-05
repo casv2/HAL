@@ -4,7 +4,6 @@ authors = ["casv2 <casv2@cam.ac.uk>"]
 version = "0.1.0"
 
 [deps]
-ACE = "3e8ccfd2-c8b0-11ea-32f1-f3a5990fd77a"
 ASE = "51974c44-a7ed-5088-b8be-3e78c8ba416c"
 ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"

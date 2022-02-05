@@ -1,7 +1,6 @@
 module UTILS
 
 using JuLIP
-using ACE
 using IPFitting
 using PyCall
 using LinearAlgebra

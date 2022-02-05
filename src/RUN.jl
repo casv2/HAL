@@ -6,7 +6,6 @@ using ASE
 using HAL
 using LinearAlgebra
 using Plots
-using ACE
 using JuLIP.MLIPs: SumIP
 using IPFitting: Dat
 using Distributions
