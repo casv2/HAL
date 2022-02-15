@@ -284,7 +284,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HAL.MD.kB * temp))
             #C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
             #@show C
-            if p_at_new > p #rand() < C
+            if p_new > p #rand() < C
                 println("SWAP ACCEPTED")
                 at = at_new
             end
@@ -300,7 +300,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             #C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
             #@show C
-            if p_at_new > p
+            if p_new > p
                 println("VOL STEP ACCEPTED")
                 at = at_new
             end
