@@ -292,15 +292,15 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
         if i % volstep == 0 && vol
             at = deepcopy(at)
             #p_at, E_at = get_site_uncertainty(IP, IPs, at)
-            #E_at = energy(IP, at)
-            p, meanF = HAL.COM.get_site_uncertainty(IP, IPs, at, Freg=Freg)
+            E_at = energy(IP, at)
+            #p, meanF = HAL.COM.get_site_uncertainty(IP, IPs, at, Freg=Freg)
             at_new = vol_step(at)
-            p_new, meanF_new = HAL.COM.get_site_uncertainty(IP, IPs, at_new, Freg=Freg)
-            #E_at_new = energy(IP, at_new)
+            #p_new, meanF_new = HAL.COM.get_site_uncertainty(IP, IPs, at_new, Freg=Freg)
+            E_at_new = energy(IP, at_new)
             #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
-            #C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
+            C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
             #@show C
-            if p_new > p
+            if rand() < C
                 println("VOL STEP ACCEPTED")
                 at = at_new
             end
