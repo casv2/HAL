@@ -100,7 +100,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
             E_tot, E_pot, E_kin, T, P, Pr, varEs, varFs, selected_config = run(IP,Vref, B, k, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
-                    temp_dict=run_info[config_type]["temp_dict"], 
+                    temp=run_info[config_type]["temp"], 
                     dt=run_info[config_type]["dt"], 
                     #τstep=run_info[config_type]["τstep"], 
                     #dτ=run_info[config_type]["dτ"], 
@@ -204,7 +204,7 @@ end
 
 f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0.5, maxp=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro_thermo=false, Freg=0.5, Pr0=0.1) #
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, maxp=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro_thermo=false, Freg=0.5, Pr0=0.1) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -236,11 +236,11 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp_dict=0, dt=1.0, rτ=0
             τ = 0.0
         end
 
-        if i > temp_steps[j]
-            j += 1
-        end
-        temp_step = temp_steps[j]
-        temp = temp_dict[temp_step]
+        #if i > temp_steps[j]
+        #    j += 1
+        #end
+        #temp_step = temp_steps[j]
+        #temp = temp_dict[temp_step]
 
         if baro_thermo
             #at = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HAL.MD.fs, A; τ=τ)
