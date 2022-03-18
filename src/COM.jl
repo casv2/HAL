@@ -140,7 +140,7 @@ function get_site_uncertainty(IP, IPs, at; Freg=0.5)
     p = softmax(dFn ./ (Fn .+ Freg))
 
     #return p, mean(Fn)
-    return p, mean(Fn)
+    return maximum(p), mean(Fn)
 end
 
 # function get_site_uncertainty(IP, IPs, at)
