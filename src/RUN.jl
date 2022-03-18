@@ -226,7 +226,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
 
     running = true
 
-    temp_steps = sort(collect(keys(temp_dict)))
+    #temp_steps = sort(collect(keys(temp_dict)))
 
     i = 1
     τ = 0.0
