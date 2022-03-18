@@ -135,7 +135,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                 end
 
                 al = vcat(al, at)
-                write_xyz("./HAL_it$(m).xyz", py_at)
+                write_xyz("./HAL_it$(m).extxyz", py_at)
             catch
                 println("Iteration failed! Calulator probably failed!")
             end
