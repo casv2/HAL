@@ -121,6 +121,8 @@ function _get_site(IP, at)
     return Es
 end
 
+softmax(x) = exp.(x) ./ sum(exp.(x))
+
 function get_site_uncertainty(IP, IPs, at; Freg=0.5)
     
     nIPs = length(IPs)
@@ -134,8 +136,10 @@ function get_site_uncertainty(IP, IPs, at; Freg=0.5)
     dFn = norm.(sum([(Fs[m] - F) for m in 1:length(IPs)])/nIPs)
     Fn = norm.(F)
 
-    p = mean(dFn ./ (Fn .+ Freg))
+    #p = mean(dFn ./ (Fn .+ Freg))
+    p = softmax(dFn ./ (Fn .+ Freg))
 
+    #return p, mean(Fn)
     return p, mean(Fn)
 end
 

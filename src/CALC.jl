@@ -117,7 +117,7 @@ function CASTEP_calculator(at, config_type, calc_settings)
 
     calculator = CASTEP()
     calculator[:_castep_command] = calc_settings["_castep_command"]
-    calculator[:_castep_pp_path] = calc_settings["_castep_pp_path"]
+    #calculator[:_castep_pp_path] = calc_settings["_castep_pp_path"]
     calculator[:_directory] =calc_settings["_directory"]
     calculator.cell[:kpoint_mp_spacing] = calc_settings["kpoint_mp_spacing"]
 
