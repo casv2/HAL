@@ -242,12 +242,12 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             #at = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HAL.MD.fs, A; τ=τ)
             at, varE, varF, meanF = HAL.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
             @show norm.(mvarF)
-            mvarFs[i] = mean(norm.(mvarF))
+            mvarFs[i] = mean(norm.(varF))
         else
             #τ = 0
             at, varE, varF, meanF = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
-            @show norm.(mvarF)
-            mvarFs[i] = mean(norm.(mvarF))
+            @show norm.(varF)
+            mvarFs[i] = mean(norm.(varF))
             #at = HAL.COM.VelocityVerlet_com(IP, IPs, at, dt * HAL.MD.fs, τ=τ)
         end
         #else
