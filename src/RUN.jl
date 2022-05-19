@@ -262,7 +262,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         end
 
         P[i] = p
-        Pr[i] = -tr(stress(IP,at)) / (3 * HAL.MD.GPa)
+        Pr[i] = (-tr(stress(IP,at)) /3) * HAL.MD.GPa
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
         E_tot[i] = Ek + Ep
