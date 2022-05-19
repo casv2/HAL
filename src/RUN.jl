@@ -219,23 +219,18 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
 
     E0 = energy(IP, at)
 
-    #at = HAL.MD.MaxwellBoltzmann_scale(at, temp)
-    #at = HAL.MD.Stationary(at)
-
     nIPs = length(k[1,:])
     IPs = [SumIP(Vref, JuLIP.MLIPs.combine(B, k[:,i])) for i in 1:nIPs]
 
     running = true
 
-    #temp_steps = sort(collect(keys(temp_dict)))
-
     i = 1
     τ = 0.0
-    j = 1
+    #j = 1
     while running && i < nsteps
-        if i < 100
-            τ = 0.0
-        end
+        # if i < 100
+        #     τ = 0.0
+        # end
 
         #if i > temp_steps[j]
         #    j += 1
@@ -245,11 +240,11 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
 
         if baro_thermo
             #at = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HAL.MD.fs, A; τ=τ)
-            at, varE, varF = HAL.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
+            at, varE, varF, meanF = HAL.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
             mvarFs[i] = mvarF
         else
             #τ = 0
-            at, varE, varF = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
+            at, varE, varF, meanF = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
             mvarFs[i] = mvarF
             #at = HAL.COM.VelocityVerlet_com(IP, IPs, at, dt * HAL.MD.fs, τ=τ)
         end
@@ -257,14 +252,17 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             # at, p = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
             #at, p = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
         #end
-        p, meanF = HAL.COM.get_site_uncertainty(IP, IPs, at, Freg=Freg)
         mFs[i] = meanF
-        if i > 100
-            τ = (rτ * mean(mFs)) / mean(mvarFs)
-        end
+        p = HAL.COM.get_site_uncertainty(meanF, Fs, at, Freg=Freg)
 
+        if i > 100
+            τ = (rτ * mean(mFs[i-99:i])) / mean(mvarFs[i-99:i])
+        else
+            τ = 0.0
+        end
+        
         P[i] = p
-        Pr[i] = -tr(stress(IP,at)) / 3 * HAL.MD.GPa
+        Pr[i] = -tr(stress(IP,at)) / (3 * HAL.MD.GPa)
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
         E_tot[i] = Ek + Ep

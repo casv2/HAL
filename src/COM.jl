@@ -6,8 +6,9 @@ using HAL
 using Random
 
 function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Pr0 = 0.0001, μ=μ)
-    varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) - τ * varF
+    varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
+    meanF = forces(IP, at)
+    F = meanF - τ * varF
     #F = forces(IP, at) 
     
     P = at.P + (0.5 * dt * F) 
@@ -16,8 +17,9 @@ function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, P
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
-    varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) - τ * varF
+    varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
+    meanF = forces(IP, at)
+    F = meanF - τ * varF
     
     P = at.P + (0.5 * dt * F) 
     P = random_p_update(P, at.M, γ, T, dt)
@@ -25,12 +27,13 @@ function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, P
 
     at = barostat(IP, at, Pr0; μ=5e-7)
 
-    return at, varE, varF
+    return at, varE, varF, meanF 
 end
 
 function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
-    varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) - τ * varF
+    varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
+    meanF = forces(IP, at)
+    F = meanF - τ * varF
     #F = forces(IP, at) 
     
     P = at.P + (0.5 * dt * F) 
@@ -39,35 +42,25 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
-    varE, varF = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at) - τ * varF
+    varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
+    meanF = forces(IP, at)
+    F = meanF - τ * varF
     
     P = at.P + (0.5 * dt * F) 
     P = random_p_update(P, at.M, γ, T, dt)
     set_momenta!(at, P)
 
-    return at, varE, varF
+    return at, varE, varF, meanF
 end
 
 softmax(x) = exp.(x) ./ sum(exp.(x))
 
-function get_site_uncertainty(IP, IPs, at; Freg=0.5)
-    
-    nIPs = length(IPs)
-    F = forces(IP, at)
-    Fs = Vector(undef, nIPs)
-
-    @Threads.threads for i in 1:nIPs
-        Fs[i] = forces(IPs[i], at)
-    end
-
-    dFn = norm.(sum([(Fs[m] - F) for m in 1:length(IPs)])/nIPs)
+function get_site_uncertainty(meanF, Fs, at; Freg=0.5)
+    dFn = norm.(sum([(Fs[m] - meanF) for m in 1:length(Fs)])/length(Fs))
     Fn = norm.(F)
 
-    #p = mean(dFn ./ (Fn .+ Freg))
     p = softmax(dFn ./ (Fn .+ Freg))
 
-    #return p, mean(Fn)
     return maximum(p), mean(Fn)
 end
 
@@ -89,7 +82,6 @@ function barostat(IP, at, Pr0; μ=5e-7)
 end
 
 function get_com_energy_forces(IP, IPs, at)
-    #E_shift = energy(Vref, at)
     nIPs = length(IPs)
 
     E = energy(IP, at)
@@ -110,7 +102,7 @@ function get_com_energy_forces(IP, IPs, at)
     
     #meanF = mean(Fs)
     
-    return varE, varF
+    return varE, varF, Fs
 end
 
 # function get_site_uncertainty(IP, IPs, at)
