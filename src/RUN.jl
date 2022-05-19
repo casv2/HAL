@@ -245,11 +245,11 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
 
         if baro_thermo
             #at = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HAL.MD.fs, A; τ=τ)
-            at, mvarF = HAL.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
+            at, varE, varF = HAL.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
             mvarFs[i] = mvarF
         else
             #τ = 0
-            at, mvarF = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
+            at, varE, varF = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
             mvarFs[i] = mvarF
             #at = HAL.COM.VelocityVerlet_com(IP, IPs, at, dt * HAL.MD.fs, τ=τ)
         end
