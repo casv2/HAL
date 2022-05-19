@@ -7,56 +7,58 @@ using Random
 
 function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Pr0 = 0.0001, μ=μ)
     varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
-    meanF = forces(IP, at)
-    F = meanF - τ * varF
+    F = forces(IP, at)
+    Fb = F - τ * varF
     #F = forces(IP, at) 
     
-    P = at.P + (0.5 * dt * F) 
+    P = at.P + (0.5 * dt * Fb) 
     P = random_p_update(P, at.M, γ, T, dt)
 
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
     varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
-    meanF = forces(IP, at)
-    F = meanF - τ * varF
+    F = forces(IP, at)
+    Fb = F - τ * varF
     
-    P = at.P + (0.5 * dt * F) 
+    P = at.P + (0.5 * dt * Fb) 
     P = random_p_update(P, at.M, γ, T, dt)
     set_momenta!(at, P)
 
     at = barostat(IP, at, Pr0; μ=5e-7)
 
-    return at, varE, varF, Fs, mean(norm.(meanF)) 
+    return at, varE, varF, Fs, F
 end
 
 function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
-    meanF = forces(IP, at)
-    F = meanF - τ * varF
+    F = forces(IP, at)
+    Fb = F - τ * varF
     #F = forces(IP, at) 
     
-    P = at.P + (0.5 * dt * F) 
+    P = at.P + (0.5 * dt * Fb) 
     P = random_p_update(P, at.M, γ, T, dt)
 
     set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
     set_momenta!(at, P)
 
     varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
-    meanF = forces(IP, at)
-    F = meanF - τ * varF
+    F = forces(IP, at)
+    Fb = F - τ * varF
     
-    P = at.P + (0.5 * dt * F) 
+    P = at.P + (0.5 * dt * Fb) 
     P = random_p_update(P, at.M, γ, T, dt)
     set_momenta!(at, P)
 
-    return at, varE, varF, Fs, meanF
+    return at, varE, varF, Fs, F
 end
 
 softmax(x) = exp.(x) ./ sum(exp.(x))
 
-function get_site_uncertainty(meanF, Fs; Freg=0.2)
-    dFn = norm.(sum([(Fs[m] - meanF) for m in 1:length(Fs)])/length(Fs))
+function get_site_uncertainty(F, Fs; Freg=0.2)
+    @show F
+    @show Fs
+    dFn = norm.(sum([(Fs[m] - F) for m in 1:length(Fs)])/length(Fs))
     Fn = norm.(F)
 
     p = softmax(dFn ./ (Fn .+ Freg))
