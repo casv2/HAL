@@ -27,7 +27,7 @@ function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, P
 
     at = barostat(IP, at, Pr0; μ=5e-7)
 
-    return at, varE, varF, mean(norm.(meanF)) 
+    return at, varE, varF, Fs, mean(norm.(meanF)) 
 end
 
 function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
@@ -50,12 +50,12 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
     P = random_p_update(P, at.M, γ, T, dt)
     set_momenta!(at, P)
 
-    return at, varE, varF, meanF
+    return at, varE, varF, Fs, meanF
 end
 
 softmax(x) = exp.(x) ./ sum(exp.(x))
 
-function get_site_uncertainty(meanF, Fs, at; Freg=0.5)
+function get_site_uncertainty(meanF, Fs; Freg=0.2)
     dFn = norm.(sum([(Fs[m] - meanF) for m in 1:length(Fs)])/length(Fs))
     Fn = norm.(F)
 
