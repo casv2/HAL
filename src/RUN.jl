@@ -9,6 +9,7 @@ using Plots
 using JuLIP.MLIPs: SumIP
 using IPFitting: Dat
 using Distributions
+using JSON
 
 function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, beta_init=1.0, reweight=false, brrtol=1e-3)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
@@ -341,7 +342,20 @@ function plot_HAL(E_tot, E_pot, E_kin, T, P, Pr, i; k=50) # varEs,
     plot!(p5, Pr[1:end-k], label="")
     p5 = plot(p1, p2, p5, p4, size=(400,550), layout=grid(4, 1, heights=[0.4, 0.2, 0.2, 0.2]))
     savefig("./HAL_$(i).pdf")
-end
 
+    D=Dict()
+    D["E_tot"]=E_tot
+    D["E_kin"]=E_kin
+    D["E_pot"]=E_pot
+    D["Pr"]=Pr
+    D["P"]=P
+
+    stringdata = JSON.json(D)
+
+    # write the file with the stringdata variable information
+    open("data_$(i).json", "w") do f
+        write(f, stringdata)
+    end
+end
 
 end
