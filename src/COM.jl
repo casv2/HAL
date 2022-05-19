@@ -56,14 +56,12 @@ end
 softmax(x) = exp.(x) ./ sum(exp.(x))
 
 function get_site_uncertainty(F, Fs; Freg=0.2)
-    @show F
-    @show Fs
     dFn = norm.(sum([(Fs[m] - F) for m in 1:length(Fs)])/length(Fs))
     Fn = norm.(F)
 
     p = softmax(dFn ./ (Fn .+ Freg))
 
-    return maximum(p), mean(Fn)
+    return maximum(p)
 end
 
 function random_p_update(P, M, γ, T, dt)
