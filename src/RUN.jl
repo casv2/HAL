@@ -241,7 +241,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         if baro_thermo
             #at = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HAL.MD.fs, A; τ=τ)
             at, varE, varF, meanF = HAL.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
-            @show norm.(mvarF)
+            @show norm.(varF)
             mvarFs[i] = mean(norm.(varF))
         else
             #τ = 0
