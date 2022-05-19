@@ -253,7 +253,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             #at, p = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
         #end
         mFs[i] = meanF
-        p = HAL.COM.get_site_uncertainty(meanF, Fs, at, Freg=Freg)
+        p = HAL.COM.get_site_uncertainty(meanF, Fs; Freg=Freg)
 
         if i > 100
             τ = (rτ * mean(mFs[i-99:i])) / mean(mvarFs[i-99:i])
