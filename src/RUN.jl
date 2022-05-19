@@ -260,7 +260,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         else
             τ = 0.0
         end
-        
+
         P[i] = p
         Pr[i] = -tr(stress(IP,at)) / (3 * HAL.MD.GPa)
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
@@ -275,10 +275,10 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         @show p, τ, R
         if i % swapstep == 0 && swap
             at = deepcopy(at)
-            #p_at, E_at = get_site_uncertainty(IP, IPs, at)
-            E_at = energy(IP, at)
+            stdE = sqrt(varE)
+            E_at = energy(IP, at) - τ * stdE
             at_new = swap_step(at)
-            E_at_new = energy(IP, at_new)
+            E_at_new = energy(IP, at_new) - τ * stdE
             #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HAL.MD.kB * temp))
             C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
@@ -290,10 +290,10 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         end
         if i % volstep == 0 && vol
             at = deepcopy(at)
-            #p_at, E_at = get_site_uncertainty(IP, IPs, at)
-            E_at = energy(IP, at)
+            stdE = sqrt(varE)
+            E_at = energy(IP, at) - τ * stdE
             at_new = vol_step(at)
-            E_at_new = energy(IP, at_new)
+            E_at_new = energy(IP, at_new) - τ * stdE
             #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
             @show C

@@ -95,10 +95,11 @@ function get_com_energy_forces(IP, IPs, at)
         Fs[i] = forces(IPs[i], at)
     end
 
-    varF =  sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs
+    varE = sum([ (Es[i] - E)^2 for i in 1:nIPs])/nIPs
+
+    varF =  1/sqrt(varE) * sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs
     
     #meanE = mean(Es)
-    varE = sum([ (Es[i] - E)^2 for i in 1:nIPs])/nIPs
     
     #meanF = mean(Fs)
     
