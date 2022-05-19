@@ -241,11 +241,13 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         if baro_thermo
             #at = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt * HAL.MD.fs, A; τ=τ)
             at, varE, varF, meanF = HAL.COM.VelocityVerlet_com_langevin_br(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, μ=μ, Pr0=Pr0)
-            mvarFs[i] = mvarF
+            @show norm.(mvarF)
+            mvarFs[i] = mean(norm.(mvarF))
         else
             #τ = 0
             at, varE, varF, meanF = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
-            mvarFs[i] = mvarF
+            @show norm.(mvarF)
+            mvarFs[i] = mean(norm.(mvarF))
             #at = HAL.COM.VelocityVerlet_com(IP, IPs, at, dt * HAL.MD.fs, τ=τ)
         end
         #else
@@ -276,9 +278,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         if i % swapstep == 0 && swap
             at = deepcopy(at)
             stdE = sqrt(varE)
-            E_at = energy(IP, at) - τ * stdE
+            E_at = energy(IP, at) - (τ * stdE)
             at_new = swap_step(at)
-            E_at_new = energy(IP, at_new) - τ * stdE
+            E_at_new = energy(IP, at_new) - (τ * stdE)
             #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             #C = exp( - ((E_at - p_at) - (E_at_new - p_at_new)) / (HAL.MD.kB * temp))
             C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
@@ -291,9 +293,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         if i % volstep == 0 && vol
             at = deepcopy(at)
             stdE = sqrt(varE)
-            E_at = energy(IP, at) - τ * stdE
+            E_at = energy(IP, at) - (τ * stdE)
             at_new = vol_step(at)
-            E_at_new = energy(IP, at_new) - τ * stdE
+            E_at_new = energy(IP, at_new) - (τ * stdE)
             #p_at_new, E_at_new = get_site_uncertainty(IP, IPs, at_new)
             C = exp( - (E_at - E_at_new) / (HAL.MD.kB * temp))
             @show C
