@@ -98,7 +98,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                 run_info[config_type] = D
             end
 
-            E_tot, E_pot, E_kin, T, P, Pr, varEs, varFs, selected_config = run(IP,Vref, B, k, 
+            E_tot, E_pot, E_kin, T, U, P, selected_config = run(IP,Vref, B, k, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
                     temp=run_info[config_type]["temp"], 
@@ -119,7 +119,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     μ=run_info[config_type]["mu"],
                     Pr0=run_info[config_type]["Pr0"])
             
-            plot_HAL(E_tot, E_pot, E_kin, T, P, Pr, m, k=1)
+            plot_HAL(E_tot, E_pot, E_kin, T, U, P, m)
 
             try 
                 if calc_settings["calculator"] == "DFTB"
@@ -211,8 +211,8 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
     T = zeros(nsteps)
+    U = zeros(nsteps)
     P = zeros(nsteps)
-    Pr = zeros(nsteps)
     mFs = zeros(nsteps)
     mvarFs = zeros(nsteps)
     varEs = zeros(nsteps)
@@ -257,7 +257,6 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             #at, p = HAL.COM.VelocityVerlet_com_Zm(IP, IPs, at, dt, A; τ = 0.0)
         #end
         mFs[i] = mean(norm.(F))
-        p = HAL.COM.get_site_uncertainty(F, Fs; Freg=Freg)
 
         if i > 100
             τ = (rτ * mean(mFs[i-99:i])) / mean(mvarFs[i-99:i])
@@ -265,8 +264,8 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             τ = 0.0
         end
 
-        P[i] = p
-        Pr[i] = (-tr(stress(IP,at)) /3) * HAL.MD.GPa
+        U[i] = HAL.COM.get_site_uncertainty(F, Fs; Freg=Freg)
+        P[i] = (-tr(stress(IP,at)) /3) * HAL.MD.GPa
         Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
         E_tot[i] = Ek + Ep
@@ -323,25 +322,25 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
     #     selected_config = cfgs[max_ind]
     # end
     
-    return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], P[1:i], Pr[1:i], varEs[1:i], varFs[1:i], at #selected_config
+    return E_tot[1:i], E_pot[1:i], E_kin[1:i], T[1:i], U[1:i], P[1:i], at #selected_config
 end
 
-function plot_HAL(E_tot, E_pot, E_kin, T, P, Pr, i; k=50) # varEs,
+function plot_HAL(E_tot, E_pot, E_kin, T, U, P, i) # varEs,
     p1 = plot()
-    plot!(p1,E_tot[1:end-k], label="")
-    plot!(p1,E_kin[1:end-k], label="")
-    plot!(p1,E_pot[1:end-k], label="")
-    ylabel!(p1, "Energy (eV/atom)")
+    plot!(p1,E_tot, label="")
+    plot!(p1,E_kin, label="")
+    plot!(p1,E_pot, label="")
+    ylabel!(p1, "Energy [eV/atom]")
     p2 = plot()
-    plot!(p2, T[1:end-k],label="")
-    ylabel!(p2, "T (K)")
+    plot!(p2, T,label="")
+    ylabel!(p2, "T [K]")
     p4 = plot()
-    plot!(p4, P[1:end-k],label="")
+    plot!(p4, P,label="")
     xlabel!(p4,"MDstep")
-    ylabel!(p4, "predicted rel. f err.")
+    ylabel!(p4, "U")
     p5 = plot()
-    ylabel!(p5, "Pres [GPa]")
-    plot!(p5, Pr[1:end-k], label="")
+    ylabel!(p5, "P [GPa]")
+    plot!(p5, P, label="")
     p5 = plot(p1, p2, p5, p4, size=(400,550), layout=grid(4, 1, heights=[0.4, 0.2, 0.2, 0.2]))
     savefig("./HAL_$(i).pdf")
 
@@ -349,8 +348,8 @@ function plot_HAL(E_tot, E_pot, E_kin, T, P, Pr, i; k=50) # varEs,
     D["E_tot"]=E_tot
     D["E_kin"]=E_kin
     D["E_pot"]=E_pot
-    D["Pr"]=Pr
     D["P"]=P
+    D["U"]=U
 
     stringdata = JSON.json(D)
 
