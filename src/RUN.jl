@@ -333,7 +333,7 @@ function plot_HAL(E_tot, E_pot, E_kin, T, U, P, i) # varEs,
     plot!(p2, T,label="")
     ylabel!(p2, "T [K]")
     p4 = plot()
-    plot!(p4, P,label="")
+    plot!(p4, U,label="")
     xlabel!(p4,"MDstep")
     ylabel!(p4, "U")
     p5 = plot()
