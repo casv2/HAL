@@ -24,7 +24,7 @@ function dimer_energy(IP, r::Float64, spec1, spec2)
 
 function plot_dimer(IP, m)
     V2 = IP.components[2]
-    elements = collect(string.(chemical_symbol.(V2.basis.zlist.list.data)))
+    elements = collect(chemical_symbol.(V2.basis.zlist.list.data))
 
     p1 = plot()
     R = [r for r in  1.0:0.01:7.0]
