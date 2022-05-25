@@ -106,6 +106,24 @@ function get_com_energy_forces(IP, IPs, at)
     return varE, varF, Fs
 end
 
+function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
+    varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at)
+    Fb = F - τ * varF
+        
+    P = at.P + (0.5 * dt * Fb) 
+    set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
+    set_momenta!(at, P)
+
+    varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
+    F = forces(IP, at)
+    Fb = F - τ * varF
+        
+    P = at.P + (0.5 * dt * Fb) 
+    set_momenta!(at, P)
+    return at, varE, varF, Fs, F  
+end
+
 # function get_site_uncertainty(IP, IPs, at)
 #     nIPs = length(IPs)
 #     Es = zeros(length(at.at), nIPs)
