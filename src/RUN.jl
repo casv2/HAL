@@ -274,7 +274,6 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         push!(cur_al, Dat(at, "HAL"))
         R = minimum(IPFitting.Aux.rdf(cur_al, 4.0))
         @show U[i], τ, R
-        @show U
         if i % swapstep == 0 && swap
             at = deepcopy(at)
             stdE = sqrt(varE)
