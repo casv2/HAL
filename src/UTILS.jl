@@ -27,7 +27,7 @@ function plot_dimer(IP, m)
     elements = collect(chemical_symbol.(V2.basis.zlist.list.data))
 
     p1 = plot()
-    R = [r for r in  1.0:0.01:7.0]
+    R = [r for r in  0.0:0.01:7.0]
     for el1 in elements
        for el2 in elements
             plot!(p1, R, [HAL.UTILS.dimer_energy(IP, r, AtomicNumber(el1), AtomicNumber(el2)) for r in R], label="$(el1), $(el2)")

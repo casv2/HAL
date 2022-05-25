@@ -120,7 +120,10 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     Pr0=run_info[config_type]["Pr0"])
             
             plot_HAL(E_tot, E_pot, E_kin, T, U, P, m)
+
             HAL.UTILS.plot_dimer(IP, m)
+
+            save_dict("./pot_$(m).json", Dict("IP" => write_dict(IP)))
 
             try 
                 if calc_settings["calculator"] == "DFTB"
