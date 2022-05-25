@@ -13,6 +13,35 @@ using LaTeXStrings
 using ASE
 using HAL
 
+function dimer_energy(IP, r::Float64, spec1, spec2)
+    X = [[0.0,0.0,0.0], [0.0, 0.0, r]]
+    C = [[100.0,0.0,0.0], [0.0, 100.0, 0.0],[0.0, 0.0, 100.0] ]
+    at = Atoms(X, [[0.0,0.0,0.0], [0.0, 0.0, 0.0]], [0.0, 0.0], [spec1, spec2], C, false)
+ 
+    return energy(IP, at) - energy(IP.components[1], at)
+ end
+
+
+function plot_dimer(IP, m)
+    V2 = IP.components[2]
+    elements = collect(string.(chemical_symbol.(V2.basis.zlist.list.data)))
+
+    p1 = plot()
+    R = [r for r in  1.0:0.01:7.0]
+    for el1 in elements
+       for el2 in elements
+            plot!(p1, R, [HAL.UTILS.dimer_energy(IP, r, AtomicNumber(el1), AtomicNumber(el2)) for r in R], label="$(el1), $(el2)")
+       end
+    end
+
+    ylims!(-3.0, 3.0)
+    ylabel!("Energy [eV/atom]")
+    xlabel!("r [Å]")
+
+    savefig("dimers_$(m).pdf")
+end
+
+
 function get_coeff(al, B, ncomms, weights, Vref; sparsify=false, return_S=false)
     ARDRegression = pyimport("sklearn.linear_model")["ARDRegression"]
     BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
