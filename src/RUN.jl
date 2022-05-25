@@ -106,7 +106,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     #τstep=run_info[config_type]["τstep"], 
                     #dτ=run_info[config_type]["dτ"], 
                     rτ=run_info[config_type]["rtau"],
-                    maxp=run_info[config_type]["maxp"],
+                    Umax=run_info[config_type]["Umax"],
                     γ=run_info[config_type]["gamma"],
                     volstep=run_info[config_type]["volstep"],
                     swapstep=run_info[config_type]["swapstep"],
@@ -206,7 +206,7 @@ end
 
 f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, maxp=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, Freg=0.5, Pr0=0.1) #
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, Freg=0.5, Pr0=0.1) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -215,8 +215,6 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
     P = zeros(nsteps)
     mFs = zeros(nsteps)
     mvarFs = zeros(nsteps)
-    varEs = zeros(nsteps)
-    varFs = zeros(nsteps)
 
     E0 = energy(IP, at)
 
@@ -275,7 +273,8 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         cur_al = Dat[]
         push!(cur_al, Dat(at, "HAL"))
         R = minimum(IPFitting.Aux.rdf(cur_al, 4.0))
-        @show p, τ, R
+        @show U[i], τ, R
+        @show U
         if i % swapstep == 0 && swap
             at = deepcopy(at)
             stdE = sqrt(varE)
@@ -305,7 +304,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
                 at = at_new
             end
         end
-        if p > maxp || R < minR
+        if U[i] > Umax || R < minR
             running = false
         end
         # if i % τstep == 0
