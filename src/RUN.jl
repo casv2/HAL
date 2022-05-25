@@ -320,7 +320,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
     #     selected_config = cfgs[max_ind]
     # end
     
-    return E_tot[1:i-1], E_pot[1:i-1], E_kin[1:end-1], T[1:i-1], U[1:i-1], P[1:i-1], at #selected_config
+    return E_tot[1:i-1], E_pot[1:i-1], E_kin[1:i-1], T[1:i-1], U[1:i-1], P[1:i-1], at #selected_config
 end
 
 function plot_HAL(E_tot, E_pot, E_kin, T, U, P, i) # varEs,
