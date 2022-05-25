@@ -264,9 +264,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
 
         U[i] = HAL.COM.get_site_uncertainty(F, Fs; Freg=Freg)
         P[i] = (-tr(stress(IP,at)) /3) * HAL.MD.GPa
-        #Ek = ((0.5 * sum(at.M) * norm(at.P ./ at.M)^2)/length(at.M)) / length(at.M)
-        vs = at.P ./ at.M
-        Ek = 0.5 * sum( at.M .* ( norm.(vs) .^ 2 ) ) / length(at.M)
+        Ek = 0.5 * sum( at.M .* ( norm.(at.P ./ at.M) .^ 2 ) ) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
         E_tot[i] = Ek + Ep
         E_pot[i] = Ep
