@@ -19,14 +19,14 @@ function do_brr(Ψ, Y, alpha_init, lambda_init, ncoms; brrtol=1e-3)
 
     for e in reverse([10.0^-i for i in 1:50])
         try
+            @show("WORKED")
             d = MvNormal(m, Symmetric(S) + e*I)
             k = rand(d, ncoms)
             return α, λ, c, k, lml_score[end]
         catch
+            @show("FAILED")
         end
     end
-
-    
 end
 
 # function posterior(Ψ, Y, α, λ; return_inverse=false)
