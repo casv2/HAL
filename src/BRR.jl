@@ -24,7 +24,7 @@ function do_brr(Ψ, Y, alpha_init, lambda_init, ncoms; brrtol=1e-3)
     #     catch
     #     end
     # end
-    d = MvNormal(m, Symmetric(S) + 1e-4*I)
+    d = MvNormal(c, Symmetric(S) + 1e-4*I)
     k = rand(d, ncoms)
     
     return α, λ, c, k, lml_score[end]
