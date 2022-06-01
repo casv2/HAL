@@ -17,17 +17,16 @@ function do_brr(Ψ, Y, alpha_init, lambda_init, ncoms; brrtol=1e-3)
     S = clf.sigma_
     lml_score = clf.scores_
 
-    # for e in reverse([10.0^-i for i in 1:50])
-    #     try
-    #         d = MvNormal(m, Symmetric(S) + e*I)
-    #         break
-    #     catch
-    #     end
-    # end
-    d = MvNormal(c, Symmetric(S) + 1e-4*I)
-    k = rand(d, ncoms)
+    for e in reverse([10.0^-i for i in 1:50])
+        try
+            d = MvNormal(m, Symmetric(S) + e*I)
+            k = rand(d, ncoms)
+            return α, λ, c, k, lml_score[end]
+        catch
+        end
+    end
+
     
-    return α, λ, c, k, lml_score[end]
 end
 
 # function posterior(Ψ, Y, α, λ; return_inverse=false)
