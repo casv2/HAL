@@ -39,8 +39,8 @@ function maxim_hyper(Ψ, Y, alpha_init, beta_init; brrtol=1e-3)
     clf = BRR(tol=brrtol, alpha_init=alpha_init, lambda_init=beta_init, fit_intercept=false, compute_score=true)
     clf.fit(Ψ, Y)
 
-    α = clf.lambda_
-    β = clf.alpha_
+    α = clf.alpha_
+    β = clf.lambda_    
     c = clf.coef_
     lml_score = clf.scores_
     
