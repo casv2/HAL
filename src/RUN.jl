@@ -11,7 +11,7 @@ using IPFitting: Dat
 using Distributions
 using JSON
 
-function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, beta_init=1.0, reweight=false, brrtol=1e-3)#; calc_err=true)
+function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, lambda_init=1.0, reweight=false, brrtol=1e-3)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
 
     if reweight
@@ -28,23 +28,18 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, beta_init=1.0, rewe
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    @show alpha_init, beta_init
+    @show alpha_init, lambda_init
 
-    α, β, c, lml_score = HAL.BRR.maxim_hyper(Ψ, Y, alpha_init, beta_init; brrtol=brrtol)
+    α, λ, c, k, lml_score = HAL.BRR.do_brr(Ψ, Y, alpha_init, lambda_init, ncoms; brrtol=brrtol)
     
-    k = HAL.BRR.do_brr(Ψ, Y, α, β, ncoms);
-
-    #c, c_samples = HAL.BRR.get_coeff(Ψ, Y, ncoms)
     
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
     
-    #if calc_err 
     add_fits!(IP, al, fitkey="IP")
     rmse_, rmserel_ = rmse(al; fitkey="IP");
     rmse_table(rmse_, rmserel_)
-    #end
     
-    return IP, k, α, β
+    return IP, k, α, λ
 end
 
 function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
@@ -87,10 +82,10 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
-                    global IP, k, α, β = do_fit(B, Vref, al, weights, alpha_init=α, beta_init=β,  run_info["ncoms"])
+                    global IP, k, α, β = do_fit(B, Vref, al, weights, alpha_init=α, lambda_init=λ,  run_info["ncoms"])
                 end
             else
-                IP, k, α, β = do_fit(B, Vref, al, weights, alpha_init=α, beta_init=β, run_info["ncoms"], brrtol=run_info["brrtol"])
+                IP, k, α, β = do_fit(B, Vref, al, weights, alpha_init=α, lambda_init=λ, run_info["ncoms"], brrtol=run_info["brrtol"])
             end
 
             if config_type ∉ keys(run_info)
