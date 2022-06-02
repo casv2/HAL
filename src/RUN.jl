@@ -82,10 +82,10 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
-                    global IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=α, lambda_init=λ,  run_info["ncoms"])
+                    global IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0,  run_info["ncoms"])
                 end
             else
-                IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=α, lambda_init=λ, run_info["ncoms"], brrtol=run_info["brrtol"])
+                IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0, run_info["ncoms"], brrtol=run_info["brrtol"])
             end
 
             if config_type ∉ keys(run_info)
