@@ -56,7 +56,7 @@ end
 softmax(x) = exp.(x) ./ sum(exp.(x))
 
 function get_site_uncertainty(F, Fs; Freg=0.2)
-    dFn = sum(hcat([norm.(Fs[m] - F) for m in 1:length(Fs)]...), dims=2)
+    dFn = sum(hcat([norm.(Fs[m] - F) for m in 1:length(Fs)]...), dims=2)/length(Fs)
     Fn = norm.(F)
 
     p = softmax(dFn ./ (Fn .+ Freg))
