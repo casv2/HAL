@@ -18,7 +18,7 @@ function do_brr(Ψ, Y, alpha_init, lambda_init, ncoms; brrtol=1e-3)
     lml_score = clf.scores_
 
     @show("WORKED")
-    d = MvNormal(c, Symmetric(S)- (minimum(eigvals(Symmetric(S))))*I) 
+    d = MvNormal(c, Symmetric(S) - (minimum(eigvals(Symmetric(S))) - eps())*I) 
     k = rand(d, ncoms)
     return α, λ, c, k, lml_score[end]
 end
