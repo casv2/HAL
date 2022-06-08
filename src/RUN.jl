@@ -34,7 +34,7 @@ function do_fit(c_prior, B, Vref, al, weights, ncoms; alpha_init=0.1, lambda_ini
 
     α, λ, c, k, lml_score = HAL.BRR.do_brr(Ψ, Y_sub, alpha_init, lambda_init, ncoms; brrtol=brrtol)
     
-    c_comb = c + vcat(c_prior, zeros(length(Bsite)))
+    c_comb = c + vcat(c_prior, zeros(length(B) - length(c_prior)))
     
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c_comb))
     
