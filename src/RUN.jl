@@ -11,7 +11,7 @@ using IPFitting: Dat
 using Distributions
 using JSON
 
-function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, lambda_init=1.0, reweight=false, brrtol=1e-3)#; calc_err=true)
+function do_fit(c_prior, B, Vref, al, weights, ncoms; alpha_init=0.1, lambda_init=1.0, reweight=false, brrtol=1e-3)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
 
     if reweight
@@ -27,13 +27,16 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, lambda_init=1.0, re
     Ψ, Y = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
+    
+    Y_sub = Y - (Ψ * vcat(c_prior, zeros(length(B) - length(c_prior))))
 
     @show alpha_init, lambda_init
 
-    α, λ, c, k, lml_score = HAL.BRR.do_brr(Ψ, Y, alpha_init, lambda_init, ncoms; brrtol=brrtol)
+    α, λ, c, k, lml_score = HAL.BRR.do_brr(Ψ, Y_sub, alpha_init, lambda_init, ncoms; brrtol=brrtol)
     
+    c_comb = c + vcat(c_prior, zeros(length(Bsite)))
     
-    IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
+    IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c_comb))
     
     add_fits!(IP, al, fitkey="IP")
     rmse_, rmserel_ = rmse(al; fitkey="IP");
@@ -42,7 +45,7 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, lambda_init=1.0, re
     return IP, k, α, λ
 end
 
-function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
+function run_HAL(c_prior, Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
@@ -82,10 +85,10 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
-                    global IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0,  run_info["ncoms"])
+                    global IP, k, α, λ = do_fit(c_prior, B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0,  run_info["ncoms"])
                 end
             else
-                IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0, run_info["ncoms"], brrtol=run_info["brrtol"])
+                IP, k, α, λ = do_fit(c_prior, B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0, run_info["ncoms"], brrtol=run_info["brrtol"])
             end
 
             if config_type ∉ keys(run_info)
