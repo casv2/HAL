@@ -38,7 +38,6 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
     
     for (i, obs) in enumerate(okeys)
         if obs == "F" && abs(Y_in[i]) > maxF
-            IPFitting.vec_obs(obs)
             K[i] = 0.0
         end
     end
