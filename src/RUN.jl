@@ -18,8 +18,33 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
 
-    Y = Y_in[Y_in .<= maxF]
-    Ψ = Ψ_in[Y_in .<= maxF, :]
+    okeys = []
+
+    for (okey, d, _) in IPFitting.observations(dB)
+        if okey == "E"
+            push!(okeys, "E")
+        elseif okey == "F"
+            for i in 1:(length(d.at)*3)
+                push!(okeys,"F")
+            end
+        elseif okey == "V"
+            for i in 1:6
+                push!(okeys,"V")
+            end
+        end
+    end
+    
+    K = ones(length(okeys))
+    
+    for (i, obs) in enumerate(okeys)
+        if obs == "F" && abs(Y_in[i]) > maxF
+            IPFitting.vec_obs(obs)
+            K[i] = 0.0
+        end
+    end
+
+    Y = Y_in[K]
+    Ψ = Ψ_in[K, :]
 
     @show alpha_init, lambda_init
 
