@@ -42,8 +42,8 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
         end
     end
 
-    Y = Y_in[K]
-    Ψ = Ψ_in[K, :]
+    Y = Y_in[K .== 1]
+    Ψ = Ψ_in[K .== 1, :]
 
     @show alpha_init, lambda_init
 
