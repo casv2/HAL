@@ -11,22 +11,15 @@ using IPFitting: Dat
 using Distributions
 using JSON
 
-function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, lambda_init=1.0, reweight=false, brrtol=1e-3)#; calc_err=true)
+function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_init=1.0, brrtol=1e-3)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
 
-    if reweight
-        for (m,at) in enumerate(al)
-            meanF = mean(abs.(vcat(at.D["F"]...)))
-            config = "HAL_" * string(m)
-            al[m].configtype = config
-
-            weights[config] = Dict("E" => 15.0, "F" => 1/meanF, "V" => 1.0)
-        end
-    end   
-
-    Ψ, Y = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
+    Ψ_in, Y_in = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
+
+    Y = Y_in[Y_in .<= maxF]
+    Ψ = Ψ_in[Y_in .<= maxF, :]
 
     @show alpha_init, lambda_init
 
