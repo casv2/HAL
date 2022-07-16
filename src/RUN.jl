@@ -273,6 +273,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         mFs[i] = mean(norm.(F))
 
         if i > 100
+            @show τ, (rτ * mean(mFs[i-99:i])), tanh( (rτ * mean(mFs[i-99:i])) / 10.0 )
             τ = (rτ * mean(mFs[i-99:i])) / mean(mvarFs[i-99:i])
         else
             τ = 0.0
@@ -289,7 +290,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         cur_al = Dat[]
         push!(cur_al, Dat(at, "HAL"))
         R = minimum(IPFitting.Aux.rdf(cur_al, 4.0))
-        @show U[i], τ, R
+        #@show U[i], τ, R
         if i % swapstep == 0 && swap
             at = deepcopy(at)
             stdE = sqrt(varE)
