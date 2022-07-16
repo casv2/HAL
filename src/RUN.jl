@@ -273,9 +273,9 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
         mFs[i] = mean(norm.(F))
 
         if i > 100
-            @show τ, mean(mFs[i-99:i]), tanh(rτ * mean(mFs[i-99:i]) )
+            @show rτ * mean(mFs[i-99:i])
             #τ = (rτ * mean(mFs[i-99:i])) / mean(mvarFs[i-99:i])
-            τ = tanh(rτ * mean(mFs[i-99:i])) / mean(mvarFs[i-99:i])
+            τ = (rτ * 10 * tanh(  mean(mFs[i-99:i]) / 10 )) / mean(mvarFs[i-99:i])
             #τ = (rτ * tanh( mean(mFs[i-99:i])  )) / mean(mvarFs[i-99:i])
         else
             τ = 0.0
