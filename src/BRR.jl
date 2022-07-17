@@ -8,7 +8,7 @@ export do_brr
 function do_brr(Ψ, Y, alpha_init, lambda_init, ncoms; brrtol=1e-3)
     BRR = pyimport("sklearn.linear_model")["BayesianRidge"]
 
-    clf = BRR(tol=brrtol, alpha_init=alpha_init, lambda_init=lambda_init, fit_intercept=false, compute_score=true)
+    clf = BRR(tol=brrtol, alpha_init=alpha_init, lambda_init=lambda_init, normalize=false, fit_intercept=false, compute_score=true)
     clf.fit(Ψ, Y)
 
     α = clf.alpha_

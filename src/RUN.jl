@@ -17,7 +17,7 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
     Ψ_in, Y_in = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
-
+ 
     okeys = []
 
     for (okey, d, _) in IPFitting.observations(dB)
@@ -48,6 +48,8 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
     @show alpha_init, lambda_init
 
     α, λ, c, k, lml_score = HAL.BRR.do_brr(Ψ, Y, alpha_init, lambda_init, ncoms; brrtol=brrtol)
+
+    @show α, λ
     
     
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
@@ -154,8 +156,9 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
 
                 al = vcat(al, at)
                 write_xyz("./HAL_it$(m).extxyz", py_at)
-            catch
+            catch e
                 println("Iteration failed! Calulator probably failed!")
+                throw(e)
             end
         end
     end
