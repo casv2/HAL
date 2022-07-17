@@ -106,6 +106,7 @@ function get_com_energy_forces(IP, IPs, at)
     return varE, varF, Fs
 end
 
+#=
 function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
     varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
     F = forces(IP, at)
@@ -122,6 +123,29 @@ function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
     P = at.P + (0.5 * dt * Fb) 
     set_momenta!(at, P)
     return at, varE, varF, Fs, F  
+end
+=#
+
+function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
+
+    # do verlet with mean
+    F = forces(IP, at)
+    a_i = F ./ at.M
+    v_i = at.P ./ at.M
+    x_i = at.X
+    v_i_one_half = v_i + a_i * dt * 0.5
+    x_i_1 = x_i + v_i_one_half * dt
+    set_positions!(at, x_i_1)
+    F2 = forces(IP, at)
+    a_i_1 = F2 ./ at.M 
+    v_i_1 = v_i_one_half + 0.5 * dt * a_i_1
+    P = v_i_1 .* at.M
+    P = random_p_update(P, at.M, γ, T, dt)
+    set_momenta!(at, P)
+
+    # return the comittee at the current step
+    varE2, varF2, Fs2 = get_com_energy_forces(IP, IPs, at)
+    return at, varE2, varF2, Fs2, F2
 end
 
 # function get_site_uncertainty(IP, IPs, at)
