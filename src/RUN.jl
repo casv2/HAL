@@ -126,6 +126,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     vol=run_info[config_type]["vol"],
                     baro=run_info[config_type]["baro"],
                     thermo=run_info[config_type]["thermo"],
+                    k=run_info[config_type]["k"],
                     minR=run_info[config_type]["minR"],
                     Freg=run_info[config_type]["Freg"],
                     μ=run_info[config_type]["mu"],
@@ -222,7 +223,7 @@ end
 
 f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, Freg=0.5, Pr0=0.1) #
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, k=0.0, Freg=0.5, Pr0=0.1) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -259,7 +260,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             mvarFs[i] = mean(norm.(varF))
         elseif baro == false && thermo == true
             #τ = 0
-            at, varE, varF, Fs, F = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ)
+            at, varE, varF, Fs, F = HAL.COM.VelocityVerlet_com_langevin(IP, IPs, at, dt * HAL.MD.fs, temp * HAL.MD.kB, γ=γ, τ=τ, k=k)
             mvarFs[i] = mean(norm.(varF))
         else baro == false && thermo == false 
             at, varE, varF, Fs, F = HAL.COM.VelocityVerlet_com(IP, IPs, at, dt * HAL.MD.fs, τ=τ)
