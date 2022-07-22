@@ -39,7 +39,7 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Fk=0
         Fr = Vector(undef, nats)
 
         for i in 1:nats
-            Fr[i] = Fk*at.at.X[i].^2
+            Fr[i] = Fk*at.X[i].^2
         end
 
         F -= Fr
@@ -63,7 +63,7 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Fk=0
         Fr = Vector(undef, nats)
 
         for i in 1:nats
-            Fr[i] = Fk*at.at.X[i].^2
+            Fr[i] = Fk*at.X[i].^2
         end
 
         F -= Fr
