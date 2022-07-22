@@ -58,16 +58,16 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Fk=0
     F = forces(IP, at)
     Fb = F - τ * varF
 
-    if Fk != 0
-        nats = length(F)
-        Fr = Vector(undef, nats)
+    # if Fk != 0
+    #     nats = length(F)
+    #     Fr = Vector(undef, nats)
 
-        for i in 1:nats
-            Fr[i] = Fk*at.X[i]
-        end
+    #     for i in 1:nats
+    #         Fr[i] = Fk*at.X[i]
+    #     end
 
-        F -= Fr
-    end
+    #     F -= Fr
+    # end
     
     P = at.P + (0.5 * dt * Fb) 
     P = random_p_update(P, at.M, γ, T, dt)
