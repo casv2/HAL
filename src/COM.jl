@@ -30,16 +30,16 @@ function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, P
     return at, varE, varF, Fs, F
 end
 
-function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, k=0.0)
+function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Fk=0.0)
     varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
     F = forces(IP, at)
 
-    if k != 0
+    if Fk != 0
         nats = length(F)
         Fr = Vector(undef, nats)
 
         for i in 1:nats
-            Fr[i] = k*at.at.X[i].^2
+            Fr[i] = Fk*at.at.X[i].^2
         end
 
         F -= Fr
@@ -58,12 +58,12 @@ function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, k=0.
     F = forces(IP, at)
     Fb = F - τ * varF
 
-    if k != 0
+    if Fk != 0
         nats = length(F)
         Fr = Vector(undef, nats)
 
         for i in 1:nats
-            Fr[i] = k*at.at.X[i].^2
+            Fr[i] = Fk*at.at.X[i].^2
         end
 
         F -= Fr
