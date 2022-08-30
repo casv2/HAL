@@ -127,7 +127,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     baro=run_info[config_type]["baro"],
                     thermo=run_info[config_type]["thermo"],
                     minR=run_info[config_type]["minR"],
-                    Freg=run_info[config_type]["Freg"],
+                    #Freg=run_info[config_type]["Freg"],
                     μ=run_info[config_type]["mu"],
                     Pr0=run_info[config_type]["Pr0"])
             
@@ -222,7 +222,7 @@ end
 
 f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, Freg=0.5, Pr0=0.1) #
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, Pr0=0.1) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -281,7 +281,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             τ = 0.0
         end
 
-        U[i] = HAL.COM.get_site_uncertainty(F, Fs; Freg=Freg)
+        U[i] = HAL.COM.get_site_uncertainty(F, Fs; Freg=mFs[i])
         P[i] = (-tr(stress(IP,at)) /3) * HAL.MD.GPa
         Ek = 0.5 * sum( at.M .* ( norm.(at.P ./ at.M) .^ 2 ) ) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
