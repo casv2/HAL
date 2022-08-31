@@ -17,7 +17,7 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
     Ψ_in, Y_in = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
- 
+    
     okeys = []
 
     for (okey, d, _) in IPFitting.observations(dB)
