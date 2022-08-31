@@ -30,29 +30,6 @@ function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, P
     return at, varE, varF, Fs, F
 end
 
-function VelocityVerlet_com_langevin(IP, IPs, at, dt, T; γ=0.02, τ = 0.0)
-    varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at)
-    Fb = F - τ * varF
-    #F = forces(IP, at) 
-    
-    P = at.P + (0.5 * dt * Fb) 
-    P = random_p_update(P, at.M, γ, T, dt)
-
-    set_positions!(at, at.X + (dt*(at.P ./ at.M) ))
-    set_momenta!(at, P)
-
-    varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
-    F = forces(IP, at)
-    Fb = F - τ * varF
-    
-    P = at.P + (0.5 * dt * Fb) 
-    P = random_p_update(P, at.M, γ, T, dt)
-    set_momenta!(at, P)
-
-    return at, varE, varF, Fs, F
-end
-
 softmax(x) = exp.(x) ./ sum(exp.(x))
 
 function get_site_uncertainty(F, Fs; Freg=0.2)
@@ -100,7 +77,7 @@ function get_com_energy_forces(IP, IPs, at)
     varF =  1/sqrt(varE) * sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs
     
     #meanE = mean(Es)
-    
+
     #meanF = mean(Fs)
     
     return varE, varF, Fs
