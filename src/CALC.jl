@@ -81,6 +81,13 @@ function NRLTBpy3_calculator(at, config_type, calc_settings, m)
 end
 
 function Aims_calculator(at, config_type, calc_settings)
+
+    # FHI-aims uses BLAS, andso if this OPENBLAS_NUM_THREADS is used to parallelise the numpy operations in sklean, theres a conflict
+    # therefore set and unset it in the python env when ASE calls the calculator.
+
+    initial_obnt = PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"]
+    PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"] = "1"
+
     py_at = ASEAtoms(at)
 
     calculator = Aims()
@@ -115,16 +122,13 @@ function Aims_calculator(at, config_type, calc_settings)
     py_at.po[:info] = D_info
     py_at.po[:arrays] = D_arrays
 
+    # restore OPENBLAS_NUM_THREADS in the python env
+    PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"] = initial_obnt
+
     return dat, py_at
 end
 
 function CASTEP_calculator(at, config_type, calc_settings)
-
-    # FHI-aims uses BLAS, andso if this OPENBLAS_NUM_THREADS is used to parallelise the numpy operations in sklean, theres a conflict
-    # therefore set and unset it in the python env when ASE calls the calculator.
-
-    initial_obnt = PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"]
-    PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"] = "1"
 
     py_at = ASEAtoms(at)
 
@@ -159,9 +163,6 @@ function CASTEP_calculator(at, config_type, calc_settings)
 
     py_at.po[:info] = D_info
     py_at.po[:arrays] = D_arrays
-
-    # restore OPENBLAS_NUM_THREADS in the python env
-    PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"] = initial_obnt
 
     return dat, py_at
 end
