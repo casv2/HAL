@@ -11,7 +11,7 @@ using IPFitting: Dat
 using Distributions
 using JSON
 
-function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_init=1.0, brrtol=1e-3)#; calc_err=true)
+function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_init=1.0, brrtol=1e-3, testset=nothing)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
 
     Ψ_in, Y_in = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
@@ -57,11 +57,17 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
     add_fits!(IP, al, fitkey="IP")
     rmse_, rmserel_ = rmse(al; fitkey="IP");
     rmse_table(rmse_, rmserel_)
+
+    if !(testset===nothing)
+        add_fits!(IP, testset, fitkey="IP")
+        rmse_, rmserel_ = rmse(testset; fitkey="IP");
+        rmse_table(rmse_, rmserel_)
+    end
     
     return IP, k, α, λ
 end
 
-function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#, nsteps=10000)
+function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B; testset=nothing)#, nsteps=10000)
     # if refit == false
     #     IP, c_samples = do_fit(B, Vref, al, weights, run_info["ncoms"])
     # end
@@ -101,10 +107,10 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
-                    global IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0,  run_info["ncoms"])
+                    global IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0,  run_info["ncoms"], testset=testset)
                 end
             else
-                IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0, run_info["ncoms"], brrtol=run_info["brrtol"])
+                IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0, run_info["ncoms"], brrtol=run_info["brrtol"], testset=testset)
             end
 
             if config_type ∉ keys(run_info)
