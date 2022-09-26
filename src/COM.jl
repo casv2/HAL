@@ -5,7 +5,7 @@ using JuLIP.MLIPs: SumIP
 using HAL
 using Random
 
-function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Pr0 = 0.0001, μ=μ)
+function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Pr0 = 0.1, μ=5e-7)
     varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
     F = forces(IP, at)
     Fb = F - τ * varF
@@ -25,7 +25,7 @@ function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, P
     P = random_p_update(P, at.M, γ, T, dt)
     set_momenta!(at, P)
 
-    at = barostat(IP, at, Pr0; μ=5e-7)
+    at = barostat(IP, at, Pr0; μ=μ)
 
     return at, varE, varF, Fs, F
 end
