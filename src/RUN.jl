@@ -54,9 +54,7 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
     
     IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c))
     
-    add_fits!(IP, al, fitkey="IP")
-    rmse_, rmserel_ = rmse(al; fitkey="IP");
-    rmse_table(rmse_, rmserel_)
+    c
 
     if !(testset===nothing)
         add_fits!(IP, testset, fitkey="IP")
@@ -64,7 +62,7 @@ function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_i
         rmse_table(rmse_, rmserel_)
     end
     
-    return IP, k, α, λ
+    return IP, k, α, λ, lml_score
 end
 
 function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B; testset=nothing)#, nsteps=10000)
@@ -107,10 +105,10 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B; t
 
             if haskey(run_info, "refit")
                 if m % run_info["refit"] == 1
-                    global IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0,  run_info["ncoms"], testset=testset)
+                    global IP, k, α, λ, _ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0,  run_info["ncoms"], testset=testset)
                 end
             else
-                IP, k, α, λ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0, run_info["ncoms"], brrtol=run_info["brrtol"], testset=testset)
+                IP, k, α, λ, _ = do_fit(B, Vref, al, weights, alpha_init=1.0, lambda_init=1.0, run_info["ncoms"], brrtol=run_info["brrtol"], testset=testset)
             end
 
             if config_type ∉ keys(run_info)
@@ -118,7 +116,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B; t
                 run_info[config_type] = D
             end
 
-            E_tot, E_pot, E_kin, T, U, P, selected_config = run(IP,Vref, B, k, 
+            E_tot, E_pot, E_kin, T, U, P, selected_config, test_config = run(IP,Vref, B, k, 
                     init_config.at, 
                     nsteps=run_info["nsteps"], 
                     temp=run_info[config_type]["temp"], 
@@ -145,6 +143,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B; t
 
             save_dict("./pot_$(m).json", Dict("IP" => write_dict(IP)))
 
+
             try 
                 if calc_settings["calculator"] == "DFTB"
                     at, py_at = HAL.CALC.DFTB_calculator(selected_config, config_type, calc_settings)
@@ -160,8 +159,15 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B; t
                     at, py_at = HAL.CALC.Aims_calculator(selected_config, config_type, calc_settings)
                 end
 
-                al = vcat(al, at)
-                write_xyz("./HAL_it$(m).extxyz", py_at)
+                if test_config
+                    # we save the new one as a test, not a train.
+                    testset = vcat(testset, at)
+                    write_xyz("./HAL_test$(m).extxyz", py_at)
+                else
+                    al = vcat(al, at)
+                    write_xyz("./HAL_it$(m).extxyz", py_at)
+                end
+                
             catch e
                 println("Iteration failed! Calulator probably failed!")
                 throw(e)
@@ -347,8 +353,14 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
     #     max_ind = findmax(P)[2]
     #     selected_config = cfgs[max_ind]
     # end
+
+    # if we get to the end, make it a test config instead
+    test_config=false
+    #if i==nsteps
+    #    test_config=true
+    #end
     
-    return E_tot[1:i-1], E_pot[1:i-1], E_kin[1:i-1], T[1:i-1], U[1:i-1], P[1:i-1], at #selected_config
+    return E_tot[1:i-1], E_pot[1:i-1], E_kin[1:i-1], T[1:i-1], U[1:i-1], P[1:i-1], at, test_config
 end
 
 function plot_HAL(E_tot, E_pot, E_kin, T, U, P, i) # varEs,
@@ -361,9 +373,11 @@ function plot_HAL(E_tot, E_pot, E_kin, T, U, P, i) # varEs,
     plot!(p2, T,label="")
     ylabel!(p2, "T [K]")
     p4 = plot()
+
     plot!(p4, U,label="")
     xlabel!(p4,"MDstep")
     ylabel!(p4, "U")
+
     p5 = plot()
     ylabel!(p5, "P [GPa]")
     plot!(p5, P, label="")
@@ -384,5 +398,6 @@ function plot_HAL(E_tot, E_pot, E_kin, T, U, P, i) # varEs,
         write(f, stringdata)
     end
 end
+
 
 end
