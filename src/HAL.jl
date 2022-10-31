@@ -7,5 +7,6 @@ include("./CALC.jl")
 include("./RUN.jl")
 include("./OPTIM.jl")
 include("./UTILS.jl")
+include("./SAMPLE.jl")
 
 end # module
