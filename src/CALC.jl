@@ -10,6 +10,7 @@ CASTEP = pyimport("ase.calculators.castep")["Castep"]
 DFTB = pyimport("ase.calculators.dftb")["Dftb"]
 ORCA = pyimport("ase.calculators.orca")["ORCA"]
 Aims = pyimport("ase.calculators.aims")["Aims"]
+AimsProfile = pyimport("ase.calculators.aims")["AimsProfile"]
 try
     #VASP = pyimport("ase.calculators.vasp")["Vasp"]
     VASP = pyimport("vasp_gr")["VASP"]
@@ -87,13 +88,30 @@ function Aims_calculator(at, config_type, calc_settings)
 
     initial_obnt = PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"]
     PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"] = "1"
+    initial_mklnt = PyCall.PyDict(PyCall.pyimport("os").environ)["MKL_NUM_THREADS"]
+    PyCall.PyDict(PyCall.pyimport("os").environ)["MKL_NUM_THREADS"] = "1"
 
     py_at = ASEAtoms(at)
 
-    calculator = Aims()
-    for (key, value) in calc_settings
-        if key ∉ ["calculator"]
-            pycall(calculator."parameters"."__setattr__", Nothing, key, value)
+    # check whether to use an aims profile (newer versions of ase)
+
+    if "profile" in keys(calc_settings)
+        
+        profile = AimsProfile(split(calc_settings["profile"]))
+        calculator = Aims(profile)
+
+        for (key, value) in calc_settings
+            if key ∉ ["calculator", "profile"]
+                set!(calculator."parameters", key, value)
+            end
+        end
+    else
+        calculator = Aims()
+    
+        for (key, value) in calc_settings
+            if key ∉ ["calculator", "profile"]
+                pycall(calculator."parameters"."__setattr__", Nothing, key, value)
+            end
         end
     end
 
@@ -124,6 +142,7 @@ function Aims_calculator(at, config_type, calc_settings)
 
     # restore OPENBLAS_NUM_THREADS in the python env
     PyCall.PyDict(PyCall.pyimport("os").environ)["OPENBLAS_NUM_THREADS"] = initial_obnt
+    PyCall.PyDict(PyCall.pyimport("os").environ)["MKL_NUM_THREADS"] = initial_mklnt
 
     return dat, py_at
 end
