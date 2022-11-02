@@ -205,16 +205,16 @@ end
 
 function vol_step(at)
     d = Normal()
-	scale = 1 + (rand(d) * 0.005)
+    #	scale = 1 + (rand(d) * 0.005)
     C1 = at.cell
-    C2 = at.cell*scale .+ (rand(d, (3,3)) * 0.005)
+    C2 = at.cell .+ (rand(d, (3,3)) * 0.05)
     s = C2 / C1
     for i in 1:length(at)
         at.X[i] = at.X[i]' * s
     end
     at = set_cell!(at, C2)
-    at = set_positions!(at, at.X * scale)
-	return at
+    at = set_positions!(at, at.X)
+    return at
 end
 
 function _get_site(IP, at)
