@@ -129,7 +129,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     baro=run_info[config_type]["baro"],
                     thermo=run_info[config_type]["thermo"],
                     minR=run_info[config_type]["minR"],
-                    #Freg=run_info[config_type]["Freg"],
+                    Freg=run_info[config_type]["Freg"],
                     μ=run_info[config_type]["mu"],
                     softmax=run_info[config_type]["softmax"],
                     Pr0=run_info[config_type]["Pr0"])
@@ -206,16 +206,16 @@ end
 
 function vol_step(at)
     d = Normal()
-	scale = 1 + (rand(d) * 0.005)
+    #	scale = 1 + (rand(d) * 0.005)
     C1 = at.cell
-    C2 = at.cell*scale .+ (rand(d, (3,3)) * 0.005)
+    C2 = at.cell .+ (rand(d, (3,3)) * 0.05)
     s = C2 / C1
     for i in 1:length(at)
         at.X[i] = at.X[i]' * s
     end
     at = set_cell!(at, C2)
-    at = set_positions!(at, at.X * scale)
-	return at
+    at = set_positions!(at, at.X)
+    return at
 end
 
 function _get_site(IP, at)
