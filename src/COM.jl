@@ -126,6 +126,8 @@ function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
     return at, varE, varF, Fs, F  
 end
 
+end
+
 # function get_site_uncertainty(IP, IPs, at)
 #     nIPs = length(IPs)
 #     Es = zeros(length(at.at), nIPs)
