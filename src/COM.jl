@@ -5,6 +5,27 @@ using JuLIP.MLIPs: SumIP
 using HAL
 using Random
 
+function get_com_energy_forces(IP, IPs, at)
+    nIPs = length(IPs)
+
+    E = energy(IP, at)
+    F = forces(IP, at)
+
+    Fs = Vector(undef, nIPs)
+    Es = Vector(undef, nIPs)
+
+    @Threads.threads for i in 1:nIPs
+        Es[i] = energy(IPs[i], at) 
+        Fs[i] = forces(IPs[i], at)
+    end
+
+    varE = sum([ (Es[i] - E)^2 for i in 1:nIPs])/nIPs
+
+    varF =  1/sqrt(varE) * sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs
+    
+    return varE, varF, Fs
+end
+
 function VelocityVerlet_com_langevin_br(IP, IPs, at, dt, T; γ=0.02, τ = 0.0, Pr0 = 0.1, μ=5e-7)
     varE, varF, Fs = get_com_energy_forces(IP, IPs, at)
     F = forces(IP, at)
@@ -81,31 +102,6 @@ function barostat(IP, at, Pr0; μ=5e-7)
     at = set_cell!(at, scl_pres * at.cell)
     at = set_positions!(at, scl_pres * at.X)
     return at
-end
-
-function get_com_energy_forces(IP, IPs, at)
-    nIPs = length(IPs)
-
-    E = energy(IP, at)
-    F = forces(IP, at)
-
-    Fs = Vector(undef, nIPs)
-    Es = Vector(undef, nIPs)
-
-    @Threads.threads for i in 1:nIPs
-        Es[i] = energy(IPs[i], at) 
-        Fs[i] = forces(IPs[i], at)
-    end
-
-    varE = sum([ (Es[i] - E)^2 for i in 1:nIPs])/nIPs
-
-    varF =  1/sqrt(varE) * sum([ 2*(Es[i] - E)*(Fs[i] - F) for i in 1:nIPs])/nIPs
-    
-    #meanE = mean(Es)
-    
-    #meanF = mean(Fs)
-    
-    return varE, varF, Fs
 end
 
 function VelocityVerlet_com(IP, IPs, at, dt; τ = 0.0)
