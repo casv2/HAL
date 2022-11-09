@@ -226,7 +226,7 @@ end
 
 f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, softmax=true, Pr0=0.1) #
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, Freg=0.2, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, softmax=true, Pr0=0.1) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -285,7 +285,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             τ = 0.0
         end
 
-        U[i] = HAL.COM.get_site_uncertainty(F, Fs, softmax=softmax; Freg=mFs[i])
+        U[i] = HAL.COM.get_site_uncertainty(F, Fs, softmax)
         P[i] = (-tr(stress(IP,at)) /3) * HAL.MD.GPa
         Ek = 0.5 * sum( at.M .* ( norm.(at.P ./ at.M) .^ 2 ) ) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
