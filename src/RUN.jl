@@ -14,36 +14,36 @@ using JSON
 function do_fit(B, Vref, al, weights, ncoms; alpha_init=0.1, maxF=20.0, lambda_init=1.0, brrtol=1e-3)#; calc_err=true)
     dB = IPFitting.Lsq.LsqDB("", B, al);
 
-    Ψ_in, Y_in = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
+    Ψ, Y = IPFitting.Lsq.get_lsq_system(dB, verbose=true,
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
-    
-    okeys = []
 
-    for (okey, d, _) in IPFitting.observations(dB)
-        if okey == "E"
-            push!(okeys, "E")
-        elseif okey == "F"
-            for i in 1:(length(d.at)*3)
-                push!(okeys,"F")
-            end
-        elseif okey == "V"
-            for i in 1:6
-                push!(okeys,"V")
-            end
-        end
-    end
-    
-    K = ones(length(okeys))
-    
-    for (i, obs) in enumerate(okeys)
-        if obs == "F" && abs(Y_in[i]) > maxF
-            K[i] = 0.0
-        end
-    end
+    # okeys = []
 
-    Y = Y_in[K .== 1]
-    Ψ = Ψ_in[K .== 1, :]
+    # for (okey, d, _) in IPFitting.observations(dB)
+    #     if okey == "E"
+    #         push!(okeys, "E")
+    #     elseif okey == "F"
+    #         for i in 1:(length(d.at)*3)
+    #             push!(okeys,"F")
+    #         end
+    #     elseif okey == "V"
+    #         for i in 1:6
+    #             push!(okeys,"V")
+    #         end
+    #     end
+    # end
+    
+    # K = ones(length(okeys))
+    
+    # for (i, obs) in enumerate(okeys)
+    #     if obs == "F" && abs(Y_in[i]) > maxF
+    #         K[i] = 0.0
+    #     end
+    # end
+
+    # Y = Y_in[K .== 1]
+    # Ψ = Ψ_in[K .== 1, :]
 
     @show alpha_init, lambda_init
 
@@ -131,6 +131,7 @@ function run_HAL(Vref, weights, al, start_configs, run_info, calc_settings, B)#,
                     minR=run_info[config_type]["minR"],
                     #Freg=run_info[config_type]["Freg"],
                     μ=run_info[config_type]["mu"],
+                    softmax=run_info[config_type]["softmax"],
                     Pr0=run_info[config_type]["Pr0"])
             
             plot_HAL(E_tot, E_pot, E_kin, T, U, P, m)
@@ -225,7 +226,7 @@ end
 
 f_w(fi, fm; A=3.0, B=0.5, f0=3.0) = (A + (B * f0 * log(1 + fi/f0 + fm/f0)))^(-1.0)
 
-function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, Pr0=0.1) #
+function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5, Umax=0.15, minR=2.0, volstep=10, swapstep=10, μ=5e-6, swap=false, vol=false, baro=false, thermo=false, softmax=true, Pr0=0.1) #
     E_tot = zeros(nsteps)
     E_pot = zeros(nsteps)
     E_kin = zeros(nsteps)
@@ -284,7 +285,7 @@ function run(IP, Vref, B, k, at; γ=0.02, nsteps=100, temp=300, dt=1.0, rτ=0.5,
             τ = 0.0
         end
 
-        U[i] = HAL.COM.get_site_uncertainty(F, Fs; Freg=mFs[i])
+        U[i] = HAL.COM.get_site_uncertainty(F, Fs, softmax=softmax; Freg=mFs[i])
         P[i] = (-tr(stress(IP,at)) /3) * HAL.MD.GPa
         Ek = 0.5 * sum( at.M .* ( norm.(at.P ./ at.M) .^ 2 ) ) / length(at.M)
         Ep = (energy(IP, at) - E0) / length(at.M)
